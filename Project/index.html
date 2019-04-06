@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<head>
+    <title> Product Landing Page</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+       
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <script>
+        $(document).ready(function(){
+          $("#details").click(function(){
+            $("#description_text").hide(1000);
+            $("#details_text").show(1000);
+          });
+
+          $("#description").click(function(){
+            $("#description_text").show(1000);
+            $("#details_text").hide(1000);
+          });
+        });
+        </script>
+</head>
+
+<body>
+    <header>
+        <a href="#"><i class="fa fa-arrow-left fa-2x"></i></a>
+        <!-- Heading buttons at the Top Right -->
+        <div class="top_right">
+            <a href="#"><i class="fa fa-heart fa-2x"></i></a>
+            &nbsp; &nbsp;
+            <a href="#"><i class="fa fa-share fa-2x"></i></a>
+        </div>
+
+    </header>
+    <div class="container">
+        <div class="main">
+            <div class="container">
+
+                <!-- Left Half of the Page -->
+                <div class="col-1-2">
+
+                    <!-- Product Image and Color Bar -->
+                    <div class="product_graphics">
+                        <div id="product_image">
+                            <img src="lamp.png">
+                        </div>
+
+                        <!-- Color Selection Bar -->
+                        <div class="color_selector">
+                            COLOR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="#"><i class="fa fa-circle red btn"></i></a>
+
+                            <a href="#"><i class="fa fa-circle blue btn"></i></a>
+
+                            <a href="#"><i class="fa fa-circle green btn"></i></a>
+
+                            <a href="#"><i class="fa fa-circle yellow btn"></i></a>
+
+                            <a href="#"><i class="fa fa-circle grey btn"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Half of the Page -->
+                <div class="col-1-2">
+                    <div class="container">
+                        <div class="row">
+                            <!-- New Item Popup-->
+                            <div class="rounded green" id="new">
+                                NEW
+                            </div><br>
+                            
+                            <!-- Product Name and Subheading -->
+                            <span class="heading" id="product_name"> KAJUTA</span> <br>
+                            <span class="subheading" id="product_subname"> NIGHT LAMP</span><br>
+
+                        </div><br><br>
+
+                        <!-- Price and Quantity Heading-->
+                        <div class="row">
+                            <div class="col-1-2">
+                                <span class="subheading"> PRICE</span>
+                            </div>
+                            <div class="col-1-2">
+                                <span class="subheading"> QUANTITY</span>
+                            </div>
+                        </div>
+
+                        <!-- Price and Quantity Values -->
+                        <div class="row">
+                            <div class="col-1-2">
+                                <span class="heading_small green" id="price"> €59.90</span>
+                            </div>
+
+                            <div class="col-1-2">
+
+                                <div class="quantity">
+                                    <div class="btn btn_rounded" id="minus">
+                                        <i class="fa fa-minus"></i>
+                                    </div>
+                                    <span class="quantity_text">7</span>
+                                    <div class="btn btn_rounded" id="plus">
+                                        <i class="fa fa-plus"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description and Details -->
+                        <div class="row">
+                            <div class="btn btn_active" id="description" >
+                                DESCRIPTION
+                            </div>
+                            <div class="btn"  id="details">
+                                DETAILS
+                            </div>
+                        </div>
+                        
+                        <!-- Description and Details Box -->
+                        <div class="text" id="description_text">
+                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nisi atque perferendis corporis
+                            aliquid aut at reprehenderit nesciunt animi consequatur. Eius culpa suscipit repellat
+                            doloremque? Quas laboriosam modi expedita inventore quasi?At aliquid ipsam necessitatibus
+                            recusandae nobis quas maiores. Dolorum quisquam pariatur dignissimos, saepe illo distinctio
+                            similique earum est reprehenderit id commodi, non amet eligendi excepturi cum quaerat
+                            sapiente, rerum ex!
+                        </div>
+
+                        <div class="text" id="details_text">
+                            Axiom ipsum dolor, sit amet consectetur adipisicing elit. Nisi atque perferendis corporis
+                            aliquid aut at reprehenderit nesciunt animi consequatur. Eius culpa suscipit repellat
+                            doloremque? Quas laboriosam modi expedita inventore quasi?At aliquid ipsam necessitatibus
+                            recusandae nobis quas maiores. Dolorum quisquam pariatur dignissimos, saepe illo distinctio
+                            similique earum est reprehenderit id commodi, non amet eligendi excepturi cum quaerat
+                            sapiente, rerum ex!
+                        </div>
+
+                        <!-- Total Price and Add to Cart -->
+                        <div class="row">
+                            <div class="col-1-3">
+                                TOTAL PRICE <br>
+                                <span class="total_price bold" id="total_price">
+                                        €419.50
+                                </span>
+                            </div>
+                            <div class="col-2-3">
+                                <div class="btn btn_blue_large" id="add_to_cart">  
+                                    <i class="fa fa-shopping-cart white"></i>
+                                    Add to Cart
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
