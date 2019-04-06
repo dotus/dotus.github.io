@@ -11,13 +11,20 @@
         $(document).ready(function(){
           $("#details").click(function(){
             $("#description_text").hide(1000);
-            $("#details_text").show(1000);
+            $("#details").show(1000);
+
+            $("#description").removeClass("btn_active");
+            $("#details").addClass("btn_active");
           });
 
           $("#description").click(function(){
             $("#description_text").show(1000);
+            $("#description").addClass("btn_active");
+            $("#details").removeClass("btn_active");
             $("#details_text").hide(1000);
           });
+
+          
         });
         </script>
 </head>
