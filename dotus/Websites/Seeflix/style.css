@@ -1,0 +1,174 @@
+@font-face{
+    font-family: "Google Sans";
+    src: url(googlesans.ttf);
+}
+body {
+	margin: 0px;
+	padding:0px;
+	font-family: "Google Sans";
+	background-image: url(seeflix1.jpg);
+	background-attachment: fixed;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+nav {
+	position: sticky;
+	top:0px;
+	z-index: 99;
+
+}
+
+nav ul {
+		list-style-type: none;
+		overflow:hidden;
+		background-color: black;
+		padding: 0px;
+		margin: 0px;
+}
+
+nav  a {
+	display: block;
+	padding: 10px;
+	text-decoration: none;
+	color:white;
+}
+
+nav ul li a:hover {
+	background-color: white;
+	color:black;
+	transition: 0.4s;
+}
+
+.center{
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+}
+
+.card {
+	background-color: rgba(255,255,255,0.8);
+	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
+	
+	padding: 20px;
+	border-radius: 10px;
+	min-width: 300px;		
+
+}
+
+.vcenter {
+	position: absolute;
+	left: 50%;
+	top:50%;
+	transform: translate(-50%,-50%);	
+}
+.hero {
+	margin: 0;
+	height: 100%;
+		
+}
+	
+.hero i{
+	border:solid black;
+	border-width:  0px 4px 4px 0px;
+	display: inline-block;
+	padding: 5px;
+	transform: rotate(45deg);
+} 
+
+.content {
+		display: flex;
+		padding: 10px;
+		flex-direction: row;
+		flex-wrap: wrap;
+		padding-left:25px;
+		background-color: rgba(255,255,255,0.8);
+		margin: 10px;
+		min-height: 300px;
+		border-radius: 10px;
+		box-shadow: 0px 6px 8px 0px rgba (0,0,0,0.7);
+}
+.half {
+	flex:1;
+	flex-wrap: wrap;	
+	padding: 10px;
+	max-height: 400px;
+}
+.half iframe {
+	width: 100%;
+	height: 100%;
+}
+
+#gallery {
+		padding: 10px;
+		background-color: rgba(255,255,255,0.8);
+		padding-left:25px;		
+		margin: 10px;
+		min-height: 300px;
+		border-radius: 10px;
+		box-shadow: 0px 6px 8px 0px rgba (0,0,0,0.7);
+}
+
+.grid {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-content: flex-start;
+
+}
+
+.grid img {
+	max-width: 400px;
+	max-height: 300px;
+	margin: 8px;
+	border-radius: 10px;
+	box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.5);
+}
+
+	
+
+footer {
+	border:solid white;
+	border-width: 3px 0 0 0;	
+	background-color: black;
+	color: white;
+	padding: 20px;			
+}
+
+.subC{
+	background-color: rgba(0,0,0,0.8);
+	height: 100%;	
+	color:white;
+}
+
+form input {
+	margin: 10px;
+	padding: 10px;
+	border-radius: 7px;
+}
+
+.button {
+	display: inline-block;
+	background-color: orange;
+	color:black;
+	margin: 20px;
+	padding: 20px;
+	border-radius: 7px;
+}
+
+.heading {
+	background-color: rgba(0,0,0,0.8);
+	height: 25%;
+	color:white;
+	margin: 0px;
+	padding: 30px;
+	position: relative;
+}
+
+.ab img {
+	border-radius: 10px;
+	box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.5);
+}
