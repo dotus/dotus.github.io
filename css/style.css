@@ -14,6 +14,35 @@ body {
   background: #000;
   color: #fff; }
 
+.text-bold-italic {
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  font-size: 2rem;
+}
+
+.text-less-bold-italic {
+  font-weight: 600;
+  font-style: italic;
+  text-transform: uppercase;
+  color: #3d67fe;
+  font-size: 2rem;
+}
+
+.color-alt {
+  color: #f64831;
+}
+
+
+.text-light-italic {
+  font-weight: 300;
+  font-size: 1.5rem;
+}
+
+.team {
+  min-height: 200px;
+  padding:15px;
+}
 a {
   -webkit-transition: .3s all ease;
   -o-transition: .3s all ease;
@@ -153,6 +182,28 @@ a {
 .text-black-opacity-05 {
   color: rgba(0, 0, 0, 0.5); }
 
+  .navbar-brand img {
+    min-width: 100px;
+  }
+  .video-container {
+    overflow: hidden;
+    position: relative;
+    width:100%;
+}
+
+.video-container::after {
+    padding-top: 56.25%;
+    display: block;
+    content: '';
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 /* Navbar */
 .site-navbar {
   margin-bottom: 0px;
