@@ -14,6 +14,9 @@ body {
   background: #000;
   color: #fff; }
 
+.p-text {
+  font-weight: 400;
+}
 .text-bold-italic {
   font-weight: 800;
   font-style: italic;
@@ -35,7 +38,7 @@ body {
 
 
 .text-light-italic {
-  font-weight: 300;
+  font-weight: 400;
   font-size: 1.5rem;
 }
 
