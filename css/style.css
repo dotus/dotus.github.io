@@ -631,8 +631,7 @@ a {
     width: 100%;
     padding: 40px; }
     @media (min-width: 768px) {
-      .podcast-entry .text {
-        width: calc(100% - 300px); } }
+       }
 
 .mejs__container {
   width: 100% !important; }
