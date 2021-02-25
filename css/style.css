@@ -36,10 +36,14 @@ body {
   color: #f64831;
 }
 
+.twitter {
+  color: #3d67fe;
+}
 
 .text-light-italic {
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-style: italic;
 }
 
 .team {
