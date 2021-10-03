@@ -1,3 +1,2 @@
 RewriteEngine On
-RewriteCond %{SERVER_PORT} 80
-RewriteRule ^(.*)$ https://www.strife.asia/$1 [R,L]
+RewriteRule ^(.*)$ https://www.strife.asia/ [R=301]
