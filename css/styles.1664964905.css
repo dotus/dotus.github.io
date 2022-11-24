@@ -179,8 +179,7 @@ h6 {
 
 #textfont {
     font-family: "Tabac Big Sans Regular", Helvetica, Arial, sans-serif;
-    font-size: calc(24.876px + (50.517 - 24.876)*((100vw - 320px)/(1680 - 320)));
-    font-size: clamp(1.55475rem, 3.157vw, 3.1573125rem);
+    font-size: 1.5em;
     line-height: 1.25em;
 }
 
