@@ -13,9 +13,9 @@ export const Stats: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative">
         {/* Section Label - Floating 'Tab' Style */}
         <div className="absolute top-0 left-6 md:left-12 -translate-y-1/2 z-20">
-             <div className="bg-white border border-black px-3 py-1 text-[10px] font-mono uppercase tracking-widest font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                What We Do
-             </div>
+          <div className="bg-white border border-black px-3 py-1 text-[10px] font-mono uppercase tracking-widest font-bold text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            What We Do
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-black border-l border-r border-black">

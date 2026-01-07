@@ -17,11 +17,11 @@ export const TechSection: React.FC = () => {
                     transition={{ duration: 0.7 }}
                     className="mb-20"
                 >
-                    <h2 className="text-6xl font-bold tracking-tighter mb-6 uppercase leading-[0.9]">
-                        WE EMBED INTO <br />
-                        <span className="serif-accent italic font-light text-gray-500 lowercase">your workflow.</span>
+                    <h2 className="text-6xl font-bold mb-6  ">
+                        WE EMBED INTO YOUR WORKFLOW <br />
+
                     </h2>
-                    <p className="text-xl text-gray-600 max-w-2xl leading-relaxed font-light font-sans">
+                    <p className="text-xl md:text-2xl text-gray-600 max-w-2xl leading-relaxed font-light ">
                         We integrate into your team's workflow to ask questions, gather context, and draft content, which is <span className="font-semibold text-black">always calibrated by a human expert</span>.
                     </p>
                 </motion.div>
@@ -37,9 +37,9 @@ export const TechSection: React.FC = () => {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="relative z-10 bg-white border border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] group hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.1)] transition-all flex flex-col h-full"
                     >
-                        <h3 className="text-2xl font-bold mb-3 tracking-tight uppercase">Your Company's Context</h3>
-                        <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-                            Our bots live in your chats. They help us understand your product as well as you do.
+                        <h3 className="text-2xl font-bold mb-3  uppercase">Your Company's Context</h3>
+                        <p className="text-gray-500 text-lg mb-8 leading-relaxed">
+                            Our bots live in your chats and help us understand your product as well as you do.
                         </p>
 
                         {/* Visual: Slack Mockup */}
@@ -47,15 +47,15 @@ export const TechSection: React.FC = () => {
                             <div className="absolute top-0 left-0 w-full h-1 bg-gray-200"></div>
                             <div className="space-y-3">
                                 <div className="flex gap-2">
-                                    <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center text-white text-[10px] font-bold">S</div>
-                                    <div className="bg-white border border-gray-200 p-2 text-[10px] rounded-sm w-full shadow-sm">
+                                    <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center text-white text-sm font-bold">S</div>
+                                    <div className="bg-white border border-gray-200 p-2 text-sm rounded-sm w-full shadow-sm">
                                         <span className="font-bold block mb-1 text-black">Strife Bot</span>
                                         How did the Q3 investor call go? Any new metrics we can share?
                                     </div>
                                 </div>
                                 <div className="flex gap-2 flex-row-reverse">
                                     <div className="w-6 h-6 bg-gray-300 rounded-sm"></div>
-                                    <div className="bg-blue-50 border border-blue-100 p-2 text-[10px] rounded-sm w-3/4 shadow-sm text-right text-blue-900">
+                                    <div className="bg-blue-50 border border-blue-100 p-2 text-sm rounded-sm w-3/4 shadow-sm text-right text-blue-900">
                                         ARR is up 40%. Retention is 110%.
                                     </div>
                                 </div>
@@ -72,21 +72,19 @@ export const TechSection: React.FC = () => {
                         className="relative z-10 bg-white border border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)] group hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.1)] transition-all flex flex-col h-full"
                     >
                         <h3 className="text-2xl font-bold mb-3 tracking-tight uppercase">We do the work ourselves</h3>
-                        <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+                        <p className="text-gray-500 text-lg mb-8 leading-relaxed">
                             Sleep soundly. An editor reviews every output to catch nuance, prevent hallucinations, and protect your reputation before it goes live.
                         </p>
 
                         {/* Visual: Detailed Editor View */}
-                        <div className="mt-auto border border-gray-200 bg-white rounded-sm relative overflow-hidden font-serif leading-relaxed text-sm shadow-sm">
+                        <div className="mt-auto border border-gray-200 bg-white rounded-sm relative overflow-hidden font-serif leading-relaxed text-lg shadow-sm">
 
                             {/* Editor Toolbar */}
                             <div className="bg-gray-50 border-b border-gray-200 p-2 flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-red-400"></div>
                                 <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                                <div className="h-3 w-px bg-gray-300 mx-1"></div>
-                                <div className="text-[8px] font-sans uppercase font-bold text-gray-400">Editing Mode: Strict</div>
-                            </div>
+                                <div className="h-3 w-px bg-gray-300 mx-1"></div>       </div>
 
                             {/* Document Content with Edits */}
                             <div className="p-6 pb-24 relative">

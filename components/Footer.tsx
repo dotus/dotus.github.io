@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
 
                 {/* CTA Section */}
                 <div className="mb-32 max-w-3xl">
-                    <span className="text-gray-300 text-sm font-mono uppercase tracking-widest mb-4 block drop-shadow-md">Get Early Access</span>
+                    <span className="text-gray-300 text-sm font-mono uppercase tracking-widest mb-4 block drop-shadow-md"> Join the pilot </span>
                     <h3 className="text-6xl md:text-8xl font-bold tracking-tighter mb-10 text-white leading-none drop-shadow-lg">
                         Ready to scale?
                     </h3>

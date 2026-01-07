@@ -7,7 +7,7 @@ import { Services } from './components/Services';
 import { Comparison } from './components/Comparison';
 import { JournalistSection } from './components/JournalistSection';
 import { Footer } from './components/Footer';
-import { Essence } from './components/Essence';
+
 import { ContactModal } from './components/ui/ContactModal';
 
 function App() {
@@ -62,7 +62,7 @@ function App() {
         <Hero onOpenModal={openModal} />
         <Stats />
         <Services />
-        <Essence />
+
         <TechSection />
         <Comparison />
         <JournalistSection />

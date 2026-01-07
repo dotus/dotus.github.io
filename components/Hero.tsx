@@ -3,6 +3,7 @@ import { PerspectiveCard } from './ui/PerspectiveCard';
 import { DitherPattern } from './ui/Dither';
 import { Bot, Search, Bell, Hash, FileText, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TrustedBy } from './TrustedBy';
 
 interface HeroProps {
     onOpenModal: () => void;
@@ -105,16 +106,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                     {/* Left Column: Text Content */}
                     <div className="space-y-10 relative z-40">
 
-                        <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-white drop-shadow-lg">
+                        <h1 className="text-6xl font-bold tracking-tighter leading-[0.9] text-white drop-shadow-lg">
                             THE VCs OF <br />
-                            <span className="serif-accent italic font-light text-gray-300">storytelling.</span>
+                            STORYTELLING
                         </h1>
 
                         {/* Refined Subhead Presentation */}
-                        <h3 className="text-3xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
-                            Modern PR <span className="font-medium text-white">built for founders</span> <br />
+                        <p className="text-3xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
+                            by journalists <span className="underline text-white">for founders</span> <br />
 
-                        </h3>
+                        </p>
 
                         {/* Hero CTA Button */}
                         <div>
@@ -122,7 +123,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                 onClick={onOpenModal}
                                 className="group bg-white text-black px-6 py-3 md:px-8 md:py-4 text-xs md:text-sm font-bold uppercase tracking-wider hover:bg-gray-200 hover:text-black border border-white transition-all rounded-none flex items-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                             >
-                                Apply for Partnership
+                                Be our pilot now
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </button>
                         </div>
@@ -164,7 +165,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                 <div className="flex h-full">
                                     {/* Icon Rail */}
                                     <div className="w-12 md:w-14 bg-white/5 border-r border-white/10 flex flex-col items-center py-4 gap-4 flex-shrink-0 backdrop-blur-sm">
-                                        <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center font-bold text-black text-xs shadow-lg">S</div>
+                                        <div className="w-8 h-8 bg-white rounded-md overflow-hidden flex items-center justify-center shadow-lg">
+                                            <img src="/logo.png" alt="S" className="w-full h-full object-contain" />
+                                        </div>
                                         <div className="w-6 h-6 bg-white/20 rounded-md" />
                                         <div className="w-6 h-6 bg-white/20 rounded-md" />
                                     </div>
@@ -400,6 +403,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Trusted By Logos - Overlaid at bottom */}
+            <TrustedBy />
         </section>
     );
 };

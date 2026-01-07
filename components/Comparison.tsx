@@ -123,7 +123,7 @@ export const Comparison: React.FC = () => {
                                         <div className="w-2 h-2 bg-white rounded-full group-hover:scale-150 transition-transform"></div>
                                         {item.title}
                                     </h4>
-                                    <p className="text-gray-300 text-lg pl-6 border-l border-white/10 group-hover:border-white/40 transition-colors leading-relaxed max-w-md">
+                                    <p className="text-gray-300 text-xl pl-6 border-l border-white/10 group-hover:border-white/40 transition-colors leading-relaxed max-w-md">
                                         {item.desc}
                                     </p>
                                 </div>

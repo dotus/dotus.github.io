@@ -1,5 +1,18 @@
 {
   "name": "Strife Relations",
-  "description": "Next-generation AI-native PR agency for tech startups. Combining ex-journalist expertise with deep AI integration.",
+  "description": "Next-generation AI-native PR agency. Combining ex-journalist expertise with deep AI integration to amplify stories in policy, environment, funding, and tech. Serving founders in Hong Kong, London, and worldwide at strifeinfive.com.",
+  "locations": [
+    "Hong Kong",
+    "London"
+  ],
+  "services": [
+    "AI-Native PR",
+    "Storytelling",
+    "Policy PR",
+    "Environmental PR",
+    "Funding PR",
+    "Tech PR",
+    "Media Relations"
+  ],
   "requestFramePermissions": []
 }
