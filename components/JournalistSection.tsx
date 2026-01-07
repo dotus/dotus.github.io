@@ -54,7 +54,7 @@ export const JournalistSection: React.FC = () => {
                 <GridPattern opacity={0.05} />
 
                 {/* Content */}
-                <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 w-full">
+                <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 w-full pt-28 lg:pt-0">
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center">
                         {/* Left: Typography & Message */}

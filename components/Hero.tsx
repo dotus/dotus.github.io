@@ -106,13 +106,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                     {/* Left Column: Text Content */}
                     <div className="space-y-10 relative z-40">
 
-                        <h1 className="text-6xl font-bold tracking-tighter leading-[0.9] text-white drop-shadow-lg">
+                        <h1 className="text-3xl md:text-6xl font-bold  leading-[0.9] text-white drop-shadow-lg">
                             THE VCs OF <br />
                             STORYTELLING
                         </h1>
 
                         {/* Refined Subhead Presentation */}
-                        <p className="text-3xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
+                        <p className="text-2xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
                             by journalists <span className="underline text-white">for founders</span> <br />
 
                         </p>
