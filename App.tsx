@@ -48,7 +48,7 @@ function App() {
       {/* Fixed Background Layer */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <img
-          src="/hero-bg.png"
+          src="hero-bg.png"
           alt="Field of flowers"
           className="w-full h-full object-cover opacity-100 scale-110"
           style={{ filter: 'url(#hero-wave-filter)' }}
