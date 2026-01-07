@@ -19,12 +19,14 @@ export const TrustedBy: React.FC = () => {
                             <img src="/logos/cnbc.svg" alt="CNBC" className="h-8 md:h-12 max-w-[140px] w-auto object-contain" />
                             <img src="/logos/delivery-hero.svg" alt="Delivery Hero" className="h-8 md:h-12 max-w-[180px] w-auto object-contain" />
                             <img src="/logos/hsbc.svg" alt="HSBC" className="h-8 md:h-12 max-w-[140px] w-auto object-contain" />
+                            <img src="/logos/hkstp.svg" alt="HKSTP" className="h-8 md:h-12 max-w-[180px] w-auto object-contain" />
                         </div>
                         {/* Second Set of Logos (Duplicate) */}
                         <div className="flex justify-around items-center w-1/2 px-12 md:px-24 gap-12 md:gap-24 opacity-40 brightness-0 invert hover:opacity-100 transition-all duration-500 drop-shadow-[0_2px_10px_rgba(0,0,0,0.2)]">
                             <img src="/logos/cnbc.svg" alt="CNBC" className="h-8 md:h-12 max-w-[140px] w-auto object-contain" />
                             <img src="/logos/delivery-hero.svg" alt="Delivery Hero" className="h-8 md:h-12 max-w-[180px] w-auto object-contain" />
                             <img src="/logos/hsbc.svg" alt="HSBC" className="h-8 md:h-12 max-w-[140px] w-auto object-contain" />
+                            <img src="/logos/hkstp.svg" alt="HKSTP" className="h-8 md:h-12 max-w-[180px] w-auto object-contain" />
                         </div>
                     </div>
                 </div>
