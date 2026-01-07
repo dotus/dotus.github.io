@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Strife Relations | AI-Native Public Relations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Attempting to import Stack Sans Notch as requested, with fallbacks */
+      @import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Headline:wght@200..700&display=swap');
+      
+      /* Note: If Stack Sans Notch is not standard on Google Fonts yet, we fall back to Space Grotesk to maintain the sharp look */
+      
+      :root {
+        --font-sans: 'Stack Sans Headline', 'Space Grotesk', system-ui, -apple-system, sans-serif;
+        --font-serif: 'Playfair Display', serif;
+        --font-mono: 'Courier New', monospace;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: #fcfcfc; /* Very slight off-white for paper feel */
+        color: #0a0a0a;
+      }
+      
+      /* Enforce font uniformity */
+      .font-sans {
+        font-family: var(--font-sans) !important;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-sans);
+        letter-spacing: -0.03em;
+      }
+
+      .serif-accent {
+        font-family: var(--font-serif);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fff;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #000;
+        border: 1px solid #fff;
+      }
+
+      /* Hide scrollbar utility */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+
+      /* Noise Texture */
+      .noise-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        opacity: 0.03;
+        z-index: 9999;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+      }
+
+      /* Glitch Animations */
+      @keyframes glitch-anim-1 {
+        0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+        20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+        40% { clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+        60% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+        80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
+        100% { clip-path: inset(30% 0 50% 0); transform: translate(1px, -1px); }
+      }
+      
+      @keyframes glitch-anim-2 {
+        0% { clip-path: inset(10% 0 60% 0); transform: translate(2px, -1px); }
+        20% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 2px); }
+        40% { clip-path: inset(30% 0 20% 0); transform: translate(2px, 1px); }
+        60% { clip-path: inset(15% 0 80% 0); transform: translate(-1px, -2px); }
+        80% { clip-path: inset(55% 0 10% 0); transform: translate(1px, 2px); }
+        100% { clip-path: inset(40% 0 30% 0); transform: translate(-2px, 1px); }
+      }
+
+      .glitch-container {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .glitch-container::before,
+      .glitch-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: inherit;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .glitch-container::before {
+        animation: glitch-anim-1 3s infinite linear alternate-reverse;
+        opacity: 0.7;
+        mix-blend-mode: hard-light;
+      }
+
+      .glitch-container::after {
+        animation: glitch-anim-2 2.5s infinite linear alternate-reverse;
+        opacity: 0.7;
+        mix-blend-mode: exclusion;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div class="noise-bg"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
