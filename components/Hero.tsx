@@ -55,7 +55,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
     };
 
     return (
-        <section className="relative min-h-screen flex flex-col overflow-hidden border-b border-black pt-28 lg:pt-32 pb-12 bg-transparent">
+        <section className="relative min-h-screen flex flex-col overflow-hidden border-b border-black pt-28 lg:pt-32 pb-0 bg-transparent">
 
             {/* Dither Pattern - Z-10 */}
             <DitherPattern opacity={0.2} className="z-10 mix-blend-overlay" />

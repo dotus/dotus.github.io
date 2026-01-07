@@ -11,23 +11,23 @@ export const JournalistSection: React.FC = () => {
     });
 
     // Background zoom-in effect
-    const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
-    const bgOpacity = useTransform(scrollYProgress, [0, 0.1, 0.8, 1], [0, 1, 1, 0.8]);
+    const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+    const bgOpacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 1]);
 
     // Phase 1: Headline animation (early scroll)
-    const headlineOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-    const headlineY = useTransform(scrollYProgress, [0, 0.1], ["20px", "0px"]);
+    const headlineOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
+    const headlineY = useTransform(scrollYProgress, [0, 0.2], ["20px", "0px"]);
 
     // Phase 2: Description text (mid scroll)
-    const textOpacity = useTransform(scrollYProgress, [0.2, 0.3], [0, 1]);
-    const textY = useTransform(scrollYProgress, [0.2, 0.3], ["30px", "0px"]);
+    const textOpacity = useTransform(scrollYProgress, [0.4, 0.7], [0, 1]);
+    const textY = useTransform(scrollYProgress, [0.4, 0.7], ["30px", "0px"]);
 
     // Badge animation (fades in and stays)
-    const badgeOpacity = useTransform(scrollYProgress, [0.05, 0.2], [0, 1]);
-    const badgeScale = useTransform(scrollYProgress, [0.05, 0.2], [0.8, 1]);
+    const badgeOpacity = useTransform(scrollYProgress, [0.1, 0.4], [0, 1]);
+    const badgeScale = useTransform(scrollYProgress, [0.1, 0.4], [0.8, 1]);
 
     return (
-        <section ref={containerRef} id="journalists" className="relative h-[300vh] bg-black">
+        <section ref={containerRef} id="journalists" className="relative h-[200vh] bg-black">
 
             {/* Sticky Container */}
             <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center border-b border-black">

@@ -11,8 +11,8 @@ export const Services: React.FC = () => {
     // --- Background Animation ---
     // Scale: Zoom in continuously
     const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
-    // Opacity: Fade in quickly, stay
-    const bgOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+    // Opacity: Fade in quickly, stay, then maybe fade out slightly at the very end
+    const bgOpacity = useTransform(scrollYProgress, [0, 0.1, 0.8, 1], [0, 1, 1, 0.5]);
 
 
     // --- Phase 1: Your Mission Matters (The Warp) ---
@@ -40,10 +40,10 @@ export const Services: React.FC = () => {
 
 
     // --- Phase 2: The Critique (Strategic Placement) ---
-    // Timeline: 0.5 to 0.6
+    // Timeline: 0.5 to 0.9
     // Appears after we've "broken through" the mission statement
-    const textOpacity = useTransform(scrollYProgress, [0.5, 0.6], [0, 1]);
-    const textY = useTransform(scrollYProgress, [0.5, 0.6], ["40px", "0px"]);
+    const textOpacity = useTransform(scrollYProgress, [0.5, 0.6, 0.8, 0.9], [0, 1, 1, 0]);
+    const textY = useTransform(scrollYProgress, [0.5, 0.6, 0.8, 0.9], ["40px", "0px", "0px", "-40px"]);
 
 
     return (
