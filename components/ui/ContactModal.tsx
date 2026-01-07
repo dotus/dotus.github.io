@@ -64,19 +64,19 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                     <div className="mb-8">
 
                       <h2 className="text-3xl font-bold tracking-tighter uppercase leading-none text-white">Contact us</h2>
-                      <p className="text-gray-400 mt-2 text-sm leading-relaxed">
+                      <p className="text-gray-400 mt-2 text-lg leading-relaxed">
                         Help us get to know you and we'll give you a call.
                       </p>
                     </div>
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
                       <div className="space-y-1">
-                        <label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-gray-300">Name</label>
+                        <label htmlFor="name" className="text-md font-bold uppercase tracking-wider text-gray-300">Name</label>
                         <input
                           id="name"
                           name="name"
                           type="text"
-                          className="w-full bg-white/5 border-b border-white/10 p-3 text-sm text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600"
+                          className="w-full bg-white/5 border-b border-white/10 p-3 text-md text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600"
                           placeholder="Jane Doe"
                           required
                         />
@@ -89,12 +89,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-gray-300">Work Email</label>
+                        <label htmlFor="email" className="text-md font-bold uppercase tracking-wider text-gray-300">Work Email</label>
                         <input
                           id="email"
                           type="email"
                           name="email"
-                          className="w-full bg-white/5 border-b border-white/10 p-3 text-sm text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600"
+                          className="w-full bg-white/5 border-b border-white/10 p-3 text-md text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600"
                           placeholder="jane@company.com"
                           required
                         />
@@ -107,12 +107,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                       </div>
 
                       <div className="space-y-1">
-                        <label htmlFor="message" className="text-xs font-bold uppercase tracking-wider text-gray-300">Message</label>
+                        <label htmlFor="message" className="text-md font-bold uppercase tracking-wider text-gray-300">Message</label>
                         <textarea
                           id="message"
                           name="message"
                           rows={3}
-                          className="w-full bg-white/5 border-b border-white/10 p-3 text-sm text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600 resize-none"
+                          className="w-full bg-white/5 border-b border-white/10 p-3 text-md text-white focus:outline-none focus:border-white focus:bg-white/10 transition-colors rounded-none placeholder:text-gray-600 resize-none"
                           placeholder="Tell us anything about your company and what you're looking for. We'll get back to you in <24 hours."
                         />
                         <ValidationError
@@ -133,8 +133,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                       </button>
                     </form>
 
-                    <div className="mt-6 text-[10px] text-gray-600 text-center leading-tight">
-                      By clicking submit, you agree to our Terms of Service. We respect your inbox.
+                    <div className="mt-6 text-sm text-gray-600 text-center leading-tight">
+                      We respect your inbox.
                     </div>
                   </>
                 )}

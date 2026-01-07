@@ -14,8 +14,20 @@ export const JournalistSection: React.FC = () => {
     const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
     const bgOpacity = useTransform(scrollYProgress, [0, 0.1, 0.8, 1], [0, 1, 1, 0.8]);
 
+    // Phase 1: Headline animation (early scroll)
+    const headlineOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+    const headlineY = useTransform(scrollYProgress, [0, 0.1], ["20px", "0px"]);
+
+    // Phase 2: Description text (mid scroll)
+    const textOpacity = useTransform(scrollYProgress, [0.2, 0.3], [0, 1]);
+    const textY = useTransform(scrollYProgress, [0.2, 0.3], ["30px", "0px"]);
+
+    // Badge animation (fades in and stays)
+    const badgeOpacity = useTransform(scrollYProgress, [0.05, 0.2], [0, 1]);
+    const badgeScale = useTransform(scrollYProgress, [0.05, 0.2], [0.8, 1]);
+
     return (
-        <section ref={containerRef} id="journalists" className="relative h-[400vh] bg-black">
+        <section ref={containerRef} id="journalists" className="relative h-[250vh] bg-black">
 
             {/* Sticky Container */}
             <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center border-b border-black">
@@ -46,48 +58,30 @@ export const JournalistSection: React.FC = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                         {/* Left: Typography & Message */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.7 }}
-                            className="flex flex-col justify-center h-full order-2 lg:order-1"
-                        >
-                            <h2 className="text-6xl md:text-6xl font-bold mb-2 text-white">
+                        <div className="flex flex-col justify-center h-full order-2 lg:order-1">
+                            <motion.h2
+                                style={{ opacity: headlineOpacity, y: headlineY }}
+                                className="text-6xl md:text-6xl font-bold mb-2 text-white"
+                            >
                                 WE WROTE <br />
                                 THE HEADLINES.
-                            </h2>
+                            </motion.h2>
 
 
-                            <div className="text-white py-2 max-w-lg">
+                            <motion.div
+                                style={{ opacity: textOpacity, y: textY }}
+                                className="text-white py-2 max-w-lg"
+                            >
                                 <p className="text-xl md:text-2xl leading-relaxed font-light">
                                     We aren't guessing what newsrooms want. We know. Because for years, <span className="font-bold border-b-2 border-white">we were the ones deleting bad pitches</span> and publishing the good ones.
                                 </p>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        </div>
 
                         {/* Right: Visual Proof (The Realistic Press Badge) */}
-                        {/* Added pendulum motion wrapper */}
                         <motion.div
                             className="relative flex justify-center lg:justify-end py-12 order-1 lg:order-2 perspective-1000"
-                            initial={{ rotateZ: 5 }}
-                            animate={{
-                                rotateZ: [-2, 2, -2],
-                                y: [-10, 0, -10]
-                            }}
-                            transition={{
-                                rotateZ: {
-                                    duration: 7,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                },
-                                y: {
-                                    duration: 5,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }
-                            }}
-                            style={{ transformOrigin: "top center" }}
+                            style={{ opacity: badgeOpacity, scale: badgeScale }}
                         >
                             <PerspectiveCard className="w-full max-w-[480px] mx-auto" intensity={20}>
                                 <div className="relative w-full aspect-[3/4.8] select-none group">
@@ -130,21 +124,6 @@ export const JournalistSection: React.FC = () => {
                                             alt="Press Badge"
                                             className="w-full h-full object-cover"
                                         />
-
-                                        {/* Automated Continuous Shimmer */}
-                                        <div className="absolute inset-0 z-40 pointer-events-none overflow-hidden">
-                                            <motion.div
-                                                className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 blur-sm"
-                                                initial={{ left: "-150%" }}
-                                                animate={{ left: "200%" }}
-                                                transition={{
-                                                    repeat: Infinity,
-                                                    duration: 3.5,
-                                                    repeatDelay: 3,
-                                                    ease: "easeInOut"
-                                                }}
-                                            />
-                                        </div>
                                     </div>
                                 </div>
                             </PerspectiveCard>
