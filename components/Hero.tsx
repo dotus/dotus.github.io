@@ -113,12 +113,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
 
                         {/* Refined Subhead Presentation */}
                         <p className="text-2xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
-                            by journalists <span className="underline text-white">for founders</span> <br />
+                            by journalists for founders in <span className="underline text-white">tech</span>, <span className="underline text-white">environment</span> and <span className="underline text-white">funding</span> <br />
 
                         </p>
 
-                        {/* Hero CTA Button */}
-                        <div>
+                        <div className="flex flex-col items-start gap-3">
                             <button
                                 onClick={onOpenModal}
                                 className="group bg-white text-black px-6 py-3 md:px-8 md:py-4 text-xs md:text-sm font-bold uppercase tracking-wider hover:bg-gray-200 hover:text-black border border-white transition-all rounded-none flex items-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
@@ -126,6 +125,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                 Be our pilot now
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </button>
+                            <div className="flex items-center gap-2 text-white/40 text-[10px] uppercase tracking-widest font-mono">
+                                <span>Hong Kong</span>
+                                <span className="w-1 h-1 bg-white/40 rounded-full" />
+                                <span>London</span>
+                            </div>
                         </div>
                     </div>
 

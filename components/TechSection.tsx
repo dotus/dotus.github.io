@@ -18,11 +18,11 @@ export const TechSection: React.FC = () => {
                     className="mb-20"
                 >
                     <h2 className="text-6xl font-bold mb-6  ">
-                        WE EMBED INTO YOUR WORKFLOW <br />
+                        A humanoid approach<br />
 
                     </h2>
                     <p className="text-xl md:text-2xl text-gray-600 max-w-2xl leading-relaxed font-light ">
-                        We integrate into your team's workflow to ask questions, gather context, and draft content, which is <span className="font-semibold text-black">always calibrated by a human expert</span>.
+                        Our AI bots integrate into your team's workflow to ask questions, gather context, and draft your story, which is <span className="font-semibold text-black">always rewritten by a human expert</span>.
                     </p>
                 </motion.div>
 

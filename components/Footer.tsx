@@ -48,10 +48,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
                     </div>
 
                     {/* Links - Minimal */}
-                    <div className="flex gap-8 text-sm font-mono uppercase tracking-wide text-gray-400">
+                    {/* <div className="flex gap-8 text-sm font-mono uppercase tracking-wide text-gray-400">
                         <a href="#" className="hover:text-white transition-colors border-b border-transparent hover:border-white pb-0.5">Privacy Policy</a>
                         <a href="#" className="hover:text-white transition-colors border-b border-transparent hover:border-white pb-0.5">Terms of Use</a>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Copyright */}

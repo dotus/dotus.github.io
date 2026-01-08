@@ -11,7 +11,7 @@ export const TrustedBy: React.FC = () => {
                     </span>
                 </div>
 
-                <div className="overflow-hidden relative backdrop-blur-[2px] py-4 rounded-xl mx-[-1rem] px-[1rem]">
+                <div className="overflow-hidden relative py-4 rounded-xl mx-[-1rem] px-[1rem]">
                     {/* Scrolling Container */}
                     <div className="flex animate-scroll w-[200%] md:w-[200%]">
                         {/* First Set of Logos */}

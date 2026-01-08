@@ -88,17 +88,17 @@ export const Services: React.FC = () => {
                         style={{ opacity: textOpacity, y: textY }}
                         className="absolute max-w-4xl px-6 md:px-12 flex flex-col items-center justify-center z-30 space-y-8"
                     >
-                        <h3
-                            className="text-4xl md:text-6xl uppercase font-bold text-white drop-shadow-lg text-center"
+                        <p
+                            className="text-4xl font-sans md:text-6xl uppercase font-bold text-white drop-shadow-lg text-center"
                         >
-                            Legacy PR don't understand startups
-                        </h3>
+                            We're here to amplify it.
+                        </p>
 
                         <p
                             className="text-xl md:text-3xl leading-relaxed font-light text-white/80 drop-shadow-md italic text-center max-w-2xl"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
-                            We leverage tech to deliver unbeatable pricing and foster deep human connection, amplifying stories of those shaping the future of <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">policy</span>, <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">environment</span>, <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">funding</span> and <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">tech</span>.
+                            We work with mission-driven founders who are shaping the future of <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">policy</span>, <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">environment</span>, <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">funding</span> and <span className="underline font-bold decoration-white/50 underline-offset-4 decoration-1">tech</span>.
                         </p>
                     </motion.div>
 
