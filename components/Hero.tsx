@@ -107,13 +107,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                     <div className="space-y-10 relative z-40">
 
                         <h1 className="text-3xl md:text-6xl font-bold  leading-[0.9] text-white drop-shadow-lg">
-                            THE VCs OF <br />
-                            STORYTELLING
+                            The fractional <br />
+                            storytelling partner
                         </h1>
 
                         {/* Refined Subhead Presentation */}
                         <p className="text-2xl md:text-3xl font-light text-gray-300 max-w-lg leading-tight drop-shadow-md">
-                            by journalists for founders in <span className="underline text-white">tech</span>, <span className="underline text-white">environment</span> and <span className="underline text-white">funding</span> <br />
+                            AI-assisted public relations, made by journalists for founders in <span className="underline text-white">tech</span>, <span className="underline text-white">environment</span> and <span className="underline text-white">funding</span> <br />
 
                         </p>
 
