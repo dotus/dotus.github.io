@@ -7,7 +7,7 @@ import { Newsroom } from './components/pr/Newsroom';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-white text-black selection:bg-black selection:text-white relative font-sans">
+      <div className="min-h-screen bg-white text-black selection:bg-black selection:text-white relative">
         {/* Global Fixed Background with Wave Effect */}
         <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
           <defs>
