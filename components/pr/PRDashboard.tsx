@@ -1,239 +1,415 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronDown, ChevronRight, Image, FileText, Sparkles, Clock, UserRoundPen } from 'lucide-react';
-import { CollaborativeEditor } from './CollaborativeEditor';
+import { ChevronLeft, Search, Bell, Plus, LayoutGrid, List } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { NewQuestView } from './NewQuestView';
 import { KanbanBoard } from './KanbanBoard';
-
 import { PitchGenerator } from './PitchGenerator';
 import { MediaDatabase } from './MediaDatabase';
 import { Analytics } from './Analytics';
 import { DocumentList } from './DocumentList';
 import { CalendarWidget } from './CalendarWidget';
+import { StatsOverview, FilterType, filterQuests, MOCK_QUESTS, Quest } from './StatsOverview';
+import { QuickActions } from './QuickActions';
+import { RecentActivity } from './RecentActivity';
+import { ExpandedQuestView } from './ExpandedQuestView';
+import { QuestDetailView } from './QuestDetailView';
+import { ProductEditor } from './ProductEditor';
+import { ProductCreator } from './ProductCreator';
+import type { ProductOutput } from './ProductSection';
+import { FileText, FileSpreadsheet, Image as ImageIcon, Link2 } from 'lucide-react';
 
-type Tab = 'dashboard' | 'pitch' | 'media' | 'analytics' | 'calendar';
-type ViewMode = 'list' | 'editor';
+// Mock data for ProductCreator
+const MOCK_WORKING_DOCS = [
+    { id: 1, title: 'Series B Press Release', type: 'doc' as const, lastEdited: '2h ago', status: 'review' as const },
+    { id: 2, title: 'Q1 Messaging Framework', type: 'slide' as const, lastEdited: '1d ago', status: 'draft' as const },
+    { id: 3, title: 'Media Contact List', type: 'sheet' as const, lastEdited: '3d ago', status: 'final' as const },
+];
+
+const MOCK_ATTACHED = [
+    { id: 4, name: 'Investor Fact Sheet.pdf', fileType: 'pdf' as const, size: '1.2 MB', source: 'Dropbox', uploadedAt: '1d ago', uploadedBy: 'Sarah' },
+    { id: 5, name: 'Founder Headshots', fileType: 'image' as const, source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'John' },
+    { id: 6, name: 'A16Z Guidelines', fileType: 'link' as const, source: 'Notion', uploadedAt: '4d ago', uploadedBy: 'Sarah' },
+    { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
+];
+
+type Tab = 'dashboard' | 'pitch' | 'media' | 'analytics';
+type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator';
+type DashboardView = 'grid' | 'pipeline';
 
 export const PRDashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('dashboard');
     const [viewMode, setViewMode] = useState<ViewMode>('list');
-    const [brandNarrativeOpen, setBrandNarrativeOpen] = useState(false);
+    const [dashboardView, setDashboardView] = useState<DashboardView>('grid');
+    const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+    const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+    const [animatingQuestId, setAnimatingQuestId] = useState<number | null>(null);
+    const [isNavigatingBack, setIsNavigatingBack] = useState(false);
+    const [highlightedEventId, setHighlightedEventId] = useState<number | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<ProductOutput | null>(null);
+
+    const filteredQuests = filterQuests(MOCK_QUESTS, activeFilter);
+
+    const handleQuestClick = (quest: Quest) => {
+        setAnimatingQuestId(quest.id);
+        setHighlightedEventId(null);
+        setTimeout(() => {
+            setSelectedQuest(quest);
+            setViewMode('detail');
+            setAnimatingQuestId(null);
+        }, 300);
+    };
+
+    const handleCloseDetail = () => {
+        setViewMode('list');
+        setHighlightedEventId(null);
+        setTimeout(() => setSelectedQuest(null), 300);
+    };
+
+    const handleOpenProduct = (product: ProductOutput) => {
+        setSelectedProduct(product);
+        setViewMode('product');
+    };
+
+    const handleCreateProduct = () => {
+        setViewMode('product-creator');
+    };
+
+    const handleCloseProduct = () => {
+        setViewMode('detail');
+        setTimeout(() => setSelectedProduct(null), 300);
+    };
+
+    const handleCloseProductCreator = () => {
+        setViewMode('detail');
+    };
+
+    const saveProductToStorage = (product: ProductOutput & { questId?: number }) => {
+        const questId = product.questId || selectedQuest?.id;
+        if (!questId) return;
+        
+        const storageKey = `quest_products_${questId}`;
+        const stored = sessionStorage.getItem(storageKey);
+        let products: ProductOutput[] = [];
+        
+        if (stored) {
+            try {
+                products = JSON.parse(stored);
+            } catch {
+                products = [];
+            }
+        }
+        
+        // Check if product already exists
+        const existingIndex = products.findIndex(p => p.id === product.id);
+        if (existingIndex >= 0) {
+            products[existingIndex] = product;
+        } else {
+            products.push(product);
+        }
+        
+        sessionStorage.setItem(storageKey, JSON.stringify(products));
+    };
+
+    const handleProductCreated = (product: ProductOutput & { questId?: number }) => {
+        saveProductToStorage(product);
+        setSelectedProduct(product);
+        setViewMode('product');
+    };
+
+    const handleUpdateProduct = (updated: ProductOutput & { questId?: number }) => {
+        saveProductToStorage(updated);
+        setSelectedProduct(updated);
+    };
+
+    const handleExpandColumn = (status: Quest['status']) => {
+        setIsNavigatingBack(false);
+        setActiveFilter(status);
+    };
+
+    const handleBackFromExpanded = () => {
+        setIsNavigatingBack(true);
+        setTimeout(() => {
+            setActiveFilter('all');
+            setIsNavigatingBack(false);
+        }, 50);
+    };
+
+    const handleCalendarEventClick = (questId: number, eventId: number) => {
+        const quest = MOCK_QUESTS.find(q => q.id === questId);
+        if (quest) {
+            // Create a copy to avoid reference issues
+            const questCopy = { ...quest };
+            setHighlightedEventId(eventId);
+            setAnimatingQuestId(questCopy.id);
+            setTimeout(() => {
+                setSelectedQuest(questCopy);
+                setViewMode('detail');
+                setAnimatingQuestId(null);
+            }, 300);
+        }
+    };
 
     return (
         <div className="flex h-screen bg-[#FAF9F6] text-black font-sans selection:bg-black/10 overflow-hidden">
-            {/* Dash Background Texture */}
-            <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }} />
+            <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0" 
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }} 
+            />
 
-            {/* Sidebar Navigation - Removed */}
-
-
-            {/* Main Content Area */}
             <div className="flex-1 overflow-hidden relative z-10 flex flex-col">
-                {/* Top Bar */}
-                <header className="h-12 border-b border-black/5 bg-white px-6 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-8">
-                        {/* Branding */}
-                        <div className="shrink-0 group cursor-default">
-                            <h2 className="font-serif text-lg text-black font-bold">strife <span className="text-black group-hover:text-black transition-colors">relations</span></h2>
+                {/* Header with centered prominent search */}
+                <header className="h-16 border-b border-black/5 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-6 w-64">
+                        <div className="shrink-0">
+                            <h2 className="font-serif text-lg text-black font-bold">&also</h2>
                         </div>
-
-                        {/* Navigation Links */}
-                        <nav className="flex items-center gap-1">
-                            <TextNavButton
-                                active={activeTab === 'dashboard'}
-                                onClick={() => { setActiveTab('dashboard'); setViewMode('list'); }}
-                                label="My workspace"
-                            />
-                            <TextNavButton
-                                active={activeTab === 'pitch'}
-                                onClick={() => setActiveTab('pitch')}
-                                label="Compose"
-                            />
-                            <TextNavButton
-                                active={activeTab === 'media'}
-                                onClick={() => setActiveTab('media')}
-                                label="Contacts"
-                            />
-                            <TextNavButton
-                                active={activeTab === 'analytics'}
-                                onClick={() => setActiveTab('analytics')}
-                                label="Insights"
-                            />
-                            <TextNavButton
-                                active={activeTab === 'calendar'}
-                                onClick={() => setActiveTab('calendar')}
-                                label="Schedule"
-                            />
+                        <nav className="flex items-center gap-1 bg-black/[0.03] p-1 rounded-xl">
+                            <NavPill active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setViewMode('list'); setSelectedQuest(null); }} label="Workspace" />
+                            <NavPill active={activeTab === 'pitch'} onClick={() => setActiveTab('pitch')} label="Compose" />
+                            <NavPill active={activeTab === 'media'} onClick={() => setActiveTab('media')} label="Contacts" />
+                            <NavPill active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} label="Insights" />
                         </nav>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="bg-black/[0.03] border-0 rounded-full px-4 py-1.5 text-xs w-40 focus:outline-none focus:ring-1 focus:ring-blue-500/10 transition-all placeholder:text-black/30"
+                    {/* Centered prominent search */}
+                    <div className="flex-1 flex justify-center max-w-2xl">
+                        <div className="relative w-full max-w-md">
+                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30" />
+                            <input 
+                                type="text" 
+                                placeholder="Search anything" 
+                                className="w-full bg-gray-50 border border-black/[0.08] rounded-xl pl-11 pr-4 py-2.5 text-sm placeholder:text-black/30 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-black/15 focus:bg-white transition-all shadow-sm hover:shadow-md hover:border-black/10"
                             />
                         </div>
-                        <div className="flex items-center gap-3 pl-4 border-l border-black/5">
-                            <div className="w-7 h-7 rounded-full bg-black/5 text-black/60 flex items-center justify-center text-[10px] font-semibold border border-black/5">M</div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-64 justify-end">
+                        <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 text-black/40 hover:text-black transition-colors">
+                            <Bell size={18} />
+                        </button>
+                        <div className="flex items-center gap-2 pl-3 border-l border-black/5">
+                            <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-xs font-semibold">M</div>
                         </div>
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto p-6 md:p-8">
-
-                    {activeTab === 'dashboard' && (
-                        <div className="flex flex-col max-w-[1800px] mx-auto gap-8 pb-10">
-                            {viewMode === 'list' ? (
-                                <>
-                                    {/* Top Section: Workspace & Context */}
-                                    <div className="flex flex-col gap-4 shrink-0">
-                                        {/* Docs & Calendar Area */}
-                                        <div className="w-full flex flex-col xl:flex-row gap-4 h-[600px]">
-                                            {/* Document List - Main Focus */}
-                                            <div className="flex-1 h-full min-w-0">
-                                                <DocumentList onOpenDoc={() => setViewMode('editor')} />
-                                            </div>
-
-                                            {/* Calendar Widget - Contextual Helper */}
-                                            <div className="w-full xl:w-[260px] h-full shrink-0">
-                                                <CalendarWidget />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Brand Narrative Section */}
-                                    <div className="bg-white rounded-xl border border-black/5 md:shadow-sm ring-1 ring-black/5 overflow-hidden">
-                                        <button
-                                            onClick={() => setBrandNarrativeOpen(!brandNarrativeOpen)}
-                                            className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <h3 className="font-serif text-lg font-medium text-black tracking-tight">Brand Narrative</h3>
-                                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100/50">
-                                                    <Clock size={10} />
-                                                    <span className="text-[10px] font-medium">Strife Partner Reviewed 12d ago</span>
-                                                </div>
-                                            </div>
-                                            {brandNarrativeOpen ? <ChevronDown size={16} className="text-black/40" /> : <ChevronRight size={16} className="text-black/40" />}
-                                        </button>
-                                        {brandNarrativeOpen && (
-                                            <div className="px-4 pb-4 border-t border-black/5 pt-4 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
-                                                {/* Narrative */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[10px] uppercase font-bold tracking-wider text-black/40">Company Narrative</span>
-                                                        <span className="text-[10px] text-black/30">Last updated 3d ago</span>
-                                                    </div>
-                                                    <div className="p-3 bg-gray-50 rounded-lg border border-black/5">
-                                                        <p className="text-sm text-black/70 leading-relaxed">We're building the infrastructure for the next generation of AI-powered communications. Our mission is to democratize access to world-class PR for startups and mission-driven organizations.</p>
-                                                    </div>
-                                                </div>
-                                                {/* Brand Assets */}
-                                                <div className="space-y-2">
-                                                    <span className="text-[10px] uppercase font-bold tracking-wider text-black/40">Brand Assets</span>
-                                                    <div className="flex gap-2">
-                                                        <div className="flex-1 p-3 bg-gray-50 rounded-lg border border-black/5 flex items-center gap-3 hover:border-black/15 transition-colors cursor-pointer">
-                                                            <div className="w-8 h-8 bg-black/5 rounded flex items-center justify-center">
-                                                                <Image size={14} className="text-black/40" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-xs font-medium">Logo Kit</p>
-                                                                <p className="text-[10px] text-black/40">PNG, SVG, PDF</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-1 p-3 bg-gray-50 rounded-lg border border-black/5 flex items-center gap-3 hover:border-black/15 transition-colors cursor-pointer">
-                                                            <div className="w-8 h-8 bg-black/5 rounded flex items-center justify-center">
-                                                                <FileText size={14} className="text-black/40" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-xs font-medium">Brand Guide</p>
-                                                                <p className="text-[10px] text-black/40">PDF, 12 pages</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {/* Request Review Button */}
-                                                <button className="w-full py-2 text-[11px] font-medium bg-black text-white hover:bg-black/90 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2">
-                                                    <UserRoundPen size={12} className="text-white/70" /> Request Strife Partner Review
-                                                </button>
-                                            </div>
+                {/* Content */}
+                <div className="flex-1 overflow-hidden relative">
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'dashboard' && viewMode === 'list' && (
+                            <motion.div
+                                key="dashboard-list"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="h-full overflow-y-auto"
+                            >
+                                <div className="max-w-[1600px] mx-auto p-6 space-y-6">
+                                    {/* Stats - hidden when filtered */}
+                                    <AnimatePresence>
+                                        {activeFilter === 'all' && (
+                                            <motion.div
+                                                initial={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -20 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <StatsOverview 
+                                                    activeFilter={activeFilter} 
+                                                    onFilterChange={setActiveFilter}
+                                                />
+                                            </motion.div>
                                         )}
-                                    </div>
+                                    </AnimatePresence>
 
-                                    {/* Bottom Section: Full Width Campaign */}
-                                    <div className="flex-1 bg-white rounded-2xl border border-black/5 md:shadow-sm ring-1 ring-black/5 overflow-hidden flex flex-col min-h-[600px]">
-                                        <header className="px-4 py-3 border-b border-black/5 flex justify-between items-center bg-gray-50/50">
-                                            <div className="flex items-center gap-3">
-                                                <h3 className="font-serif text-lg font-medium text-black tracking-tight">Media Outreach</h3>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                {/* Campaign Selector */}
-                                                <button className="flex items-center gap-2 pl-3 pr-2 py-1.5 bg-white border border-black/10 rounded-lg shadow-sm hover:border-black/20 transition-all group">
-                                                    <span className="text-[11px] font-medium">Campaign: <span className="text-black/60 group-hover:text-black transition-colors">Series B Launch</span></span>
-                                                    <ChevronDown size={14} className="text-black/30" />
-                                                </button>
+                                    <div className="grid grid-cols-12 gap-6">
+                                        <div className="col-span-9 space-y-4">
+                                            {/* Header - simplified when filtered */}
+                                            <AnimatePresence mode="wait">
+                                                {activeFilter === 'all' ? (
+                                                    <motion.div 
+                                                        key="full-header"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        exit={{ opacity: 0 }}
+                                                        className="flex items-center justify-between"
+                                                    >
+                                                        <div>
+                                                            <h3 className="font-serif text-xl font-medium">Quests</h3>
+                                                            <p className="text-sm text-black/40 mt-0.5">Track from draft to publication</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="flex items-center gap-1 bg-black/[0.03] p-1 rounded-lg">
+                                                                <button onClick={() => setDashboardView('grid')} className={`p-1.5 rounded-md transition-all ${dashboardView === 'grid' ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}><LayoutGrid size={14} /></button>
+                                                                <button onClick={() => setDashboardView('pipeline')} className={`p-1.5 rounded-md transition-all ${dashboardView === 'pipeline' ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}><List size={14} /></button>
+                                                            </div>
+                                                            <button onClick={() => setViewMode('editor')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-black text-white rounded-lg hover:bg-black/90 transition-all"><Plus size={12} />New Quest</button>
+                                                        </div>
+                                                    </motion.div>
+                                                ) : null}
+                                            </AnimatePresence>
 
-                                                <div className="w-px h-6 bg-black/5 mx-1" />
-
-                                                <button className="text-[10px] font-medium px-2 py-1.5 rounded border border-black/10 hover:bg-white transition-colors text-black/60 hover:text-black">Filter</button>
-
-                                                <button className="text-[10px] font-medium px-3 py-1.5 rounded bg-black text-white shadow-sm hover:bg-black/90 transition-colors flex items-center gap-1.5 ring-offset-1 focus:ring-2 ring-black/10">
-                                                    <UserRoundPen size={12} className="text-white/70" /> Request Partner Review
-                                                </button>
-                                            </div>
-                                        </header>
-                                        <div className="flex-1 p-4 overflow-x-auto bg-[#F2EBE3] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                                            <KanbanBoard />
+                                            {/* Pipeline View */}
+                                            <AnimatePresence mode="wait">
+                                                {activeFilter !== 'all' ? (
+                                                    <motion.div 
+                                                        key="expanded-view"
+                                                        initial={{ opacity: 0, x: 40, scale: 0.98 }}
+                                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                                        exit={{ 
+                                                            opacity: 0, 
+                                                            x: isNavigatingBack ? -40 : 40, 
+                                                            scale: 0.98,
+                                                            transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }
+                                                        }}
+                                                        transition={{ 
+                                                            duration: 0.35, 
+                                                            ease: [0.25, 0.1, 0.25, 1]
+                                                        }}
+                                                        className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden h-[calc(100vh-200px)]"
+                                                    >
+                                                        <ExpandedQuestView 
+                                                            quests={filteredQuests} 
+                                                            status={activeFilter}
+                                                            onQuestClick={handleQuestClick}
+                                                            onBack={handleBackFromExpanded}
+                                                            animatingId={animatingQuestId}
+                                                        />
+                                                    </motion.div>
+                                                ) : dashboardView === 'pipeline' ? (
+                                                    <motion.div 
+                                                        key="pipeline-view"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        exit={{ opacity: 0 }}
+                                                        className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden"
+                                                    >
+                                                        <DocumentList onOpenDoc={() => setViewMode('editor')} />
+                                                    </motion.div>
+                                                ) : (
+                                                    <motion.div 
+                                                        key="kanban-view"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        exit={{ opacity: 0 }}
+                                                        className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden h-[calc(100vh-260px)]"
+                                                    >
+                                                        <KanbanBoard 
+                                                            onQuestClick={handleQuestClick} 
+                                                            onExpandColumn={handleExpandColumn}
+                                                            animatingId={animatingQuestId} 
+                                                        />
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="mb-4 flex items-center gap-4">
-                                        <button
-                                            onClick={() => setViewMode('list')}
-                                            className="p-2 hover:bg-black/5 rounded-lg transition-colors text-black/60 hover:text-black"
-                                        >
-                                            <ChevronLeft size={20} />
-                                        </button>
-                                        <span className="text-sm text-black/40">Back to Dashboard</span>
-                                    </div>
-                                    <div className="flex-1 bg-white rounded-2xl border border-black/10 shadow-lg overflow-hidden relative">
-                                        <CollaborativeEditor />
+                                        <div className="col-span-3 space-y-6">
+                                            <QuickActions />
+                                            <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
+                                                <div className="p-4">
+                                                    <CalendarWidget onEventClick={handleCalendarEventClick} />
+                                                </div>
+                                            </div>
+                                            <RecentActivity />
+                                        </div>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-                    )}
+                            </motion.div>
+                        )}
 
-                    {activeTab === 'pitch' && <PitchGenerator />}
-                    {activeTab === 'media' && <div className="h-full bg-white rounded-2xl border border-black/5 shadow-sm ring-1 ring-black/5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"><MediaDatabase /></div>}
-                    {activeTab === 'analytics' && <div className="h-full bg-white rounded-2xl border border-black/5 shadow-sm ring-1 ring-black/5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"><Analytics /></div>}
-                    {activeTab === 'calendar' && <div className="p-20 text-center font-serif text-3xl text-black/20">Calendar Module Loading...</div>}
+                        {activeTab === 'dashboard' && viewMode === 'detail' && selectedQuest && (
+                            <motion.div
+                                key="dashboard-detail"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="h-full"
+                            >
+                                <QuestDetailView 
+                                    quest={selectedQuest} 
+                                    onClose={handleCloseDetail} 
+                                    onOpenEditor={() => setViewMode('editor')}
+                                    onOpenProduct={handleOpenProduct}
+                                    onCreateProduct={handleCreateProduct}
+                                    highlightedEventId={highlightedEventId}
+                                />
+                            </motion.div>
+                        )}
 
+                        {activeTab === 'dashboard' && viewMode === 'editor' && (
+                            <motion.div
+                                key="dashboard-editor"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="h-full"
+                            >
+                                <NewQuestView 
+                                    onClose={() => setViewMode('list')}
+                                    onSave={(questData) => {
+                                        console.log('New quest created:', questData);
+                                        setViewMode('list');
+                                    }}
+                                />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'dashboard' && viewMode === 'product' && selectedProduct && (
+                            <motion.div
+                                key="dashboard-product"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="h-full"
+                            >
+                                <ProductEditor 
+                                    product={selectedProduct}
+                                    workingDocs={MOCK_WORKING_DOCS}
+                                    attachedDocs={MOCK_ATTACHED}
+                                    onClose={handleCloseProduct}
+                                    onUpdate={handleUpdateProduct}
+                                />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'dashboard' && viewMode === 'product-creator' && selectedQuest && (
+                            <motion.div
+                                key="dashboard-product-creator"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="h-full"
+                            >
+                                <ProductCreator 
+                                    questId={selectedQuest.id}
+                                    workingDocs={MOCK_WORKING_DOCS}
+                                    attachedDocs={MOCK_ATTACHED}
+                                    onClose={handleCloseProductCreator}
+                                    onCreated={handleProductCreated}
+                                />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'pitch' && (
+                            <motion.div key="pitch" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><PitchGenerator /></motion.div>
+                        )}
+                        {activeTab === 'media' && (
+                            <motion.div key="media" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><MediaDatabase /></motion.div>
+                        )}
+                        {activeTab === 'analytics' && (
+                            <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><Analytics /></motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>
     );
 };
 
-const StatBadge = ({ label, value, trend }: { label: string, value: string, trend: string }) => (
-    <div className="flex flex-col items-end px-4 py-1 border-r last:border-0 border-black/10">
-        <span className="text-[10px] uppercase font-bold text-black/30 tracking-wider">{label}</span>
-        <div className="text-lg font-serif font-medium flex items-center gap-2">
-            {value} <span className="text-[10px] font-sans text-green-600 bg-green-50 px-1.5 rounded-full">{trend}</span>
-        </div>
-    </div>
-);
-
-const TextNavButton = ({ active, onClick, label }: { active: boolean, onClick: () => void, label: string }) => (
-    <button
-        onClick={onClick}
-        className={`px-3 py-1.5 text-[12.5px] transition-all duration-200 rounded-lg font-medium ${active
-            ? 'text-blue-600 bg-blue-50/50'
-            : 'text-black/40 hover:text-black/70 hover:bg-black/5'
-            }`}
-    >
+const NavPill = ({ active, onClick, label }: { active: boolean, onClick: () => void, label: string }) => (
+    <button onClick={onClick} className={`px-4 py-1.5 text-xs font-medium transition-all duration-200 rounded-lg ${active ? 'bg-white text-black shadow-sm' : 'text-black/50 hover:text-black hover:bg-black/[0.02]'}`}>
         {label}
     </button>
 );
