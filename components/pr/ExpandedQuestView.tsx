@@ -185,7 +185,7 @@ export const ExpandedQuestView: React.FC<ExpandedQuestViewProps> = ({
                                 {/* Meta row */}
                                 <div className="flex items-center gap-4 text-[12px] text-black/40">
                                     <span className="flex items-center gap-1.5">
-                                        <span className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[9px]">
+                                        <span className="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px]">
                                             {quest.author[0]}
                                         </span>
                                         {quest.author}

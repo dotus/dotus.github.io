@@ -24,7 +24,7 @@ export const RecentActivity: React.FC = () => {
             <div className="p-3 space-y-1">
                 {ACTIVITIES.map((activity) => (
                     <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-black to-black/60 text-white flex items-center justify-center text-[9px] font-medium shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-[9px] font-medium shrink-0 mt-0.5">
                             {activity.user[0]}
                         </div>
                         <div className="flex-1 min-w-0">

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { MoreHorizontal, Plus, Maximize2, Minimize2 } from 'lucide-react';
-import { MOCK_QUESTS, Quest, TypeBadge, PriorityBadge } from './StatsOverview';
+import React, { useState, useEffect } from 'react';
+import { MoreHorizontal, Plus, Maximize2, Minimize2, Send, Eye, MessageCircle } from 'lucide-react';
+import { MOCK_QUESTS, Quest, TypeBadge, PriorityBadge, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
 
 interface ColumnConfig {
     id: Quest['status'];
@@ -20,14 +20,56 @@ interface KanbanBoardProps {
     onQuestClick?: (quest: Quest) => void;
     onExpandColumn?: (status: Quest['status']) => void;
     animatingId?: number | null;
+    onCampaignBadgeClick?: (quest: Quest) => void;
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
     onQuestClick, 
     onExpandColumn,
-    animatingId 
+    animatingId,
+    onCampaignBadgeClick
 }) => {
     const [collapsedColumns, setCollapsedColumns] = useState<Set<string>>(new Set());
+    const [campaigns, setCampaigns] = useState<Record<number, OutreachCampaign>>({});
+
+    // Load campaigns from sessionStorage on mount
+    useEffect(() => {
+        const loadedCampaigns: Record<number, OutreachCampaign> = {};
+        MOCK_QUESTS.forEach(quest => {
+            const storageKey = getOutreachStorageKey(quest.id);
+            const stored = sessionStorage.getItem(storageKey);
+            if (stored) {
+                try {
+                    loadedCampaigns[quest.id] = JSON.parse(stored);
+                } catch {
+                    // Ignore parse errors
+                }
+            }
+        });
+        setCampaigns(loadedCampaigns);
+    }, []);
+
+    // Listen for storage changes (when campaigns are updated from detail view)
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const loadedCampaigns: Record<number, OutreachCampaign> = {};
+            MOCK_QUESTS.forEach(quest => {
+                const storageKey = getOutreachStorageKey(quest.id);
+                const stored = sessionStorage.getItem(storageKey);
+                if (stored) {
+                    try {
+                        loadedCampaigns[quest.id] = JSON.parse(stored);
+                    } catch {
+                        // Ignore parse errors
+                    }
+                }
+            });
+            setCampaigns(loadedCampaigns);
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const getColumnQuests = (status: Quest['status']) => {
         return MOCK_QUESTS.filter(d => d.status === status);
@@ -59,6 +101,38 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
     const expandedCount = COLUMNS.length - collapsedColumns.size;
 
+    // Campaign Status Badge Component
+    const CampaignBadge: React.FC<{ questId: number }> = ({ questId }) => {
+        const campaign = campaigns[questId];
+        if (!campaign || campaign.status !== 'sent') return null;
+
+        const openedCount = campaign.journalists.filter(j => j.status === 'opened' || j.status === 'responded').length;
+        const respondedCount = campaign.journalists.filter(j => j.status === 'responded').length;
+
+        return (
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    const quest = MOCK_QUESTS.find(q => q.id === questId);
+                    if (quest && onCampaignBadgeClick) {
+                        onCampaignBadgeClick(quest);
+                    }
+                }}
+                className="inline-flex items-center gap-1.5 text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition-colors"
+                title="Click to view outreach details"
+            >
+                <Send size={10} />
+                {respondedCount > 0 ? (
+                    <>{respondedCount} Response{respondedCount > 1 ? 's' : ''}</>
+                ) : openedCount > 0 ? (
+                    <>{openedCount} Opened</>
+                ) : (
+                    <>Sent</>
+                )}
+            </button>
+        );
+    };
+
     return (
         <div className="h-full p-4">
             <div className="flex h-full gap-3">
@@ -82,27 +156,23 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                             `}>
                                 {!isCollapsed ? (
                                     <>
-                                        <div className="flex items-center gap-2 min-w-0">
+                                        {/* Title area - clickable to expand view */}
+                                        <button 
+                                            onClick={() => handleExpand(col.id)}
+                                            className="flex items-center gap-2 min-w-0 hover:bg-black/[0.03] rounded-lg px-1 py-1 -ml-1 transition-colors"
+                                        >
                                             <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.color }} />
                                             <span className="text-sm font-medium truncate">{col.title}</span>
                                             <span className="text-xs text-black/30 shrink-0">{quests.length}</span>
-                                        </div>
-                                        <div className="flex items-center gap-0.5 shrink-0">
-                                            <button 
-                                                onClick={() => handleExpand(col.id)}
-                                                className="p-1.5 rounded text-black/20 hover:text-black/60 hover:bg-black/[0.03] transition-colors"
-                                                title="Expand column"
-                                            >
-                                                <Maximize2 size={14} />
-                                            </button>
-                                            <button 
-                                                onClick={() => toggleCollapse(col.id)}
-                                                className="p-1.5 rounded text-black/20 hover:text-black/60 hover:bg-black/[0.03] transition-colors"
-                                                title="Collapse column"
-                                            >
-                                                <Minimize2 size={14} />
-                                            </button>
-                                        </div>
+                                        </button>
+                                        {/* Collapse button */}
+                                        <button 
+                                            onClick={() => toggleCollapse(col.id)}
+                                            className="p-1.5 rounded text-black/20 hover:text-black/60 hover:bg-black/[0.03] transition-colors"
+                                            title="Collapse column"
+                                        >
+                                            <Minimize2 size={14} />
+                                        </button>
                                     </>
                                 ) : (
                                     <>
@@ -110,6 +180,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                         <button 
                                             onClick={() => toggleCollapse(col.id)}
                                             className="p-1 text-black/20 hover:text-black/60 shrink-0"
+                                            title="Expand column"
                                         >
                                             <Maximize2 size={14} />
                                         </button>
@@ -145,16 +216,19 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                                 >
                                                     <div className="flex items-start justify-between mb-2 gap-2">
                                                         <TypeBadge type={quest.type} />
-                                                        {quest.priority === 'high' && (
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-                                                        )}
+                                                        <div className="flex items-center gap-1.5">
+                                                            <CampaignBadge questId={quest.id} />
+                                                            {quest.priority === 'high' && (
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <h4 className="text-sm font-medium leading-snug mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
                                                         {quest.title}
                                                     </h4>
                                                     <div className="flex items-center justify-between pt-2 border-t border-black/5">
                                                         <div className="flex items-center gap-2 min-w-0">
-                                                            <div className="w-5 h-5 rounded-full bg-black text-white flex items-center justify-center text-[8px] shrink-0">
+                                                            <div className="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[8px] shrink-0">
                                                                 {quest.author[0]}
                                                             </div>
                                                             <span className="text-[10px] text-black/40 truncate">{quest.updated}</span>

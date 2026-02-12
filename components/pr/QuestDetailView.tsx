@@ -4,10 +4,11 @@ import {
     Download, Upload, Plus, Clock, 
     History, CheckCircle2, Flame, ChevronDown,
     ChevronLeft, Mail, Copy, Calendar, Edit3,
-    X, Users
+    X, Users, Send
 } from 'lucide-react';
-import { Quest } from './StatsOverview';
+import { Quest, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
 import { ProductSection } from './ProductSection';
+import { OutreachSection } from './OutreachSection';
 
 interface AttachedDoc {
     id: number;
@@ -99,7 +100,9 @@ interface QuestDetailViewProps {
     onOpenEditor?: () => void;
     onOpenProduct?: (product: import('./ProductSection').ProductOutput) => void;
     onCreateProduct?: () => void;
+    onOpenOutreach?: () => void;
     highlightedEventId?: number | null;
+    defaultTab?: 'overview' | 'timeline' | 'distribution' | 'documents' | 'activity';
 }
 
 // Helper to get storage key for this quest's timeline
@@ -109,9 +112,9 @@ const getTimelineStorageKey = (questId: number) => `quest_timeline_${questId}`;
 const getQuestMetadataKey = (questId: number) => `quest_metadata_${questId}`;
 
 const QUEST_TYPES = [
-    { id: 'Press Release', label: 'Press Release', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { id: 'Blog Post', label: 'Blog Post', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { id: 'Strategy Memo', label: 'Strategy Memo', color: 'bg-violet-50 text-violet-700 border-violet-200' },
+    { id: 'Press Release', label: 'Press Release', color: 'bg-gray-100 text-gray-700 border-gray-200' },
+    { id: 'Blog Post', label: 'Blog Post', color: 'bg-gray-100 text-gray-700 border-gray-200' },
+    { id: 'Strategy Memo', label: 'Strategy Memo', color: 'bg-gray-100 text-gray-700 border-gray-200' },
 ];
 
 // Calendar event ID to quest timeline mapping (since IDs don't match)
@@ -232,13 +235,16 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     onOpenEditor,
     onOpenProduct,
     onCreateProduct,
-    highlightedEventId 
+    onOpenOutreach,
+    highlightedEventId,
+    defaultTab = 'overview'
 }) => {
     // Defensive check - should not happen but prevents crashes
     if (!quest) {
         return <div className="h-full flex items-center justify-center text-black/40">Quest not found</div>;
     }
-    const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'activity'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'activity'>(defaultTab);
+    const [campaign, setCampaign] = useState<OutreachCampaign | undefined>(quest.outreachCampaign);
     const [showComment, setShowComment] = useState(false);
     const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
     
@@ -272,6 +278,49 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     
     const typeDropdownRef = useRef<HTMLDivElement>(null);
     const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Load campaign from sessionStorage on mount
+    useEffect(() => {
+        const storageKey = getOutreachStorageKey(quest.id);
+        const stored = sessionStorage.getItem(storageKey);
+        if (stored) {
+            try {
+                setCampaign(JSON.parse(stored));
+            } catch {
+                // Ignore parse errors
+            }
+        }
+    }, [quest.id]);
+
+    // Handle campaign updates
+    const handleCampaignUpdate = (newCampaign: OutreachCampaign | undefined) => {
+        setCampaign(newCampaign);
+        
+        // Auto-add campaign send date to timeline
+        if (newCampaign?.status === 'sent' && newCampaign.sentAt) {
+            const sendDate = new Date(newCampaign.sentAt);
+            const dateStr = sendDate.toISOString().split('T')[0];
+            const timeStr = sendDate.toTimeString().slice(0, 5);
+            
+            // Check if we already have this event
+            const existingEvent = timeline.find(e => 
+                e.title === 'Outreach Campaign Sent' && e.date === dateStr
+            );
+            
+            if (!existingEvent) {
+                const campaignEvent: TimelineEvent = {
+                    id: Date.now(),
+                    type: 'event',
+                    title: 'Outreach Campaign Sent',
+                    date: dateStr,
+                    time: timeStr,
+                };
+                const updated = [...timeline, campaignEvent];
+                setTimeline(updated);
+                saveTimelineToStorage(updated);
+            }
+        }
+    };
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -552,7 +601,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         <button
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium bg-black text-white rounded-lg hover:bg-black/90 transition-all disabled:opacity-70"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all disabled:opacity-70"
                         >
                             {isSaving ? 'Saving...' : 'Save'}
                         </button>
@@ -592,7 +641,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                     {/* Meta */}
                     <div className="flex items-center gap-6 py-4 border-y border-black/[0.06] mb-6">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px]">{quest.author[0]}</div>
+                            <div className="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">{quest.author[0]}</div>
                             <div>
                                 <p className="text-[13px] font-medium">{quest.author}</p>
                                 <p className="text-[11px] text-black/40">{quest.authorRole}</p>
@@ -628,7 +677,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
-                                    activeTab === tab.id ? 'bg-black text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
+                                    activeTab === tab.id ? 'bg-teal-600 text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
                                 }`}
                             >
                                 {tab.label}
@@ -642,7 +691,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         <div className="space-y-4">
                             {MOCK_COMMENTS.map(c => (
                                 <div key={c.id} className="flex gap-3 p-4 bg-gray-50 rounded-xl">
-                                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs shrink-0">{c.userInitial}</div>
+                                    <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs shrink-0">{c.userInitial}</div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="text-[13px] font-medium">{c.user}</span>
@@ -662,7 +711,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                     <textarea className="w-full text-[14px] resize-none outline-none placeholder:text-black/30" rows={3} placeholder="Write a comment..." autoFocus />
                                     <div className="flex justify-end gap-2 mt-2">
                                         <button onClick={() => setShowComment(false)} className="px-3 py-1.5 text-[12px] text-black/50 hover:text-black">Cancel</button>
-                                        <button className="px-3 py-1.5 text-[12px] bg-black text-white rounded-md">Post</button>
+                                        <button className="px-3 py-1.5 text-[12px] bg-teal-600 text-white rounded-md">Post</button>
                                     </div>
                                 </div>
                             )}
@@ -811,7 +860,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                     </div>
                                     <div className="flex justify-end gap-2 mt-3">
                                         <button onClick={() => setShowAddEvent(false)} className="px-3 py-1 text-[11px] text-black/50 hover:text-black">Cancel</button>
-                                        <button onClick={addEvent} className="px-3 py-1 text-[11px] bg-black text-white rounded">Add</button>
+                                        <button onClick={addEvent} className="px-3 py-1 text-[11px] bg-teal-600 text-white rounded">Add</button>
                                     </div>
                                 </div>
                             )}
@@ -820,30 +869,44 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
 
                     {activeTab === 'distribution' && (
                         <div className="space-y-6">
+                            {/* Outreach Section - Main Feature */}
+                            <div>
+                                <div className="mb-3">
+                                    <span className="text-[11px] font-medium text-black/60 uppercase tracking-wide">Outreach Campaign</span>
+                                </div>
+                                <OutreachSection 
+                                    quest={{...quest, status: questStatus}}
+                                    onCampaignUpdate={handleCampaignUpdate}
+                                    onOpenComposer={onOpenOutreach}
+                                />
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-black/[0.06]" />
+
                             {/* Unique Quest Email */}
-                            <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
+                            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
-                                        <Mail size={12} className="text-violet-600" />
+                                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <Mail size={12} className="text-blue-600" />
                                     </div>
-                                    <span className="text-[11px] font-semibold text-violet-700 uppercase tracking-wide">Quest Email</span>
+                                    <span className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide">Quest Email</span>
                                 </div>
                                 <p className="text-[13px] text-black/60 mb-3">
                                     Send docs, comments, or questions directly to this quest
                                 </p>
                                 <button
                                     onClick={() => copyEmail(quest.uniqueEmail)}
-                                    className="w-full flex items-center justify-between gap-3 bg-white border border-violet-200 px-4 py-3 rounded-lg hover:border-violet-300 hover:shadow-sm transition-all group"
+                                    className="w-full flex items-center justify-between gap-3 bg-white border border-blue-200 px-4 py-3 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all group"
                                 >
-                                    <span className="text-[15px] font-medium text-violet-700">{quest.uniqueEmail}</span>
-                                    <Copy size={16} className={`transition-colors ${copiedEmail === quest.uniqueEmail ? 'text-green-600' : 'text-violet-300 group-hover:text-violet-500'}`} />
+                                    <span className="text-[15px] font-medium text-blue-700">{quest.uniqueEmail}</span>
+                                    <Copy size={16} className={`transition-colors ${copiedEmail === quest.uniqueEmail ? 'text-green-600' : 'text-blue-300 group-hover:text-blue-500'}`} />
                                 </button>
                             </div>
 
                             {/* Distribution List */}
                             <div>
                                 <div className="flex items-center gap-2 mb-3">
-                                    <Users size={14} className="text-black/40" />
                                     <span className="text-[11px] font-medium text-black/60 uppercase tracking-wide">Distribution List</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -851,15 +914,14 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                         <button
                                             key={email}
                                             onClick={() => copyEmail(email)}
-                                            className="group flex items-center gap-1.5 text-[12px] bg-gray-50 border border-black/[0.08] px-3 py-2 rounded-lg hover:border-black/20 hover:bg-gray-100 transition-colors"
+                                            className="group flex items-center gap-1.5 text-[12px] bg-gray-50 border border-black/[0.08] px-3 py-2 rounded-lg hover:border-teal-300 hover:bg-teal-50/30 transition-colors"
                                         >
-                                            <Mail size={12} className="text-black/30" />
                                             {email}
-                                            <Copy size={12} className={`transition-colors ${copiedEmail === email ? 'text-green-600' : 'text-black/20 group-hover:text-black/40'}`} />
+                                            <Copy size={12} className={`transition-colors ${copiedEmail === email ? 'text-green-600' : 'text-black/20 group-hover:text-teal-600'}`} />
                                         </button>
                                     ))}
                                 </div>
-                                <button className="flex items-center gap-2 text-[12px] text-black/40 hover:text-black transition-colors mt-4">
+                                <button className="flex items-center gap-2 text-[12px] text-black/40 hover:text-teal-600 transition-colors mt-4">
                                     <Plus size={14} />
                                     Add email
                                 </button>
@@ -936,6 +998,37 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
 
                     {activeTab === 'activity' && (
                         <div className="space-y-0">
+                            {/* Campaign Activity - shown if campaign exists */}
+                            {campaign?.status === 'sent' && (
+                                <div className="flex gap-4 relative pb-6">
+                                    <div className="absolute left-[9px] top-6 bottom-0 w-px bg-black/[0.06]" />
+                                    <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                                        <Send size={11} className="text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[13px] font-medium text-emerald-700">Outreach Campaign Sent</span>
+                                            <span className="text-[12px] text-black/40">
+                                                {campaign.sentBy} • {campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently'}
+                                            </span>
+                                        </div>
+                                        <p className="text-[13px] text-black/60 mt-0.5">
+                                            Sent to {campaign.journalists.length} journalist{campaign.journalists.length > 1 ? 's' : ''}
+                                            {campaign.openRate !== undefined && campaign.openRate > 0 && (
+                                                <span className="text-emerald-600"> • {campaign.openRate}% opened</span>
+                                            )}
+                                        </p>
+                                        <div className="mt-2 flex flex-wrap gap-1.5">
+                                            {campaign.journalists.map(j => (
+                                                <span key={j.id} className="text-[10px] bg-gray-50 text-black/60 px-2 py-0.5 rounded">
+                                                    {j.name} ({j.outlet})
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
                             {MOCK_VERSIONS.map((v, i) => (
                                 <div key={v.id} className="flex gap-4 relative pb-6">
                                     {i !== MOCK_VERSIONS.length - 1 && <div className="absolute left-[9px] top-6 bottom-0 w-px bg-black/[0.06]" />}

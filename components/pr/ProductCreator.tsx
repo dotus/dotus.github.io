@@ -87,7 +87,7 @@ const STEPS = [
     { id: 4, label: 'Review' },
 ];
 
-export const ProductCreator: React.FC<ProductCreatorProps> = ({ workingDocs, attachedDocs, onClose, onCreated }) => {
+export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, workingDocs, attachedDocs, onClose, onCreated }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedOutputType, setSelectedOutputType] = useState<OutputType | null>(null);
     const [selectedDocs, setSelectedDocs] = useState<number[]>([]);
@@ -634,7 +634,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ workingDocs, att
                         <button
                             onClick={handleNext}
                             disabled={!canProceed()}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-black text-white text-[14px] font-medium rounded-lg hover:bg-black/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white text-[14px] font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Continue
                             <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
@@ -642,7 +642,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ workingDocs, att
                     ) : (
                         <button
                             onClick={startGeneration}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-black text-white text-[14px] font-medium rounded-lg hover:bg-black/90 transition-colors"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 text-white text-[14px] font-medium rounded-lg hover:bg-teal-700 transition-colors"
                         >
                             {useAI ? (
                                 <>

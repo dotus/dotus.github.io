@@ -6,9 +6,9 @@ import {
 } from 'lucide-react';
 
 const QUEST_TYPES = [
-    { id: 'Press Release', label: 'Press Release', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { id: 'Blog Post', label: 'Blog Post', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { id: 'Strategy Memo', label: 'Strategy Memo', color: 'bg-violet-50 text-violet-700 border-violet-200' },
+    { id: 'Press Release', label: 'Press Release', color: 'bg-gray-100 text-gray-700 border-gray-200' },
+    { id: 'Blog Post', label: 'Blog Post', color: 'bg-gray-100 text-gray-700 border-gray-200' },
+    { id: 'Strategy Memo', label: 'Strategy Memo', color: 'bg-gray-100 text-gray-700 border-gray-200' },
 ];
 
 const QUEST_STATUSES = [
@@ -385,7 +385,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                     <button
                         onClick={handleSave}
                         disabled={isSaving || !title.trim()}
-                        className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-medium bg-black text-white rounded-lg hover:bg-black/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSaving ? 'Creating...' : 'Create Quest'}
                     </button>
@@ -414,7 +414,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                     {/* Meta */}
                     <div className="flex items-center gap-6 py-4 border-y border-black/[0.06] mb-6">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px]">{author[0]}</div>
+                            <div className="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">{author[0]}</div>
                             <div>
                                 <p className="text-[13px] font-medium">{author}</p>
                                 <p className="text-[11px] text-black/40">{authorRole}</p>
@@ -568,7 +568,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                     </div>
                                     <div className="flex justify-end gap-2 mt-3">
                                         <button onClick={() => setShowAddEvent(false)} className="px-3 py-1 text-[11px] text-black/50 hover:text-black">Cancel</button>
-                                        <button onClick={addEvent} className="px-3 py-1 text-[11px] bg-black text-white rounded">Add</button>
+                                        <button onClick={addEvent} className="px-3 py-1 text-[11px] bg-teal-600 text-white rounded">Add</button>
                                     </div>
                                 </div>
                             )}
@@ -615,7 +615,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                     />
                                     <button 
                                         onClick={addEmail}
-                                        className="px-3 py-2 bg-black text-white rounded-lg text-[12px] font-medium hover:bg-black/90 transition-colors"
+                                        className="px-3 py-2 bg-teal-600 text-white rounded-lg text-[12px] font-medium hover:bg-teal-700 transition-colors"
                                     >
                                         <Plus size={14} />
                                     </button>
@@ -683,7 +683,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                     <div className="p-8 border-2 border-dashed border-black/10 rounded-xl text-center">
                                         <Upload size={24} className="text-black/20 mx-auto mb-2" />
                                         <p className="text-[13px] text-black/40">Drop files here or click to upload</p>
-                                        <label className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white rounded-lg text-[12px] font-medium cursor-pointer hover:bg-black/90 transition-colors">
+                                        <label className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-lg text-[12px] font-medium cursor-pointer hover:bg-teal-700 transition-colors">
                                             <Plus size={14} />
                                             Select Files
                                             <input 

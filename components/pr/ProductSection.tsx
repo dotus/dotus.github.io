@@ -77,7 +77,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ questId, onOpenP
                     </span>
                     <button 
                         onClick={onCreateNew}
-                        className="flex items-center gap-1 text-[10px] text-white bg-violet-600 hover:bg-violet-700 px-2 py-1 rounded-md transition-colors"
+                        className="flex items-center gap-1 text-[10px] text-black bg-black/5 hover:bg-black/10 px-2 py-1 rounded-md transition-colors border border-black/10"
                     >
                         <Plus size={12} />
                         New
@@ -102,10 +102,10 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ questId, onOpenP
                             <button
                                 key={product.id}
                                 onClick={() => onOpenProduct(product)}
-                                className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-black/[0.06] hover:border-violet-200 hover:shadow-sm transition-all text-left group"
+                                className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-black/[0.06] hover:border-black/20 hover:shadow-sm transition-all text-left group"
                             >
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[13px] font-medium truncate group-hover:text-violet-600 transition-colors">
+                                    <p className="text-[13px] font-medium truncate group-hover:text-black transition-colors">
                                         {product.title}
                                     </p>
                                     <p className="text-[11px] text-black/40">

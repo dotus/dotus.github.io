@@ -102,7 +102,7 @@ export const ContentDetailView: React.FC<ContentDetailViewProps> = ({ doc, onClo
                     <button className="p-2 hover:bg-black/[0.03] rounded-lg text-black/40 hover:text-black transition-colors">
                         <Share2 size={16} />
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium bg-black text-white rounded-lg hover:bg-black/90 transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
                         <Edit3 size={13} />Edit
                     </button>
                 </div>
@@ -118,7 +118,7 @@ export const ContentDetailView: React.FC<ContentDetailViewProps> = ({ doc, onClo
                     {/* Meta */}
                     <div className="flex items-center gap-6 py-4 border-y border-black/[0.06] mb-6">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px]">{doc.author[0]}</div>
+                            <div className="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">{doc.author[0]}</div>
                             <div>
                                 <p className="text-[13px] font-medium">{doc.author}</p>
                                 <p className="text-[11px] text-black/40">{doc.authorRole}</p>
@@ -162,7 +162,7 @@ export const ContentDetailView: React.FC<ContentDetailViewProps> = ({ doc, onClo
                         <div className="space-y-4">
                             {MOCK_COMMENTS.map(c => (
                                 <div key={c.id} className="flex gap-3 p-4 bg-gray-50 rounded-xl">
-                                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs shrink-0">{c.userInitial}</div>
+                                    <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs shrink-0">{c.userInitial}</div>
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="text-[13px] font-medium">{c.user}</span>
@@ -182,7 +182,7 @@ export const ContentDetailView: React.FC<ContentDetailViewProps> = ({ doc, onClo
                                     <textarea className="w-full text-[14px] resize-none outline-none placeholder:text-black/30" rows={3} placeholder="Write a comment..." autoFocus />
                                     <div className="flex justify-end gap-2 mt-2">
                                         <button onClick={() => setShowComment(false)} className="px-3 py-1.5 text-[12px] text-black/50 hover:text-black">Cancel</button>
-                                        <button className="px-3 py-1.5 text-[12px] bg-black text-white rounded-md">Post</button>
+                                        <button className="px-3 py-1.5 text-[12px] bg-teal-600 text-white rounded-md">Post</button>
                                     </div>
                                 </div>
                             )}

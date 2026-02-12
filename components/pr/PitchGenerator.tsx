@@ -59,7 +59,7 @@ The Strife Team`;
 
                         <button
                             onClick={() => setGenerated(true)}
-                            className="w-full bg-black text-white py-4 rounded-xl font-medium hover:bg-black/90 transition-colors flex items-center justify-center gap-2"
+                            className="w-full bg-teal-600 text-white py-4 rounded-xl font-medium hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
                         >
                             <Sparkles size={18} /> Generate Pitch
                         </button>
@@ -72,7 +72,7 @@ The Strife Team`;
                                 <button onClick={() => setGenerated(false)} className="text-sm text-black/40 hover:text-black px-3 py-1">Try Again</button>
                                 <button
                                     onClick={() => { navigator.clipboard.writeText(MOCK_PITCH); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                                    className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-black/80"
+                                    className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-teal-700"
                                 >
                                     {copied ? <Check size={14} /> : <Copy size={14} />}
                                     {copied ? 'Copied' : 'Copy Text'}

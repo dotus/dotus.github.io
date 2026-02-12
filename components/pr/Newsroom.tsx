@@ -206,7 +206,7 @@ export const Newsroom: React.FC = () => {
                         <button className="md:hidden p-2 hover:bg-black/5 rounded-full transition-colors">
                             <Menu size={20} strokeWidth={1.5} className="text-black/60" />
                         </button>
-                        <a href="#press-kit" className="hidden md:flex items-center gap-2 bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-black/80 transition-colors ml-2">
+                        <a href="#press-kit" className="hidden md:flex items-center gap-2 bg-teal-600 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-teal-700 transition-colors ml-2">
                             <Download size={14} strokeWidth={2} /> Media Kit
                         </a>
                     </div>
@@ -408,7 +408,7 @@ export const Newsroom: React.FC = () => {
                                         <div className="text-xs text-black/50 uppercase tracking-wide mb-1">{PRESS_CONTACT.role}</div>
                                     </div>
                                 </div>
-                                <a href={`mailto:${PRESS_CONTACT.email}`} className="flex items-center justify-center gap-2 w-full bg-black text-white py-3 rounded-lg text-sm font-medium hover:opacity-80 transition-opacity">
+                                <a href={`mailto:${PRESS_CONTACT.email}`} className="flex items-center justify-center gap-2 w-full bg-teal-600 text-white py-3 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors">
                                     <Mail size={16} /> Email Sarah
                                 </a>
                                 <p className="mt-4 text-xs text-black/40 text-center leading-relaxed">

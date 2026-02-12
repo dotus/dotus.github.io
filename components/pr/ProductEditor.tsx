@@ -4,9 +4,10 @@ import {
     Rocket, X, ChevronLeft, Twitter, Linkedin, Instagram, Globe, FileBadge, Mail,
     Copy, Clock, Download, Bold, Italic, Underline, List, ListOrdered, Link, AlignLeft, AlignCenter, AlignRight, Type,
     Check, Undo, Redo,
-    MoreHorizontal, Heart, MessageCircle, Bookmark, ImageIcon, Gift, Smile, MapPin, Calendar, FileText, ChevronDown
+    MoreHorizontal, Heart, MessageCircle, Bookmark, ImageIcon, Gift, Smile, MapPin, Calendar, FileText, ChevronDown,
+    Send
 } from 'lucide-react';
-import type { ProductOutput } from './ProductCreator';
+import type { ProductOutput, OutputType } from './ProductCreator';
 
 interface ChatMessage {
     id: number;
@@ -107,11 +108,12 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         setTitleValue(product.title);
         
         // Delay setting editor content to ensure DOM is ready
+        // Use a longer delay for social post types to ensure conditional rendering completes
         const timer = setTimeout(() => {
             if (editorRef.current) {
                 editorRef.current.innerHTML = content ? formatContentToHTML(content) : '';
             }
-        }, 0);
+        }, 50);
 
         setChatMessages([
             {
@@ -124,6 +126,17 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         
         return () => clearTimeout(timer);
     }, [product]);
+    
+    // Re-initialize editor content when product type changes (for conditional rendering)
+    useEffect(() => {
+        const content = product.content || '';
+        const timer = setTimeout(() => {
+            if (editorRef.current) {
+                editorRef.current.innerHTML = content ? formatContentToHTML(content) : '';
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [product.type]);
 
     // Scroll chat to bottom
     useEffect(() => {
@@ -463,8 +476,8 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
             onClick={onClick}
             className={`p-2 rounded-lg transition-colors ${
                 isActive 
-                    ? 'bg-black text-white' 
-                    : 'hover:bg-black/[0.04] text-black/60'
+                    ? 'bg-teal-600 text-white' 
+                    : 'hover:bg-teal-50 text-teal-600'
             }`}
             title={title}
         >
@@ -618,18 +631,18 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                 </div>
                 
                 <div className="flex items-center gap-2">
-                    <button onClick={copyToClipboard} className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-black/70 hover:bg-black/[0.04] rounded-lg transition-colors">
+                    <button onClick={copyToClipboard} className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-black/70 hover:bg-teal-50 hover:text-teal-600 rounded-lg transition-colors">
                         {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
                         {copied ? 'Copied!' : 'Copy'}
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-black/70 hover:bg-black/[0.04] rounded-lg transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-black/70 hover:bg-teal-50 hover:text-teal-600 rounded-lg transition-colors">
                         <Download size={14} />
                         Export
                     </button>
                     <button 
                         onClick={() => setShowPublishDialog(true)}
                         disabled={currentProduct.status === 'published'}
-                        className="flex items-center gap-2 px-4 py-2 bg-black text-white text-[12px] font-medium rounded-lg hover:bg-black/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-[12px] font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Rocket size={14} />
                         {currentProduct.status === 'published' ? 'Published' : 'Publish'}
@@ -644,6 +657,14 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                     {currentProduct.type === 'instagram-post' ? (
                         /* Instagram Preview Editor */
                         <div className="max-w-md mx-auto px-4 py-8">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => handleImageUpload(e.target.files)}
+                                className="hidden"
+                            />
                             <div className="bg-white rounded-xl shadow-sm border border-black/[0.08] overflow-hidden">
                                 {/* Instagram Header */}
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-black/[0.06]">
@@ -659,13 +680,38 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                     <MoreHorizontal size={20} className="text-black/60" />
                                 </div>
                                 
-                                {/* Instagram Image Placeholder */}
-                                <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                    <div className="text-center">
-                                        <Instagram size={48} className="text-black/20 mx-auto mb-2" />
-                                        <p className="text-[13px] text-black/40">Tap to add photo</p>
+                                {/* Instagram Image Area */}
+                                {uploadedImages.length > 0 ? (
+                                    <div className="relative aspect-square">
+                                        <img src={uploadedImages[0]} alt="" className="w-full h-full object-cover" />
+                                        <button
+                                            onClick={() => removeImage(0)}
+                                            className="absolute top-2 right-2 p-2 bg-teal-600/80 hover:bg-teal-600 text-white rounded-full transition-colors"
+                                        >
+                                            <X size={16} />
+                                        </button>
                                     </div>
-                                </div>
+                                ) : (
+                                    /* Instagram Drag & Drop Zone */
+                                    <div
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className={`aspect-square flex items-center justify-center cursor-pointer transition-all ${
+                                            isDragging 
+                                                ? 'bg-purple-50 border-2 border-dashed border-purple-500' 
+                                                : 'bg-gradient-to-br from-gray-100 to-gray-200'
+                                        }`}
+                                    >
+                                        <div className="text-center">
+                                            <Instagram size={48} className={`mx-auto mb-2 transition-colors ${isDragging ? 'text-purple-500' : 'text-black/20'}`} />
+                                            <p className={`text-[13px] ${isDragging ? 'text-purple-600' : 'text-black/40'}`}>
+                                                {isDragging ? 'Drop photo here' : 'Tap or drag to add photo'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                                 
                                 {/* Instagram Actions */}
                                 <div className="flex items-center justify-between px-4 py-3">
@@ -714,7 +760,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 {/* X Compose Header */}
                                 <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.06]">
                                     <div className="w-8 h-8 rounded-full bg-gray-200" />
-                                    <button className="px-4 py-1.5 bg-black text-white text-[13px] font-medium rounded-full opacity-50">
+                                    <button className="px-4 py-1.5 bg-teal-600 text-white text-[13px] font-medium rounded-full opacity-50">
                                         Post
                                     </button>
                                 </div>
@@ -752,7 +798,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                             <img src={img} alt="" className="w-full h-full object-cover" />
                                                             <button
                                                                 onClick={() => removeImage(idx)}
-                                                                className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                className="absolute top-2 right-2 p-1.5 bg-teal-600/80 hover:bg-teal-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-colors"
                                                             >
                                                                 <X size={14} />
                                                             </button>
@@ -904,7 +950,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                     <img src={img} alt="" className="w-full h-full object-cover" />
                                                     <button
                                                         onClick={() => removeImage(idx)}
-                                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="absolute top-2 right-2 p-1.5 bg-teal-600/80 hover:bg-teal-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-colors"
                                                     >
                                                         <X size={14} />
                                                     </button>
@@ -965,7 +1011,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                             <ChevronDown size={14} />
                                         </button>
                                     </div>
-                                    <button className="px-4 py-1.5 bg-blue-600 text-white text-[13px] font-medium rounded-full opacity-50">
+                                    <button className="px-4 py-1.5 bg-teal-600 text-white text-[13px] font-medium rounded-full opacity-50">
                                         Post
                                     </button>
                                 </div>
@@ -1152,7 +1198,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                         >
                             <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                                    <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
                                         <Rocket size={14} className="text-white" />
                                     </div>
                                     <h3 className="text-[15px] font-medium">Publish</h3>
@@ -1203,7 +1249,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                                     : 'bg-gray-50 border-transparent opacity-50 cursor-not-allowed'
                                                         }`}
                                                     >
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedChannels.includes(channel.id) ? 'bg-black border-black' : 'border-black/30'}`}>
+                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedChannels.includes(channel.id) ? 'bg-teal-600 border-teal-600' : 'border-black/30'}`}>
                                                             {selectedChannels.includes(channel.id) && <Check size={10} className="text-white" />}
                                                         </div>
                                                         <div className="p-1.5 bg-gray-50 rounded-md">{channel.icon}</div>
@@ -1216,7 +1262,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                             <button
                                                 onClick={handlePublish}
                                                 disabled={selectedChannels.length === 0 || isPublishing}
-                                                className="w-full flex items-center justify-center gap-2 py-3 bg-black text-white rounded-lg font-medium hover:bg-black/90 transition-colors disabled:opacity-50"
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
                                             >
                                                 {isPublishing ? (
                                                     <><Loader2 size={14} className="animate-spin" /> Publishing...</>

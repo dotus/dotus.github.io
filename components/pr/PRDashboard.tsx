@@ -15,6 +15,7 @@ import { ExpandedQuestView } from './ExpandedQuestView';
 import { QuestDetailView } from './QuestDetailView';
 import { ProductEditor } from './ProductEditor';
 import { ProductCreator } from './ProductCreator';
+import { OutreachComposer } from './OutreachComposer';
 import type { ProductOutput } from './ProductSection';
 import { FileText, FileSpreadsheet, Image as ImageIcon, Link2 } from 'lucide-react';
 
@@ -33,7 +34,7 @@ const MOCK_ATTACHED = [
 ];
 
 type Tab = 'dashboard' | 'pitch' | 'media' | 'analytics';
-type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator';
+type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator' | 'outreach';
 type DashboardView = 'grid' | 'pipeline';
 
 export const PRDashboard: React.FC = () => {
@@ -46,6 +47,7 @@ export const PRDashboard: React.FC = () => {
     const [isNavigatingBack, setIsNavigatingBack] = useState(false);
     const [highlightedEventId, setHighlightedEventId] = useState<number | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<ProductOutput | null>(null);
+    const [detailDefaultTab, setDetailDefaultTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'activity'>('overview');
 
     const filteredQuests = filterQuests(MOCK_QUESTS, activeFilter);
 
@@ -62,6 +64,7 @@ export const PRDashboard: React.FC = () => {
     const handleCloseDetail = () => {
         setViewMode('list');
         setHighlightedEventId(null);
+        setDetailDefaultTab('overview');
         setTimeout(() => setSelectedQuest(null), 300);
     };
 
@@ -80,6 +83,18 @@ export const PRDashboard: React.FC = () => {
     };
 
     const handleCloseProductCreator = () => {
+        setViewMode('detail');
+    };
+
+    const handleOpenOutreach = () => {
+        setViewMode('outreach');
+    };
+
+    const handleCloseOutreach = () => {
+        setViewMode('detail');
+    };
+
+    const handleCampaignSent = () => {
         setViewMode('detail');
     };
 
@@ -149,6 +164,11 @@ export const PRDashboard: React.FC = () => {
         }
     };
 
+    const handleCampaignBadgeClick = (quest: Quest) => {
+        setDetailDefaultTab('distribution');
+        handleQuestClick(quest);
+    };
+
     return (
         <div className="flex h-screen bg-[#FAF9F6] text-black font-sans selection:bg-black/10 overflow-hidden">
             <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0" 
@@ -187,7 +207,7 @@ export const PRDashboard: React.FC = () => {
                             <Bell size={18} />
                         </button>
                         <div className="flex items-center gap-2 pl-3 border-l border-black/5">
-                            <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-xs font-semibold">M</div>
+                            <div className="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold">M</div>
                         </div>
                     </div>
                 </header>
@@ -242,7 +262,7 @@ export const PRDashboard: React.FC = () => {
                                                                 <button onClick={() => setDashboardView('grid')} className={`p-1.5 rounded-md transition-all ${dashboardView === 'grid' ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}><LayoutGrid size={14} /></button>
                                                                 <button onClick={() => setDashboardView('pipeline')} className={`p-1.5 rounded-md transition-all ${dashboardView === 'pipeline' ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}><List size={14} /></button>
                                                             </div>
-                                                            <button onClick={() => setViewMode('editor')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-black text-white rounded-lg hover:bg-black/90 transition-all"><Plus size={12} />New Quest</button>
+                                                            <button onClick={() => setViewMode('editor')} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all"><Plus size={12} />New Quest</button>
                                                         </div>
                                                     </motion.div>
                                                 ) : null}
@@ -296,7 +316,8 @@ export const PRDashboard: React.FC = () => {
                                                         <KanbanBoard 
                                                             onQuestClick={handleQuestClick} 
                                                             onExpandColumn={handleExpandColumn}
-                                                            animatingId={animatingQuestId} 
+                                                            animatingId={animatingQuestId}
+                                                            onCampaignBadgeClick={handleCampaignBadgeClick}
                                                         />
                                                     </motion.div>
                                                 )}
@@ -331,7 +352,9 @@ export const PRDashboard: React.FC = () => {
                                     onOpenEditor={() => setViewMode('editor')}
                                     onOpenProduct={handleOpenProduct}
                                     onCreateProduct={handleCreateProduct}
+                                    onOpenOutreach={handleOpenOutreach}
                                     highlightedEventId={highlightedEventId}
+                                    defaultTab={detailDefaultTab}
                                 />
                             </motion.div>
                         )}
@@ -392,6 +415,23 @@ export const PRDashboard: React.FC = () => {
                             </motion.div>
                         )}
 
+                        {activeTab === 'dashboard' && viewMode === 'outreach' && selectedQuest && (
+                            <motion.div
+                                key="dashboard-outreach"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="h-full"
+                            >
+                                <OutreachComposer 
+                                    quest={selectedQuest}
+                                    onClose={handleCloseOutreach}
+                                    onCampaignSent={handleCampaignSent}
+                                />
+                            </motion.div>
+                        )}
+
                         {activeTab === 'pitch' && (
                             <motion.div key="pitch" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><PitchGenerator /></motion.div>
                         )}
@@ -409,7 +449,7 @@ export const PRDashboard: React.FC = () => {
 };
 
 const NavPill = ({ active, onClick, label }: { active: boolean, onClick: () => void, label: string }) => (
-    <button onClick={onClick} className={`px-4 py-1.5 text-xs font-medium transition-all duration-200 rounded-lg ${active ? 'bg-white text-black shadow-sm' : 'text-black/50 hover:text-black hover:bg-black/[0.02]'}`}>
+    <button onClick={onClick} className={`px-4 py-1.5 text-xs font-medium transition-all duration-200 rounded-lg ${active ? 'bg-teal-600 text-white shadow-sm' : 'text-black/50 hover:text-black hover:bg-black/[0.02]'}`}>
         {label}
     </button>
 );

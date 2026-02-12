@@ -122,8 +122,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
                                 className={`
                                     h-7 w-7 mx-auto rounded-full flex items-center justify-center text-[11px] relative
                                     transition-all duration-150
-                                    ${isSelected ? 'bg-black text-white' : ''}
-                                    ${!isSelected && isToday ? 'bg-black/5 text-black font-medium' : ''}
+                                    ${isSelected ? 'bg-teal-600 text-white' : ''}
+                                    ${!isSelected && isToday ? 'bg-teal-50 text-teal-700 font-medium' : ''}
                                     ${!isSelected && !isToday ? 'text-black/70 hover:bg-black/5' : ''}
                                 `}
                             >
@@ -165,7 +165,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
                                         style={{ backgroundColor: TYPE_COLORS[event.type] }}
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-medium text-black truncate group-hover:text-blue-600 transition-colors">
+                                        <p className="text-xs font-medium text-black truncate group-hover:text-teal-600 transition-colors">
                                             {event.questTitle}
                                         </p>
                                         <p className="text-[11px] text-black/50">{event.title}</p>

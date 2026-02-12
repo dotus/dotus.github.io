@@ -3,6 +3,29 @@ import { FileText, Clock, CheckCircle2, Eye, Mail } from 'lucide-react';
 
 export type FilterType = 'all' | 'draft' | 'ready' | 'live' | 'review';
 
+export interface OutreachCampaign {
+    id: string;
+    status: 'draft' | 'sent' | 'scheduled';
+    sentAt?: string;
+    sentBy?: string;
+    journalists: JournalistContact[];
+    pitchContent: string;
+    subject: string;
+    openRate?: number;
+    responseCount?: number;
+}
+
+export interface JournalistContact {
+    id: number;
+    name: string;
+    outlet: string;
+    email: string;
+    focus: string;
+    status: 'pending' | 'opened' | 'responded' | 'bounced';
+    openedAt?: string;
+    respondedAt?: string;
+}
+
 export interface Quest {
     id: number;
     title: string;
@@ -18,7 +41,61 @@ export interface Quest {
     priority?: 'high' | 'medium' | 'low';
     emailDL: string[];
     uniqueEmail: string;  // Unique email for this quest (e.g., series-b@andalso.co)
+    outreachCampaign?: OutreachCampaign;
 }
+
+// DocItem is an alias for Quest (for backward compatibility with existing components)
+export type DocItem = Quest;
+
+// Helper to get storage key for quest outreach campaign
+export const getOutreachStorageKey = (questId: number) => `quest_outreach_${questId}`;
+
+// Mock journalist contacts for outreach
+export const MOCK_JOURNALISTS: JournalistContact[] = [
+    { id: 1, name: 'Mike Butcher', outlet: 'TechCrunch', email: 'mike@techcrunch.com', focus: 'Startups, Europe', status: 'opened', openedAt: '2h ago' },
+    { id: 2, name: 'Alex Konrad', outlet: 'Forbes', email: 'alex.konrad@forbes.com', focus: 'VC, Cloud', status: 'responded', respondedAt: '1h ago' },
+    { id: 3, name: 'Casey Newton', outlet: 'Platformer', email: 'casey@platformer.news', focus: 'Social Media, Democracy', status: 'pending' },
+    { id: 4, name: 'Kara Swisher', outlet: 'Pivot / NYMag', email: 'kara@nymag.com', focus: 'Tech, Business', status: 'pending' },
+    { id: 5, name: 'Ryan Lawler', outlet: 'TechCrunch', email: 'ryan@techcrunch.com', focus: 'AI, Enterprise', status: 'pending' },
+    { id: 6, name: 'Ingrid Lunden', outlet: 'TechCrunch', email: 'ingrid@techcrunch.com', focus: 'Funding, Europe', status: 'pending' },
+    { id: 7, name: 'Natasha Mascarenhas', outlet: 'TechCrunch', email: 'natasha@techcrunch.com', focus: 'Startups, VC', status: 'pending' },
+    { id: 8, name: 'Amanda Silberling', outlet: 'TechCrunch', email: 'amanda@techcrunch.com', focus: 'Creator Economy', status: 'pending' },
+    { id: 9, name: 'Taylor Hatmaker', outlet: 'TechCrunch', email: 'taylor@techcrunch.com', focus: 'AI, Policy', status: 'pending' },
+    { id: 10, name: 'Aisha Malik', outlet: 'TechCrunch', email: 'aisha@techcrunch.com', focus: 'Apps, Consumer', status: 'pending' },
+    { id: 11, name: 'Kyle Wiggers', outlet: 'TechCrunch', email: 'kyle@techcrunch.com', focus: 'AI, Robotics', status: 'pending' },
+    { id: 12, name: 'Paul Sawers', outlet: 'TechCrunch', email: 'paul@techcrunch.com', focus: 'Europe, AI', status: 'pending' },
+];
+
+// Get recommended journalists based on quest type/tags
+export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => {
+    // Simple recommendation logic based on quest type
+    const fundingKeywords = ['funding', 'series', 'investment', 'vc'];
+    const aiKeywords = ['ai', 'artificial intelligence', 'machine learning', 'neural'];
+    const productKeywords = ['product', 'launch', 'release', 'feature'];
+    
+    const questText = (quest.title + ' ' + quest.synopsis + ' ' + quest.tags.join(' ')).toLowerCase();
+    
+    const isFunding = fundingKeywords.some(k => questText.includes(k));
+    const isAI = aiKeywords.some(k => questText.includes(k));
+    const isProduct = productKeywords.some(k => questText.includes(k));
+    
+    // Score and sort journalists
+    const scored = MOCK_JOURNALISTS.map(j => {
+        let score = 0;
+        const focus = j.focus.toLowerCase();
+        
+        if (isFunding && (focus.includes('vc') || focus.includes('funding') || focus.includes('startups'))) score += 3;
+        if (isAI && focus.includes('ai')) score += 3;
+        if (isProduct && focus.includes('product')) score += 2;
+        if (j.outlet === 'TechCrunch') score += 1; // TechCrunch is generally good for tech
+        
+        return { ...j, score };
+    });
+    
+    return scored
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, 5);
+};
 
 export const MOCK_QUESTS: Quest[] = [
     { 
@@ -252,14 +329,8 @@ export const getStatusLabel = (status: Quest['status']): string => {
 
 // Badge components for consistent styling
 export const TypeBadge: React.FC<{ type: Quest['type'] }> = ({ type }) => {
-    const styles: Record<Quest['type'], string> = {
-        'Press Release': 'bg-blue-50 text-blue-700 border-blue-100',
-        'Blog Post': 'bg-emerald-50 text-emerald-700 border-emerald-100',
-        'Strategy Memo': 'bg-violet-50 text-violet-700 border-violet-100',
-    };
-    
     return (
-        <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md border ${styles[type]}`}>
+        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md border bg-gray-100 text-gray-700 border-gray-200">
             {type}
         </span>
     );

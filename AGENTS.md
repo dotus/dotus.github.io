@@ -33,6 +33,10 @@ The project uses CDN imports for production dependencies:
 - `lucide-react` - https://aistudiocdn.com/lucide-react@^0.554.0
 - `framer-motion` - https://aistudiocdn.com/framer-motion@^12.23.24
 
+### Additional Dependencies
+- `@hugeicons/react` - HugeIcons icon wrapper
+- `@hugeicons/core-free-icons` - HugeIcons free icon set (used in ProductCreator)
+
 ### Deployment
 - **Hosting:** GitHub Pages
 - **Domain:** strifeinfive.com
@@ -57,6 +61,9 @@ strife-relations/
 │   │   ├── KanbanBoard.tsx    # Kanban board with expandable columns
 │   │   ├── ExpandedQuestView.tsx # Filtered quest list with search
 │   │   ├── QuestDetailView.tsx   # Detailed quest view with tabs
+│   │   ├── ProductCreator.tsx    # 4-step wizard for creating content
+│   │   ├── ProductEditor.tsx     # Rich text editor with AI assistant
+│   │   ├── ProductSection.tsx    # Product list within Quest detail
 │   │   ├── QuickActions.tsx   # Quick action buttons
 │   │   ├── RecentActivity.tsx # Activity feed
 │   │   ├── CalendarWidget.tsx # Calendar/deadlines widget
@@ -213,17 +220,45 @@ ExpandedQuestView (when stat clicked)
 ```
 QuestDetailView (when quest clicked)
 ├── Header: Type badge, Priority, Edit button
-├── Title + Synopsis
+├── Title + Synopsis (inline editable)
 ├── Meta: Author, Role, Updated
 ├── Working Docs section (3-column grid)
-│   ├── Platform documents (doc/sheet/slide)
+│   ├── Platform documents (doc/sheet/slide) - no status badges
 │   └── New Doc button
+├── Product Section
+│   └── List of created content products
 ├── Tabs:
 │   ├── Overview - Comments
 │   ├── Timeline - Key dates/events (editable)
 │   ├── Distribution - Email DL
-│   ├── Documents - Attached files
+│   ├── Documents - Working Docs + Attached Files
 │   └── History - Version timeline
+```
+
+**4. Product Creator**
+```
+ProductCreator (4-step wizard)
+├── Step 1: Content Type (X, LinkedIn, Instagram, Press Release, etc.)
+├── Step 2: Source Documents selection
+├── Step 3: AI Options (toggle, word count, instructions)
+├── Step 4: Review & Create
+└── Generation animation (reading → analyzing → generating → complete)
+```
+
+**5. Product Editor**
+```
+ProductEditor (content editing workspace)
+├── Header with merged toolbar (formatting + title + actions)
+├── Left: Platform-specific preview editor
+│   ├── Instagram: Full preview with drag-drop image upload
+│   ├── X (Twitter): Compose interface with image upload
+│   ├── LinkedIn: Post preview with image upload
+│   └── Standard: Rich text editor
+└── Right: Editor sidebar
+    ├── Quest docs reference (@ mentions)
+    ├── AI conversation (Also)
+    ├── Quick actions
+    └── Chat input
 ```
 
 ### Sidebar Widgets
@@ -260,14 +295,43 @@ Comprehensive quest detail page.
 - **Overview**: Comments with add functionality
 - **Timeline**: Editable key dates (title, date, time, note)
 - **Distribution**: Email list with copy buttons
-- **Documents**: Attached files with download
+- **Documents**: Working Docs (grid) + Attached Files (list)
 - **History**: Version timeline
 
 **Working Docs Section:**
 - 3-column grid of platform documents
-- Doc/Sheet/Slide cards with status
+- Doc/Sheet/Slide cards (no status badges)
 - Click to open editor
 - New Doc button
+
+**Product Section:**
+- Lists created content products
+- Click to open ProductEditor
+- Create new content button
+
+### ProductCreator
+4-step wizard for creating content products.
+- **Step 1**: Select output type (X Post, LinkedIn, Instagram, Press Release, Blog, etc.)
+- **Step 2**: Select source documents from quest
+- **Step 3**: AI options (toggle, word count slider, instructions)
+- **Step 4**: Review and create
+- **Generation**: Animated progress through reading/analyzing/generating/complete
+- Stores products in sessionStorage per quest
+
+### ProductEditor
+Rich text editor with platform-specific previews and AI assistance.
+- **Header**: Merged toolbar (formatting buttons + editable title + actions)
+- **Platform Previews**:
+  - Instagram: Full preview with gradient profile, drag-drop image, actions
+  - X (Twitter): Compose interface with character counter, image upload
+  - LinkedIn: Professional post preview with image upload
+  - Standard: Rich text editor with full formatting
+- **Sidebar**:
+  - Quest docs reference (click to @ mention in chat)
+  - AI conversation with "Also" (serif font)
+  - Quick actions (Make it shorter, Expand, More professional, etc.)
+  - Chat input with document references
+- **Image Upload**: Drag & drop or click to upload, sessionStorage persisted
 
 ### CalendarWidget (Tracker)
 Mini calendar showing deadlines.
@@ -386,3 +450,7 @@ No automated test suite is currently configured. Manual testing workflow:
 3. **Brand:** All references should use "&also" not "Strife Relations"
 4. **Terminology:** Use "Quests" not "Content" or "Documents"
 5. **Git Ignore:** `node_modules`, `dist`, `*.local` ignored
+6. **Working Docs:** No status/stages (draft/review/final) - stages are only on Quests
+7. **Icons:** Mix of Lucide React and HugeIcons (newer components use HugeIcons)
+8. **Session Storage:** Products and images stored per quest ID
+9. **Product Types:** x-post, linkedin-post, instagram-post, press-release, blog-post, website-copy, investor-doc
