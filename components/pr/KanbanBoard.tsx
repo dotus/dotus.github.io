@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MoreHorizontal, Plus, Maximize2, Minimize2, Send, Eye, MessageCircle } from 'lucide-react';
+import { MoreHorizontal, Plus, Maximize2, Minimize2, Send, Eye, MessageCircle, Flame } from 'lucide-react';
 import { MOCK_QUESTS, Quest, TypeBadge, PriorityBadge, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
 
 interface ColumnConfig {
@@ -219,7 +219,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                                         <div className="flex items-center gap-1.5">
                                                             <CampaignBadge questId={quest.id} />
                                                             {quest.priority === 'high' && (
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                                                                <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-red-50 text-red-700 border border-red-200 rounded-md">
+                                                                    <Flame size={10} className="fill-current" />
+                                                                    Hot
+                                                                </span>
                                                             )}
                                                         </div>
                                                     </div>

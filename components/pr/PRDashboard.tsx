@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Search, Bell, Plus, LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CayblesLogo } from '../ui/CayblesLogo';
 import { NewQuestView } from './NewQuestView';
 import { KanbanBoard } from './KanbanBoard';
 import { MediaDatabase } from './MediaDatabase';
@@ -180,7 +181,7 @@ export const PRDashboard: React.FC = () => {
                 <header className="h-16 border-b border-black/5 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-6 w-64">
                         <div className="shrink-0">
-                            <h2 className="font-serif text-lg text-black font-bold">&also</h2>
+                            <CayblesLogo size="full" theme="dark" height={32} />
                         </div>
                         <nav className="flex items-center gap-1 bg-black/[0.03] p-1 rounded-xl">
                             <NavPill active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setViewMode('list'); setSelectedQuest(null); }} label="Quests" />
