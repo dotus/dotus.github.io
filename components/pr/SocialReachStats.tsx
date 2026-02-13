@@ -137,8 +137,8 @@ export const SocialReachStats: React.FC<{ hidden?: boolean }> = ({ hidden = fals
                     className="shrink-0 px-3 h-full flex items-center gap-1.5 text-white text-[11px] font-medium z-10"
                     style={{ backgroundColor: ACCENT_COLOR }}
                 >
-                    <span className="font-serif">Live</span>
-                    <span className="opacity-70">Stats</span>
+                    <span className="">Stats</span>
+                    <span className="opacity-70 font-serif">7 days</span>
                 </div>
                 
                 {/* Scrolling Ticker */}
