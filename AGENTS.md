@@ -323,21 +323,31 @@ Comprehensive quest detail page.
 - Create new content button
 
 ### ProductCreator
-4-step wizard for creating content products.
-- **Step 1**: Select output type (X Post, LinkedIn, Instagram, Press Release, Blog, etc.)
-- **Step 2**: Select source documents from quest
-- **Step 3**: AI options (toggle, word count slider, instructions)
-- **Step 4**: Review and create
-- **Generation**: Animated progress through reading/analyzing/generating/complete
+4-step wizard with unified teal color scheme.
+- **Header Steps:** Teal active states (teal-600 bg for current, teal-100 for completed)
+- **Step 1 - Content Type:** Selected = teal border/bg, checkmark in teal
+- **Step 2 - Source Docs:** Section headers in teal, selected docs = teal-50 bg + teal border
+- **Step 3 - AI Options:** 
+  - Toggle in teal
+  - **Improved Length Target:** +/- buttons, teal word count badge, gradient visual bar with tick marks
+- **Step 4 - Review:** Teal section headers, teal icon backgrounds
+- **Generation:** Teal loading spinner and progress bar
 - Stores products in sessionStorage per quest
 
 ### ProductEditor
-Rich text editor with platform-specific previews and AI assistance.
+Rich text editor with platform-specific previews, AI assistance, and HugeIcons.
 - **Header**: Merged toolbar (formatting buttons + editable title + actions)
+  - Publish button uses Upload01Icon (HugeIcons)
+- **Publish Dialog**:
+  - Header: Upload01Icon in teal circle
+  - Channel icons: TwitterIcon, Linkedin01Icon, InstagramIcon, GlobalIcon, FileAttachmentIcon, Mail01Icon (all HugeIcons)
+  - Checkmarks: CheckmarkCircle02Icon (HugeIcons)
+  - Loading: Loading03Icon with animate-spin
+  - Success: CheckmarkCircle02Icon in emerald circle
 - **Platform Previews**:
-  - Instagram: Full preview with gradient profile, drag-drop image, actions
-  - X (Twitter): Compose interface with character counter, image upload
-  - LinkedIn: Professional post preview with image upload
+  - Instagram: InstagramIcon for drag-drop area (HugeIcons)
+  - X (Twitter): TwitterIcon for reply settings
+  - LinkedIn: Linkedin01Icon
   - Standard: Rich text editor with full formatting
 - **Sidebar**:
   - Quest docs reference (click to @ mention in chat)
@@ -345,6 +355,7 @@ Rich text editor with platform-specific previews and AI assistance.
   - Quick actions (Make it shorter, Expand, More professional, etc.)
   - Chat input with document references
 - **Image Upload**: Drag & drop or click to upload, sessionStorage persisted
+- **Icons**: Uses mix of HugeIcons (TwitterIcon, Linkedin01Icon, InstagramIcon, GlobalIcon, FileAttachmentIcon, Mail01Icon, Upload01Icon, Loading03Icon, CheckmarkCircle02Icon) and Lucide icons
 
 ### DistributionsPage
 Full-page distributions management interface (accessed via Distributions tab).

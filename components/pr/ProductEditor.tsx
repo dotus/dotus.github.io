@@ -1,13 +1,63 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+    ArrowLeft01Icon,
+    Upload01Icon,
+    Cancel01Icon,
+    TwitterIcon,
+    Linkedin01Icon,
+    InstagramIcon,
+    GlobalIcon,
+    FileAttachmentIcon,
+    Mail01Icon,
+    Copy01Icon,
+    Clock01Icon,
+    Download01Icon,
+    TextBoldIcon,
+    TextItalicIcon,
+    TextUnderlineIcon,
+    LeftToRightListNumberIcon,
+    LeftToRightListBulletIcon,
+    Link01Icon,
+    TextAlignLeftIcon,
+    TextAlignCenterIcon,
+    TextAlignRightIcon,
+    TextFontIcon,
+    CheckmarkCircle02Icon,
+    Undo02Icon,
+    Redo02Icon,
+    MoreVerticalIcon,
+    HeartAddIcon,
+    MessageMultiple01Icon,
+    Bookmark01Icon,
+    Image01Icon,
+    GiftIcon,
+    Location01Icon,
+    Calendar03Icon,
+    File01Icon,
+    File02Icon,
+    ArrowDown01Icon,
+    SentIcon,
+    Loading03Icon,
+    Share01Icon,
+    CheckmarkSquare02Icon,
+    StarIcon,
+} from '@hugeicons/core-free-icons';
 import { 
-    Rocket, X, ChevronLeft, Twitter, Linkedin, Instagram, Globe, FileBadge, Mail,
-    Copy, Clock, Download, Bold, Italic, Underline, List, ListOrdered, Link, AlignLeft, AlignCenter, AlignRight, Type,
-    Check, Undo, Redo,
-    MoreHorizontal, Heart, MessageCircle, Bookmark, ImageIcon, Gift, Smile, MapPin, Calendar, FileText, ChevronDown,
-    Send
+    X, ChevronLeft, Check, MoreHorizontal, Heart, MessageCircle, Bookmark, ImageIcon, Gift, Smile, MapPin, Calendar, FileText, ChevronDown,
+    Bold, Italic, Underline, List, ListOrdered, Link, AlignLeft, AlignCenter, AlignRight, Type, Undo, Redo, Copy, Clock, Download, Send
 } from 'lucide-react';
 import type { ProductOutput, OutputType } from './ProductCreator';
+
+const FILE_ICONS: Record<string, typeof File01Icon> = {
+    doc: File01Icon,
+    sheet: File02Icon,
+    slide: FileAttachmentIcon,
+    pdf: File02Icon,
+    image: Image01Icon,
+    link: Link01Icon,
+};
 
 interface ChatMessage {
     id: number;
@@ -41,23 +91,23 @@ interface ProductEditorProps {
     onUpdate: (updated: ProductOutput) => void;
 }
 
-const OUTPUT_TYPES: { id: OutputType; label: string; icon: React.ReactNode }[] = [
-    { id: 'x-post', label: 'X Post', icon: <Twitter size={14} /> },
-    { id: 'linkedin-post', label: 'LinkedIn Post', icon: <Linkedin size={14} /> },
-    { id: 'instagram-post', label: 'Instagram Post', icon: <Instagram size={14} /> },
-    { id: 'press-release', label: 'Press Release', icon: <FileBadge size={14} /> },
-    { id: 'blog-post', label: 'Blog Post', icon: <Globe size={14} /> },
-    { id: 'website-copy', label: 'Website Copy', icon: <Globe size={14} /> },
-    { id: 'investor-doc', label: 'Investor Document', icon: <FileBadge size={14} /> },
+const OUTPUT_TYPES: { id: OutputType; label: string; icon: typeof TwitterIcon }[] = [
+    { id: 'x-post', label: 'X Post', icon: TwitterIcon },
+    { id: 'linkedin-post', label: 'LinkedIn Post', icon: Linkedin01Icon },
+    { id: 'instagram-post', label: 'Instagram Post', icon: InstagramIcon },
+    { id: 'press-release', label: 'Press Release', icon: FileAttachmentIcon },
+    { id: 'blog-post', label: 'Blog Post', icon: GlobalIcon },
+    { id: 'website-copy', label: 'Website Copy', icon: GlobalIcon },
+    { id: 'investor-doc', label: 'Investor Document', icon: FileAttachmentIcon },
 ];
 
-const PUBLISH_CHANNELS: { id: string; label: string; icon: React.ReactNode; connected: boolean }[] = [
-    { id: 'x', label: 'X (Twitter)', icon: <Twitter size={16} />, connected: true },
-    { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin size={16} />, connected: true },
-    { id: 'instagram', label: 'Instagram', icon: <Instagram size={16} />, connected: false },
-    { id: 'website', label: 'Company Website', icon: <Globe size={16} />, connected: true },
-    { id: 'prnewswire', label: 'PR Newswire', icon: <FileBadge size={16} />, connected: false },
-    { id: 'email', label: 'Email Distribution', icon: <Mail size={16} />, connected: true },
+const PUBLISH_CHANNELS: { id: string; label: string; icon: typeof TwitterIcon; connected: boolean }[] = [
+    { id: 'x', label: 'X (Twitter)', icon: TwitterIcon, connected: true },
+    { id: 'linkedin', label: 'LinkedIn', icon: Linkedin01Icon, connected: true },
+    { id: 'instagram', label: 'Instagram', icon: InstagramIcon, connected: false },
+    { id: 'website', label: 'Company Website', icon: GlobalIcon, connected: true },
+    { id: 'prnewswire', label: 'PR Newswire', icon: FileAttachmentIcon, connected: false },
+    { id: 'email', label: 'Email Distribution', icon: Mail01Icon, connected: true },
 ];
 
 const QUICK_ACTIONS = [
@@ -491,12 +541,12 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
             <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <button onClick={onClose} className="p-2 hover:bg-black/[0.04] rounded-lg transition-colors">
-                        <ChevronLeft size={18} className="text-black/40" />
+                        <HugeiconsIcon icon={ArrowLeft01Icon} size={18} className="text-black/40" />
                     </button>
                     <div className="h-4 w-px bg-black/10" />
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                            {typeConfig?.icon}
+                            {typeConfig && <HugeiconsIcon icon={typeConfig.icon} size={14} />}
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
@@ -644,7 +694,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                         disabled={currentProduct.status === 'published'}
                         className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-[12px] font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Rocket size={14} />
+                        <HugeiconsIcon icon={Upload01Icon} size={14} />
                         {currentProduct.status === 'published' ? 'Published' : 'Publish'}
                     </button>
                 </div>
@@ -655,7 +705,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                 {/* Left: Editor */}
                 <div className="flex-1 overflow-y-auto min-h-0 bg-[#F0F2F5]">
                     {currentProduct.type === 'instagram-post' ? (
-                        /* Instagram Preview Editor */
+                        /* InstagramIcon Preview Editor */
                         <div className="max-w-md mx-auto px-4 py-8">
                             <input
                                 ref={fileInputRef}
@@ -666,7 +716,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 className="hidden"
                             />
                             <div className="bg-white rounded-xl shadow-sm border border-black/[0.08] overflow-hidden">
-                                {/* Instagram Header */}
+                                {/* InstagramIcon Header */}
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-black/[0.06]">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-[2px]">
                                         <div className="w-full h-full rounded-full bg-white p-[2px]">
@@ -680,7 +730,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                     <MoreHorizontal size={20} className="text-black/60" />
                                 </div>
                                 
-                                {/* Instagram Image Area */}
+                                {/* InstagramIcon Image Area */}
                                 {uploadedImages.length > 0 ? (
                                     <div className="relative aspect-square">
                                         <img src={uploadedImages[0]} alt="" className="w-full h-full object-cover" />
@@ -692,7 +742,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                         </button>
                                     </div>
                                 ) : (
-                                    /* Instagram Drag & Drop Zone */
+                                    /* InstagramIcon Drag & Drop Zone */
                                     <div
                                         onDragOver={handleDragOver}
                                         onDragLeave={handleDragLeave}
@@ -705,7 +755,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                         }`}
                                     >
                                         <div className="text-center">
-                                            <Instagram size={48} className={`mx-auto mb-2 transition-colors ${isDragging ? 'text-purple-500' : 'text-black/20'}`} />
+                                            <HugeiconsIcon icon={InstagramIcon} size={48} className={`mx-auto mb-2 transition-colors ${isDragging ? 'text-purple-500' : 'text-black/20'}`} />
                                             <p className={`text-[13px] ${isDragging ? 'text-purple-600' : 'text-black/40'}`}>
                                                 {isDragging ? 'Drop photo here' : 'Tap or drag to add photo'}
                                             </p>
@@ -713,7 +763,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                     </div>
                                 )}
                                 
-                                {/* Instagram Actions */}
+                                {/* InstagramIcon Actions */}
                                 <div className="flex items-center justify-between px-4 py-3">
                                     <div className="flex items-center gap-4">
                                         <Heart size={24} className="text-black" />
@@ -723,7 +773,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                     <Bookmark size={24} className="text-black" />
                                 </div>
                                 
-                                {/* Instagram Caption (Editable) */}
+                                {/* InstagramIcon Caption (Editable) */}
                                 <div className="px-4 pb-4">
                                     <div className="flex items-start gap-2">
                                         <span className="text-[13px] font-semibold flex-shrink-0">yourbrand</span>
@@ -831,7 +881,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                             
                                             {/* X Reply Settings */}
                                             <div className="flex items-center gap-1 text-blue-500 mt-3">
-                                                <Globe size={14} />
+                                                <HugeiconsIcon icon={GlobalIcon} size={14} />
                                                 <span className="text-[13px] font-medium">Everyone can reply</span>
                                             </div>
                                         </div>
@@ -906,7 +956,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                         <div className="flex items-center gap-1 text-[12px] text-black/50">
                                             <span>Just now</span>
                                             <span>•</span>
-                                            <Globe size={12} />
+                                            <HugeiconsIcon icon={GlobalIcon} size={12} />
                                         </div>
                                     </div>
                                 </div>
@@ -1006,7 +1056,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                     <div className="flex items-center gap-2">
                                         <div className="w-8 h-8 rounded-full bg-gray-200" />
                                         <button className="flex items-center gap-1 text-[13px] text-black/60 hover:bg-black/[0.04] px-2 py-1 rounded-lg transition-colors">
-                                            <Globe size={14} />
+                                            <HugeiconsIcon icon={GlobalIcon} size={14} />
                                             <span>Anyone</span>
                                             <ChevronDown size={14} />
                                         </button>
@@ -1069,47 +1119,72 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
 
                 {/* Right: Editor */}
                 <div className="w-80 flex flex-col bg-[#FAF9F6] border-l border-black/[0.06] flex-shrink-0">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-black/[0.06]">
-                        <p className="text-[13px] font-medium">Editor</p>
+
+
+                    {/* Quest Context - Distinct Section */}
+                    <div className="bg-gray-50/50 border-b border-black/[0.08]">
+                        {/* Quest Docs - Half Height with Scroll */}
+                        {(workingDocs.length > 0 || attachedDocs.length > 0) && (
+                            <div className="px-4 py-3 border-b border-black/[0.06]">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+
+                                        <span className="text-[13px] font-medium text-teal-900">Quest docs</span>
+                                    </div>
+                                    <span className="text-[11px] px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full">{workingDocs.length + attachedDocs.length}</span>
+                                </div>
+                                <div className="max-h-[120px] overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                    {workingDocs.map(doc => (
+                                        <button
+                                            key={doc.id}
+                                            onClick={() => {
+                                                const mention = `@${doc.title.replace(/\s+/g, '')} `;
+                                                setChatInput(prev => prev + mention);
+                                                chatInputRef.current?.focus();
+                                            }}
+                                            className="w-full flex items-center gap-2 px-2 py-1.5 text-left hover:bg-white rounded-lg transition-colors group border border-transparent hover:border-black/5"
+                                        >
+                                            <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                                <HugeiconsIcon icon={File01Icon} size={12} className="text-blue-600" />
+                                            </div>
+                                            <span className="text-[12px] text-black/70 truncate group-hover:text-teal-700">{doc.title}</span>
+                                        </button>
+                                    ))}
+                                    {attachedDocs.map(doc => (
+                                        <button
+                                            key={doc.id}
+                                            onClick={() => {
+                                                const mention = `@${doc.name.replace(/\s+/g, '')} `;
+                                                setChatInput(prev => prev + mention);
+                                                chatInputRef.current?.focus();
+                                            }}
+                                            className="w-full flex items-center gap-2 px-2 py-1.5 text-left hover:bg-white rounded-lg transition-colors group border border-transparent hover:border-black/5"
+                                        >
+                                            <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <HugeiconsIcon icon={FILE_ICONS[doc.fileType] || File02Icon} size={12} className="text-gray-600" />
+                                            </div>
+                                            <span className="text-[12px] text-black/70 truncate group-hover:text-teal-700">{doc.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Brand Assets - Distinct Section */}
+                        <div className="px-4 py-3 bg-gradient-to-br from-amber-50 via-amber-50/70 to-white">
+                            <div className="flex items-center gap-2 mb-2">
+
+                                <span className="text-[13px] font-medium text-amber-900">Brand context</span>
+                                <span className="text-[10px] px-2 py-0.5 bg-amber-200 text-amber-800 rounded-full font-medium">Enabled</span>
+                            </div>
+
+                            <p className="text-[11px] text-amber-700/60 mt-2 leading-relaxed">
+                                Your brand voice, key messaging, and recent announcements.
+                            </p>
+                        </div>
+                        
                     </div>
 
-                    {/* Document References */}
-                    {(workingDocs.length > 0 || attachedDocs.length > 0) && (
-                        <div className="px-4 py-3 border-b border-black/[0.06]">
-                            <p className="text-[11px] text-black/40 uppercase tracking-wider mb-2">Quest docs</p>
-                            <div className="max-h-32 overflow-y-auto space-y-1">
-                                {workingDocs.map(doc => (
-                                    <button
-                                        key={doc.id}
-                                        onClick={() => {
-                                            const mention = `@${doc.title.replace(/\s+/g, '')} `;
-                                            setChatInput(prev => prev + mention);
-                                            chatInputRef.current?.focus();
-                                        }}
-                                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left hover:bg-black/[0.04] rounded-lg transition-colors group"
-                                    >
-                                        <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">DOC</span>
-                                        <span className="text-[12px] text-black/70 truncate group-hover:text-black">{doc.title}</span>
-                                    </button>
-                                ))}
-                                {attachedDocs.map(doc => (
-                                    <button
-                                        key={doc.id}
-                                        onClick={() => {
-                                            const mention = `@${doc.name.replace(/\s+/g, '')} `;
-                                            setChatInput(prev => prev + mention);
-                                            chatInputRef.current?.focus();
-                                        }}
-                                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left hover:bg-black/[0.04] rounded-lg transition-colors group"
-                                    >
-                                        <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">{doc.fileType.toUpperCase()}</span>
-                                        <span className="text-[12px] text-black/70 truncate group-hover:text-black">{doc.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
@@ -1117,7 +1192,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                             <div key={msg.id} className="space-y-1">
                                 <div className={`text-[12px] ${msg.role === 'user' ? 'text-right' : ''}`}>
                                     <span className="text-black/40">
-                                        {msg.role === 'user' ? 'You' : 'Also'}
+                                        {msg.role === 'user' ? 'You' : 'Teal'}
                                     </span>
                                 </div>
                                 <div className={`text-[14px] leading-relaxed font-serif ${
@@ -1129,7 +1204,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                         ))}
                         {isProcessing && (
                             <div className="space-y-1">
-                                <div className="text-[12px] text-black/40">Also</div>
+                                <div className="text-[12px] text-black/40">Teal</div>
                                 <div className="flex items-center gap-2 text-black/50 font-serif">
                                     <span className="w-1 h-1 bg-black/30 rounded-full animate-bounce" />
                                     <span className="w-1 h-1 bg-black/30 rounded-full animate-bounce [animation-delay:0.1s]" />
@@ -1197,12 +1272,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                             className="bg-white rounded-xl w-full max-w-sm overflow-hidden"
                         >
                             <div className="px-4 py-3 border-b border-black/[0.06] flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-                                        <Rocket size={14} className="text-white" />
-                                    </div>
-                                    <h3 className="text-[15px] font-medium">Publish</h3>
-                                </div>
+                                <h3 className="text-[15px] font-medium">Select channels</h3>
                                 <button onClick={() => setShowPublishDialog(false)} className="p-1.5 hover:bg-black/[0.04] rounded-lg transition-colors">
                                     <X size={16} className="text-black/40" />
                                 </button>
@@ -1226,8 +1296,6 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                         </motion.div>
                                     ) : (
                                         <motion.div key="channels" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                            <p className="text-[13px] text-black/60 mb-3">Select channels:</p>
-                                            
                                             <div className="space-y-1.5 mb-4 max-h-60 overflow-y-auto">
                                                 {PUBLISH_CHANNELS.map((channel) => (
                                                     <button
@@ -1249,10 +1317,8 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                                     : 'bg-gray-50 border-transparent opacity-50 cursor-not-allowed'
                                                         }`}
                                                     >
-                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedChannels.includes(channel.id) ? 'bg-teal-600 border-teal-600' : 'border-black/30'}`}>
-                                                            {selectedChannels.includes(channel.id) && <Check size={10} className="text-white" />}
-                                                        </div>
-                                                        <div className="p-1.5 bg-gray-50 rounded-md">{channel.icon}</div>
+                                                        {selectedChannels.includes(channel.id) && <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-teal-600 flex-shrink-0" />}
+                                                        <div className="p-1.5 bg-gray-50 rounded-md"><HugeiconsIcon icon={channel.icon} size={16} /></div>
                                                         <div className="flex-1"><p className="text-[13px]">{channel.label}</p></div>
                                                         {!channel.connected && <span className="text-[11px] text-black/40">Connect</span>}
                                                     </button>
@@ -1265,9 +1331,9 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                 className="w-full flex items-center justify-center gap-2 py-3 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:opacity-50"
                                             >
                                                 {isPublishing ? (
-                                                    <><Loader2 size={14} className="animate-spin" /> Publishing...</>
+                                                    <><HugeiconsIcon icon={Loading03Icon} size={14} className="animate-spin" /> Publishing...</>
                                                 ) : (
-                                                    <><Rocket size={14} /> Publish {selectedChannels.length > 0 && `(${selectedChannels.length})`}</>
+                                                    <><HugeiconsIcon icon={Upload01Icon} size={14} /> Publish {selectedChannels.length > 0 && `(${selectedChannels.length})`}</>
                                                 )}
                                             </button>
                                         </motion.div>

@@ -4,7 +4,8 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
     ArrowLeft01Icon,
     ArrowRight01Icon,
-    CheckmarkSquare03Icon,
+    CheckmarkCircle02Icon,
+    CheckmarkSquare02Icon,
     Clock01Icon,
     File01Icon,
     File02Icon,
@@ -21,7 +22,9 @@ import {
     GlobalIcon,
     FileAttachmentIcon,
     SlideIcon,
-    Pdf01Icon
+    Pdf01Icon,
+    MinusSignIcon,
+    PlusSignIcon,
 } from '@hugeicons/core-free-icons';
 import type { ProductOutput, OutputType } from './ProductSection';
 export type { ProductOutput, OutputType };
@@ -211,6 +214,16 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
         })
     };
 
+    // Get min/max for word count slider
+    const getWordCountRange = () => {
+        if (!selectedOutputType) return { min: 50, max: 1000 };
+        if (selectedOutputType === 'x-post') return { min: 30, max: 280 };
+        if (selectedOutputType.includes('post')) return { min: 100, max: 500 };
+        return { min: 200, max: 2000 };
+    };
+    const { min, max } = getWordCountRange();
+    const sliderPercentage = ((wordCount - min) / (max - min)) * 100;
+
     if (isGenerating) {
         return (
             <div className="h-full flex flex-col bg-[#FAF9F6]">
@@ -222,7 +235,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                 </div>
                 <div className="flex-1 flex items-center justify-center p-6">
                     <div className="text-center max-w-sm">
-                        <HugeiconsIcon icon={Loading03Icon} size={40} className="animate-spin text-black/60 mx-auto mb-6" />
+                        <HugeiconsIcon icon={Loading03Icon} size={40} className="animate-spin text-teal-600 mx-auto mb-6" />
                         <h3 className="text-[18px] font-medium mb-2">
                             {useAI ? (
                                 <>
@@ -237,7 +250,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                             <>
                                 <p className="text-[14px] text-black/50 mb-3">{readingProgress}% complete</p>
                                 <div className="w-56 h-2 bg-gray-100 rounded-full mx-auto overflow-hidden">
-                                    <div className="h-full bg-black rounded-full transition-all duration-300" style={{ width: `${readingProgress}%` }} />
+                                    <div className="h-full bg-teal-600 rounded-full transition-all duration-300" style={{ width: `${readingProgress}%` }} />
                                 </div>
                             </>
                         )}
@@ -249,54 +262,51 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
 
     return (
         <div className="h-full flex flex-col bg-[#FAF9F6]">
-            {/* Header with Progress */}
+            {/* Header with Progress - Teal Active States */}
             <div className="px-5 py-3 border-b border-black/[0.06] bg-white">
                 <div className="flex items-center gap-4">
                     <button onClick={onClose} className="p-2 hover:bg-black/[0.04] rounded-lg transition-colors flex-shrink-0">
                         <HugeiconsIcon icon={ArrowLeft01Icon} size={18} className="text-black/40" />
                     </button>
                     
-                    {/* Progress Steps */}
+                    {/* Progress Steps - Teal for active/current */}
                     <div className="flex items-center gap-1.5 overflow-x-auto">
                         {STEPS.map((step, index) => (
                             <React.Fragment key={step.id}>
                                 <div className="flex items-center gap-2">
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-medium transition-colors ${
-                                        currentStep > step.id 
-                                            ? 'bg-black text-white' 
-                                            : currentStep === step.id 
-                                                ? 'bg-black text-white' 
+                                    {/* Step indicator - cleaner without circle bg for completed */}
+                                    {currentStep > step.id ? (
+                                        <HugeiconsIcon icon={CheckmarkSquare02Icon} size={18} className="text-teal-600" />
+                                    ) : (
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium transition-colors ${
+                                            currentStep === step.id 
+                                                ? 'bg-teal-600 text-white' 
                                                 : 'bg-gray-100 text-black/40'
-                                    }`}>
-                                        {currentStep > step.id ? (
-                                            <HugeiconsIcon icon={CheckmarkSquare03Icon} size={14} />
-                                        ) : (
-                                            step.id
-                                        )}
-                                    </div>
-                                    <span className={`text-[12px] whitespace-nowrap ${
-                                        currentStep >= step.id ? 'text-black font-medium' : 'text-black/40'
+                                        }`}>
+                                            {step.id}
+                                        </div>
+                                    )}
+                                    <span className={`text-[11px] whitespace-nowrap ${
+                                        currentStep >= step.id ? 'text-teal-700 font-medium' : 'text-black/40'
                                     }`}>
                                         {step.label}
                                     </span>
                                 </div>
                                 {index < STEPS.length - 1 && (
-                                    <HugeiconsIcon icon={ArrowRight02Icon} size={14} className={`mx-1 flex-shrink-0 ${
-                                        currentStep > step.id ? 'text-black' : 'text-black/20'
+                                    <HugeiconsIcon icon={ArrowRight02Icon} size={12} className={`mx-1 flex-shrink-0 ${
+                                        currentStep > step.id ? 'text-teal-600' : 'text-black/20'
                                     }`} />
                                 )}
                             </React.Fragment>
                         ))}
                     </div>
-                    
-
                 </div>
             </div>
 
             {/* Main Content Area */}
             <div className="flex-1 overflow-hidden relative">
                 <AnimatePresence mode="wait" custom={direction}>
-                    {/* Step 1: Content Type */}
+                    {/* Step 1: Content Type - Teal Selection */}
                     {currentStep === 1 && (
                         <motion.div
                             key="step1"
@@ -319,25 +329,23 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                             onClick={() => handleOutputTypeSelect(type.id)}
                                             className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
                                                 selectedOutputType === type.id
-                                                    ? 'border-black bg-black text-white'
-                                                    : 'bg-white border-black/[0.08] hover:border-black/20'
+                                                    ? 'border-teal-600 bg-teal-50'
+                                                    : 'bg-white border-black/[0.08] hover:border-teal-200'
                                             }`}
                                         >
-                                            <div className={`p-3 rounded-xl ${selectedOutputType === type.id ? 'bg-white/20' : 'bg-gray-50'}`}>
+                                            <div className={`p-3 rounded-xl ${selectedOutputType === type.id ? 'bg-teal-100 text-teal-700' : 'bg-gray-50 text-black/60'}`}>
                                                 <HugeiconsIcon icon={type.icon} size={20} />
                                             </div>
                                             <div className="flex-1">
-                                                <p className={`text-[15px] font-medium ${selectedOutputType === type.id ? 'text-white' : 'text-black'}`}>
+                                                <p className={`text-[15px] font-medium ${selectedOutputType === type.id ? 'text-teal-900' : 'text-black'}`}>
                                                     {type.label}
                                                 </p>
-                                                <p className={`text-[13px] mt-0.5 ${selectedOutputType === type.id ? 'text-white/70' : 'text-black/50'}`}>
+                                                <p className={`text-[13px] mt-0.5 ${selectedOutputType === type.id ? 'text-teal-600' : 'text-black/50'}`}>
                                                     {type.description} • ~{type.suggestedWords} words
                                                 </p>
                                             </div>
                                             {selectedOutputType === type.id && (
-                                                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                                                    <HugeiconsIcon icon={CheckmarkSquare03Icon} size={14} />
-                                                </div>
+                                                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} className="text-teal-600" />
                                             )}
                                         </button>
                                     ))}
@@ -346,7 +354,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                         </motion.div>
                     )}
 
-                    {/* Step 2: Source Documents */}
+                    {/* Step 2: Source Documents - Teal Selection */}
                     {currentStep === 2 && (
                         <motion.div
                             key="step2"
@@ -366,8 +374,8 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                 
                                 {!hasDocs ? (
                                     <div className="p-8 bg-white border border-black/[0.06] rounded-xl text-center">
-                                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <HugeiconsIcon icon={FileAddIcon} size={20} className="text-black/30" />
+                                        <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <HugeiconsIcon icon={FileAddIcon} size={20} className="text-teal-600" />
                                         </div>
                                         <p className="text-[15px] font-medium text-black/70">No documents available</p>
                                         <p className="text-[13px] text-black/40 mt-1">Continue without source documents</p>
@@ -377,10 +385,10 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                         {workingDocs.length > 0 && (
                                             <div>
                                                 <div className="flex items-center justify-between mb-3">
-                                                    <p className="text-[12px] font-semibold text-black/40 uppercase tracking-wider">Working Documents</p>
+                                                    <p className="text-[12px] font-semibold text-teal-700 uppercase tracking-wider">Working Documents</p>
                                                     <button
                                                         onClick={selectAllDocs}
-                                                        className="text-[12px] text-black/60 hover:text-black"
+                                                        className="text-[12px] text-teal-600 hover:text-teal-700 font-medium"
                                                     >
                                                         {selectedDocs.length === totalDocs ? 'Deselect All' : 'Select All'}
                                                     </button>
@@ -392,21 +400,20 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                                             onClick={() => toggleDocSelection(doc.id)}
                                                             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
                                                                 selectedDocs.includes(doc.id)
-                                                                    ? 'bg-gray-50 border-black/20'
-                                                                    : 'bg-white border-black/[0.04] hover:border-black/10'
+                                                                    ? 'bg-teal-50 border-teal-200'
+                                                                    : 'bg-white border-black/[0.04] hover:border-teal-100'
                                                             }`}
                                                         >
                                                             {selectedDocs.includes(doc.id) && (
-                                                                <HugeiconsIcon icon={CheckmarkSquare03Icon} size={18} className="text-black" />
+                                                                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-teal-600 flex-shrink-0" />
                                                             )}
-                                                            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-                                                                <HugeiconsIcon icon={FILE_ICONS[doc.type]} size={20} className="text-blue-600" />
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${selectedDocs.includes(doc.id) ? 'bg-teal-100' : 'bg-gray-50'}`}>
+                                                                <HugeiconsIcon icon={FILE_ICONS[doc.type]} size={20} className={selectedDocs.includes(doc.id) ? 'text-teal-600' : 'text-blue-600'} />
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-[14px] font-medium truncate">{doc.title}</p>
-                                                                <p className="text-[12px] text-black/40">{doc.lastEdited}</p>
+                                                                <p className={`text-[14px] font-medium truncate ${selectedDocs.includes(doc.id) ? 'text-teal-900' : 'text-black'}`}>{doc.title}</p>
+                                                                <p className={`text-[12px] ${selectedDocs.includes(doc.id) ? 'text-teal-600' : 'text-black/40'}`}>{doc.lastEdited}</p>
                                                             </div>
-
                                                         </button>
                                                     ))}
                                                 </div>
@@ -415,7 +422,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                         
                                         {attachedDocs.length > 0 && (
                                             <div>
-                                                <p className="text-[12px] font-semibold text-black/40 uppercase tracking-wider mb-3">Attached Files</p>
+                                                <p className="text-[12px] font-semibold text-teal-700 uppercase tracking-wider mb-3">Attached Files</p>
                                                 <div className="space-y-2">
                                                     {attachedDocs.map(doc => (
                                                         <button
@@ -423,19 +430,19 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                                             onClick={() => toggleDocSelection(doc.id)}
                                                             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
                                                                 selectedDocs.includes(doc.id)
-                                                                    ? 'bg-gray-50 border-black/20'
-                                                                    : 'bg-white border-black/[0.04] hover:border-black/10'
+                                                                    ? 'bg-teal-50 border-teal-200'
+                                                                    : 'bg-white border-black/[0.04] hover:border-teal-100'
                                                             }`}
                                                         >
                                                             {selectedDocs.includes(doc.id) && (
-                                                                <HugeiconsIcon icon={CheckmarkSquare03Icon} size={18} className="text-black" />
+                                                                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-teal-600 flex-shrink-0" />
                                                             )}
-                                                            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-                                                                <HugeiconsIcon icon={FILE_ICONS[doc.fileType]} size={20} />
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${selectedDocs.includes(doc.id) ? 'bg-teal-100' : 'bg-gray-50'}`}>
+                                                                <HugeiconsIcon icon={FILE_ICONS[doc.fileType]} size={20} className={selectedDocs.includes(doc.id) ? 'text-teal-600' : 'text-black/60'} />
                                                             </div>
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-[14px] font-medium truncate">{doc.name}</p>
-                                                                <p className="text-[12px] text-black/40">{doc.source} • {doc.uploadedAt}</p>
+                                                                <p className={`text-[14px] font-medium truncate ${selectedDocs.includes(doc.id) ? 'text-teal-900' : 'text-black'}`}>{doc.name}</p>
+                                                                <p className={`text-[12px] ${selectedDocs.includes(doc.id) ? 'text-teal-600' : 'text-black/40'}`}>{doc.source} • {doc.uploadedAt}</p>
                                                             </div>
                                                         </button>
                                                     ))}
@@ -445,16 +452,16 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                     </div>
                                 )}
                                 
-                                <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                                    <p className="text-[13px] text-black/60">
-                                        <span className="font-medium">{selectedDocs.length}</span> of <span className="font-medium">{totalDocs}</span> documents selected
+                                <div className="mt-6 p-4 bg-teal-50 rounded-xl border border-teal-100">
+                                    <p className="text-[13px] text-teal-800">
+                                        <span className="font-semibold">{selectedDocs.length}</span> of <span className="font-semibold">{totalDocs}</span> documents selected
                                     </p>
                                 </div>
                             </div>
                         </motion.div>
                     )}
 
-                    {/* Step 3: AI Options */}
+                    {/* Step 3: AI Options - Teal Highlights & Improved Slider */}
                     {currentStep === 3 && (
                         <motion.div
                             key="step3"
@@ -470,17 +477,22 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                 <h2 className="text-[20px] font-medium mb-2">Draft options</h2>
                                 <p className="text-[14px] text-black/50 mb-6">Configure how your content should be created.</p>
                                 
-                                {/* AI Toggle */}
+                                {/* AI Toggle with Magic Icon */}
                                 <div className="p-5 bg-white border border-black/[0.06] rounded-xl mb-4">
                                     <div className="flex items-start gap-4">
-                                        <button
-                                            onClick={() => setUseAI(!useAI)}
-                                            className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${useAI ? 'bg-black' : 'bg-gray-200'}`}
-                                        >
-                                            <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${useAI ? 'translate-x-5' : ''}`} />
-                                        </button>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${useAI ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-black/30'}`}>
+                                            <HugeiconsIcon icon={MagicWand01Icon} size={20} />
+                                        </div>
                                         <div className="flex-1">
-                                            <p className="text-[15px] font-medium">Let AI write a first draft</p>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-[15px] font-medium">Let AI write a first draft</p>
+                                                <button
+                                                    onClick={() => setUseAI(!useAI)}
+                                                    className={`relative w-12 h-7 rounded-full transition-colors ${useAI ? 'bg-teal-600' : 'bg-gray-200'}`}
+                                                >
+                                                    <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${useAI ? 'translate-x-5' : ''}`} />
+                                                </button>
+                                            </div>
                                             <p className="text-[13px] text-black/50 mt-1">
                                                 We'll analyze your previous published content to match your brand voice and style.
                                             </p>
@@ -497,28 +509,69 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                             exit={{ opacity: 0, height: 0 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="bg-white rounded-xl border border-black/[0.06] p-4 space-y-4">
-                                                {/* Word Count */}
+                                            <div className="bg-white rounded-xl border border-black/[0.06] p-5 space-y-5">
+                                                {/* Word Count - Fixed Slider */}
                                                 <div>
-                                                    <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center justify-between mb-4">
                                                         <label className="text-[14px] font-medium">Length target</label>
-                                                        <span className="text-[14px] font-semibold px-3 py-1 bg-gray-100 rounded-full">{wordCount} words</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <button 
+                                                                onClick={() => setWordCount(Math.max(min, wordCount - 10))}
+                                                                className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                                            >
+                                                                <HugeiconsIcon icon={MinusSignIcon} size={14} />
+                                                            </button>
+                                                            <span className="text-[14px] font-semibold px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg min-w-[80px] text-center">{wordCount}</span>
+                                                            <button 
+                                                                onClick={() => setWordCount(Math.min(max, wordCount + 10))}
+                                                                className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                                            >
+                                                                <HugeiconsIcon icon={PlusSignIcon} size={14} />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <input
-                                                        type="range"
-                                                        min={selectedOutputType === 'x-post' ? 30 : selectedOutputType === 'linkedin-post' ? 100 : 200}
-                                                        max={selectedOutputType === 'x-post' ? 280 : selectedOutputType.includes('post') ? 500 : 2000}
-                                                        step={10}
-                                                        value={wordCount}
-                                                        onChange={(e) => setWordCount(parseInt(e.target.value))}
-                                                        className="w-full h-2 bg-gray-100 rounded-full appearance-none cursor-pointer"
-                                                        style={{
-                                                            background: `linear-gradient(to right, #000 0%, #000 ${(wordCount - (selectedOutputType === 'x-post' ? 30 : selectedOutputType === 'linkedin-post' ? 100 : 200)) / ((selectedOutputType === 'x-post' ? 280 : selectedOutputType.includes('post') ? 500 : 2000) - (selectedOutputType === 'x-post' ? 30 : selectedOutputType === 'linkedin-post' ? 100 : 200)) * 100}%, #f3f4f6 ${(wordCount - (selectedOutputType === 'x-post' ? 30 : selectedOutputType === 'linkedin-post' ? 100 : 200)) / ((selectedOutputType === 'x-post' ? 280 : selectedOutputType.includes('post') ? 500 : 2000) - (selectedOutputType === 'x-post' ? 30 : selectedOutputType === 'linkedin-post' ? 100 : 200)) * 100}%, #f3f4f6 100%)`
-                                                        }}
-                                                    />
+                                                    
+                                                    {/* Interactive Slider */}
+                                                    <div className="relative h-3">
+                                                        {/* Track background */}
+                                                        <div className="absolute inset-0 bg-gray-100 rounded-full" />
+                                                        {/* Filled track */}
+                                                        <div 
+                                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-teal-500 to-teal-400 rounded-full transition-all duration-150 pointer-events-none"
+                                                            style={{ width: `${sliderPercentage}%` }}
+                                                        />
+                                                        {/* Tick marks */}
+                                                        <div className="absolute inset-0 flex justify-between px-2 pointer-events-none">
+                                                            <div className="w-px h-full bg-white/50" />
+                                                            <div className="w-px h-full bg-white/50" />
+                                                            <div className="w-px h-full bg-white/50" />
+                                                            <div className="w-px h-full bg-white/50" />
+                                                            <div className="w-px h-full bg-white/50" />
+                                                        </div>
+                                                        {/* Native range input - visible and functional */}
+                                                        <input
+                                                            type="range"
+                                                            min={min}
+                                                            max={max}
+                                                            step={10}
+                                                            value={wordCount}
+                                                            onChange={(e) => setWordCount(parseInt(e.target.value))}
+                                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                            style={{ WebkitAppearance: 'none', appearance: 'none' }}
+                                                        />
+                                                        {/* Custom thumb overlay */}
+                                                        <div 
+                                                            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md border border-gray-200 pointer-events-none transition-all duration-150"
+                                                            style={{ left: `calc(${sliderPercentage}% - 8px)` }}
+                                                        />
+                                                    </div>
+                                                    
                                                     <div className="flex justify-between mt-2">
-                                                        <span className="text-[12px] text-black/40">Brief</span>
-                                                        <span className="text-[12px] text-black/40">Comprehensive</span>
+                                                        <span className="text-[11px] text-black/40 font-medium">{min}</span>
+                                                        <span className="text-[11px] text-black/40">Brief</span>
+                                                        <span className="text-[11px] text-black/40">Standard</span>
+                                                        <span className="text-[11px] text-black/40">Detailed</span>
+                                                        <span className="text-[11px] text-black/40 font-medium">{max}</span>
                                                     </div>
                                                 </div>
                                                 
@@ -532,7 +585,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                                         onChange={(e) => setAdditionalInstructions(e.target.value)}
                                                         placeholder="e.g., Focus on technical aspects, mention specific features..."
                                                         rows={3}
-                                                        className="w-full p-3 text-[14px] border border-black/[0.08] rounded-xl resize-none outline-none focus:border-black/20 placeholder:text-black/30"
+                                                        className="w-full p-3 text-[14px] border border-black/[0.08] rounded-xl resize-none outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 placeholder:text-black/30"
                                                     />
                                                 </div>
                                             </div>
@@ -562,10 +615,10 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
                                 <div className="space-y-4">
                                     {/* Content Type Summary */}
                                     <div className="p-5 bg-white border border-black/[0.06] rounded-xl">
-                                        <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-3">Content Type</p>
+                                        <p className="text-[11px] font-semibold text-teal-700 uppercase tracking-wider mb-3">Content Type</p>
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-gray-50 rounded-lg">
-                                                {selectedTypeConfig && <HugeiconsIcon icon={selectedTypeConfig.icon} size={20} />}
+                                            <div className="p-2 bg-teal-50 rounded-lg">
+                                                {selectedTypeConfig && <HugeiconsIcon icon={selectedTypeConfig.icon} size={20} className="text-teal-600" />}
                                             </div>
                                             <div>
                                                 <p className="text-[15px] font-medium">{selectedTypeConfig?.label}</p>
@@ -576,7 +629,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
 
                                     {/* Documents Summary */}
                                     <div className="p-5 bg-white border border-black/[0.06] rounded-xl">
-                                        <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-3">Source Documents</p>
+                                        <p className="text-[11px] font-semibold text-teal-700 uppercase tracking-wider mb-3">Source Documents</p>
                                         <p className="text-[14px]">
                                             <span className="font-medium">{selectedDocs.length}</span> documents selected
                                             {selectedDocs.length === 0 && (
@@ -587,11 +640,11 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
 
                                     {/* AI Options Summary */}
                                     <div className="p-5 bg-white border border-black/[0.06] rounded-xl">
-                                        <p className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-3">Draft Options</p>
+                                        <p className="text-[11px] font-semibold text-teal-700 uppercase tracking-wider mb-3">Draft Options</p>
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-[14px]">AI first draft</span>
-                                                <span className={`text-[13px] font-medium ${useAI ? 'text-emerald-600' : 'text-black/40'}`}>
+                                                <span className={`text-[13px] font-medium ${useAI ? 'text-teal-600' : 'text-black/40'}`}>
                                                     {useAI ? 'Enabled' : 'Disabled'}
                                                 </span>
                                             </div>
