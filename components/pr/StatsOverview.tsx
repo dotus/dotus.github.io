@@ -1,6 +1,7 @@
 import React from 'react';
-import { FileText, Clock, CheckCircle2, Eye, Mail } from 'lucide-react';
+import { Eye, Heart, Share2, Users, Mail } from 'lucide-react';
 
+// Types
 export type FilterType = 'all' | 'draft' | 'ready' | 'live' | 'review';
 
 export interface OutreachCampaign {
@@ -40,17 +41,15 @@ export interface Quest {
     tags: string[];
     priority?: 'high' | 'medium' | 'low';
     emailDL: string[];
-    uniqueEmail: string;  // Unique email for this quest (e.g., series-b@andalso.co)
+    uniqueEmail: string;
     outreachCampaign?: OutreachCampaign;
 }
 
-// DocItem is an alias for Quest (for backward compatibility with existing components)
 export type DocItem = Quest;
 
-// Helper to get storage key for quest outreach campaign
+// Helper functions
 export const getOutreachStorageKey = (questId: number) => `quest_outreach_${questId}`;
 
-// Mock journalist contacts for outreach
 export const MOCK_JOURNALISTS: JournalistContact[] = [
     { id: 1, name: 'Mike Butcher', outlet: 'TechCrunch', email: 'mike@techcrunch.com', focus: 'Startups, Europe', status: 'opened', openedAt: '2h ago' },
     { id: 2, name: 'Alex Konrad', outlet: 'Forbes', email: 'alex.konrad@forbes.com', focus: 'VC, Cloud', status: 'responded', respondedAt: '1h ago' },
@@ -66,9 +65,7 @@ export const MOCK_JOURNALISTS: JournalistContact[] = [
     { id: 12, name: 'Paul Sawers', outlet: 'TechCrunch', email: 'paul@techcrunch.com', focus: 'Europe, AI', status: 'pending' },
 ];
 
-// Get recommended journalists based on quest type/tags
 export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => {
-    // Simple recommendation logic based on quest type
     const fundingKeywords = ['funding', 'series', 'investment', 'vc'];
     const aiKeywords = ['ai', 'artificial intelligence', 'machine learning', 'neural'];
     const productKeywords = ['product', 'launch', 'release', 'feature'];
@@ -79,7 +76,6 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
     const isAI = aiKeywords.some(k => questText.includes(k));
     const isProduct = productKeywords.some(k => questText.includes(k));
     
-    // Score and sort journalists
     const scored = MOCK_JOURNALISTS.map(j => {
         let score = 0;
         const focus = j.focus.toLowerCase();
@@ -87,7 +83,7 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
         if (isFunding && (focus.includes('vc') || focus.includes('funding') || focus.includes('startups'))) score += 3;
         if (isAI && focus.includes('ai')) score += 3;
         if (isProduct && focus.includes('product')) score += 2;
-        if (j.outlet === 'TechCrunch') score += 1; // TechCrunch is generally good for tech
+        if (j.outlet === 'TechCrunch') score += 1;
         
         return { ...j, score };
     });
@@ -97,6 +93,7 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
         .slice(0, 5);
 };
 
+// Mock Quests
 export const MOCK_QUESTS: Quest[] = [
     { 
         id: 1, 
@@ -218,101 +215,100 @@ export const MOCK_QUESTS: Quest[] = [
     },
 ];
 
-interface Stat {
-    key: FilterType;
+// Social Reach Stats Component
+interface ReachStat {
+    id: string;
     label: string;
+    value: string;
+    change: string;
+    changeType: 'up' | 'down' | 'neutral';
     icon: React.ReactNode;
-    getValue: (quests: Quest[]) => number;
-    color: string;
 }
 
-const STATS: Stat[] = [
+const WEEKLY_STATS: ReachStat[] = [
     {
-        key: 'draft',
-        label: 'Drafts',
-        icon: <FileText size={16} strokeWidth={1.5} />,
-        getValue: (quests) => quests.filter(d => d.status === 'draft').length,
-        color: '#6B7280',
-    },
-    {
-        key: 'review',
-        label: 'In Review',
-        icon: <Clock size={16} strokeWidth={1.5} />,
-        getValue: (quests) => quests.filter(d => d.status === 'review').length,
-        color: '#F59E0B',
-    },
-    {
-        key: 'ready',
-        label: 'Ready',
-        icon: <CheckCircle2 size={16} strokeWidth={1.5} />,
-        getValue: (quests) => quests.filter(d => d.status === 'ready').length,
-        color: '#10B981',
-    },
-    {
-        key: 'live',
-        label: 'Published',
+        id: 'impressions',
+        label: 'Impressions',
+        value: '124.5K',
+        change: '+12.3%',
+        changeType: 'up',
         icon: <Eye size={16} strokeWidth={1.5} />,
-        getValue: (quests) => quests.filter(d => d.status === 'live').length,
-        color: '#3B82F6',
+    },
+    {
+        id: 'engagements',
+        label: 'Engagements',
+        value: '8.2K',
+        change: '+5.7%',
+        changeType: 'up',
+        icon: <Heart size={16} strokeWidth={1.5} />,
+    },
+    {
+        id: 'shares',
+        label: 'Shares',
+        value: '1,847',
+        change: '-2.1%',
+        changeType: 'down',
+        icon: <Share2 size={16} strokeWidth={1.5} />,
+    },
+    {
+        id: 'followers',
+        label: 'New Followers',
+        value: '+342',
+        change: '+8.4%',
+        changeType: 'up',
+        icon: <Users size={16} strokeWidth={1.5} />,
     },
 ];
 
-interface StatsOverviewProps {
-    activeFilter: FilterType;
-    onFilterChange: (filter: FilterType) => void;
+interface SocialReachStatsProps {
     hidden?: boolean;
 }
 
-export const StatsOverview: React.FC<StatsOverviewProps> = ({ activeFilter, onFilterChange, hidden = false }) => {
+export const SocialReachStats: React.FC<SocialReachStatsProps> = ({ hidden = false }) => {
     if (hidden) return null;
-    
-    const handleClick = (key: FilterType) => {
-        onFilterChange(activeFilter === key ? 'all' : key);
-    };
 
     return (
-        <div className="flex gap-3">
-            {STATS.map((stat) => {
-                const count = stat.getValue(MOCK_QUESTS);
-                const isActive = activeFilter === stat.key;
-                
-                return (
-                    <button
-                        key={stat.key}
-                        onClick={() => handleClick(stat.key)}
-                        className={`
-                            flex-1 flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200
-                            ${isActive 
-                                ? 'bg-black border-black shadow-md' 
-                                : 'bg-white border-black/5 hover:border-black/10 hover:shadow-sm'
-                            }
-                        `}
+        <div className="space-y-3">
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-black">Weekly Reach</h3>
+                <span className="text-[11px] text-black/40">Last 7 days</span>
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+                {WEEKLY_STATS.map((stat) => (
+                    <div
+                        key={stat.id}
+                        className="bg-white rounded-xl border border-black/5 p-4 hover:border-teal-200 hover:shadow-sm transition-all"
                     >
-                        <div 
-                            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                            style={{ 
-                                backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : `${stat.color}15`,
-                                color: isActive ? 'white' : stat.color,
-                            }}
-                        >
-                            {stat.icon}
-                        </div>
-                        <div className="text-left">
-                            <div className={`text-xl font-serif font-medium leading-none ${isActive ? 'text-white' : 'text-black'}`}>
-                                {count}
-                            </div>
-                            <div className={`text-[11px] mt-0.5 ${isActive ? 'text-white/60' : 'text-black/40'}`}>
-                                {stat.label}
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
+                                {stat.icon}
                             </div>
                         </div>
-                    </button>
-                );
-            })}
+                        <div className="text-xl font-serif font-medium text-black">
+                            {stat.value}
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                            <span className="text-[11px] text-black/50">{stat.label}</span>
+                            <span className={`text-[10px] font-medium ${
+                                stat.changeType === 'up' ? 'text-emerald-600' : 
+                                stat.changeType === 'down' ? 'text-red-500' : 
+                                'text-black/40'
+                            }`}>
+                                {stat.change}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
 
-export const filterQuests = (quests: Quest[], filter: FilterType): Quest[] => {
+// Backward compatibility - alias export
+export const StatsOverview = SocialReachStats;
+
+// Utility exports
+export const filterQuests = (quests: Quest[], filter: string): Quest[] => {
     if (filter === 'all') return quests;
     return quests.filter(d => d.status === filter);
 };
@@ -327,7 +323,7 @@ export const getStatusLabel = (status: Quest['status']): string => {
     return labels[status];
 };
 
-// Badge components for consistent styling
+// Badge components
 export const TypeBadge: React.FC<{ type: Quest['type'] }> = ({ type }) => {
     return (
         <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md border bg-gray-100 text-gray-700 border-gray-200">
@@ -360,7 +356,7 @@ export const EmailDLDisplay: React.FC<{ emails: string[]; max?: number }> = ({ e
         <div className="flex items-center gap-2">
             <Mail size={12} className="text-black/30" />
             <div className="flex items-center gap-1.5">
-                {display.map((email, i) => (
+                {display.map((email) => (
                     <span key={email} className="text-[11px] text-black/50 bg-black/[0.03] px-2 py-0.5 rounded">
                         {email}
                     </span>

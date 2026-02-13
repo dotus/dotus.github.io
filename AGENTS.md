@@ -34,8 +34,14 @@ The project uses CDN imports for production dependencies:
 - `framer-motion` - https://aistudiocdn.com/framer-motion@^12.23.24
 
 ### Additional Dependencies
-- `@hugeicons/react` - HugeIcons icon wrapper
-- `@hugeicons/core-free-icons` - HugeIcons free icon set (used in ProductCreator)
+- `@hugeicons/react` - HugeIcons icon wrapper (HugeiconsIcon component)
+- `@hugeicons/core-free-icons` - HugeIcons free icon set
+
+**Icon Usage:**
+- Use `HugeiconsIcon` wrapper component for all HugeIcons icons
+- Example: `<HugeiconsIcon icon={ArrowLeft01Icon} size={20} />`
+- Do NOT use icons directly as JSX components (they are data objects, not React components)
+- Mix of Lucide React (older components) and HugeIcons (newer components)
 
 ### Deployment
 - **Hosting:** GitHub Pages
@@ -56,21 +62,22 @@ strife-relations/
 │   │   ├── Stats.tsx          # Statistics/services display
 │   │   └── Stripes.tsx        # Stripe pattern
 │   ├── pr/                    # PR Dashboard components
-│   │   ├── PRDashboard.tsx    # Main dashboard layout with navigation
-│   │   ├── StatsOverview.tsx  # Filterable stats cards (Quest counts)
+│   │   ├── PRDashboard.tsx    # Main dashboard layout with Quests/Distributions/Network navigation
+│   │   ├── DistributionsPage.tsx # Full distributions management page with campaigns list and detail view
+│   │   ├── StatsOverview.tsx  # Weekly social reach stats
 │   │   ├── KanbanBoard.tsx    # Kanban board with expandable columns
 │   │   ├── ExpandedQuestView.tsx # Filtered quest list with search
 │   │   ├── QuestDetailView.tsx   # Detailed quest view with tabs
 │   │   ├── ProductCreator.tsx    # 4-step wizard for creating content
 │   │   ├── ProductEditor.tsx     # Rich text editor with AI assistant
 │   │   ├── ProductSection.tsx    # Product list within Quest detail
-│   │   ├── QuickActions.tsx   # Quick action buttons
+│   │   ├── ActiveDistributions.tsx # Active outreach campaigns overview
 │   │   ├── RecentActivity.tsx # Activity feed
 │   │   ├── CalendarWidget.tsx # Calendar/deadlines widget
 │   │   ├── DocumentList.tsx   # Document list view
 │   │   ├── CollaborativeEditor.tsx # Document editor
 │   │   ├── PitchGenerator.tsx # AI pitch generation tool
-│   │   ├── MediaDatabase.tsx  # Media contacts database
+│   │   ├── MediaDatabase.tsx  # Media contacts database (part of Network section)
 │   │   ├── Analytics.tsx      # Analytics dashboard with charts
 │   │   ├── Newsroom.tsx       # Newsroom/press release page
 │   │   └── ToneChecker.tsx    # Tone analysis tool
@@ -183,8 +190,13 @@ The Vite config exposes these to the client via:
 | Route | Component | Description |
 |-------|-----------|-------------|
 | `/` | `LandingPage` | Marketing homepage |
-| `/pr/*` | `PRDashboard` | PR dashboard (Quests workspace) |
+| `/pr/*` | `PRDashboard` | PR dashboard with three main sections: Quests, Distributions, Network |
 | `/pr/newsroom` | `Newsroom` | Standalone newsroom page |
+
+**Navigation Structure:**
+- **Quests** (formerly Workspace): Main kanban board and quest management
+- **Distributions**: Active outreach campaigns across all quests (aggregate view)
+- **Network**: Journalist database, media contacts, and relationship management
 
 ---
 
@@ -262,7 +274,7 @@ ProductEditor (content editing workspace)
 ```
 
 ### Sidebar Widgets
-- **QuickActions** - Create Quest, Send Pitch, Add Contact
+- **ActiveDistributions** - Overview of active outreach campaigns across quests with status and engagement metrics
 - **Tracker** - Calendar with deadlines/embargoes
 - **RecentActivity** - Team activity feed
 
@@ -270,11 +282,12 @@ ProductEditor (content editing workspace)
 
 ## Component Reference
 
-### StatsOverview
-Filterable stat cards showing quest counts by status.
-- Click to filter the view
-- Active state: black background, white text
-- Shows: Icon, Count, Label
+### SocialReachStats (formerly StatsOverview)
+Weekly social media reach statistics.
+- Shows: Impressions, Engagements, Shares, New Followers
+- Each stat shows value and week-over-week change
+- Teal icon styling
+- No click interaction - display only
 
 ### KanbanBoard
 4-column kanban with drag-ready cards.
@@ -333,11 +346,94 @@ Rich text editor with platform-specific previews and AI assistance.
   - Chat input with document references
 - **Image Upload**: Drag & drop or click to upload, sessionStorage persisted
 
+### DistributionsPage
+Full-page distributions management interface (accessed via Distributions tab).
+- **List View:**
+  - 6-card stats overview (Total, Sent, Scheduled, Draft, Opens, Responses)
+  - Search by campaign, subject, or journalist
+  - Filter by status (All/Sent/Scheduled/Draft)
+  - Campaign cards showing: quest title, type, "Hot" badge (if high priority), status
+  - Synopsis preview, journalist count, engagement metrics
+  - Deadline info with type (embargo/launch/internal)
+- **Detail View:**
+  - Quest info card: author, synopsis, tags, deadline
+  - "View Quest" button to navigate to quest detail
+  - Campaign stats: journalists, opened, responses, pending, open rate
+  - Journalists list with status badges (no avatars)
+  - Expandable journalist details showing timestamps and email
+  - Pitch content preview (if available)
+- Integrates with sessionStorage for campaign persistence
+- Navigation callback to open quest detail from distribution
+
+### ActiveDistributions
+Overview widget showing active outreach campaigns across all quests.
+- Lists sent, scheduled, and draft campaigns
+- Shows journalist count, opened count, and response count
+- Status badges: Sent (teal), Scheduled (amber), Draft (gray)
+- Replaces previous QuickActions widget
+
+### MediaDatabase (Network Page)
+Condensed journalist network with merged header and expand-on-hover cards.
+- **Merged Header Bar:** Single row containing:
+  - Title with count ("Network" + "10 journalists")
+  - Filter badges integrated inline:
+    - All (UserMultipleIcon) - gray when inactive
+    - Recommended (StarIcon) - amber accent when active
+    - Strong (HeartAddIcon) - rose accent when active  
+    - Mentions (Bookmark01Icon) - teal accent when active
+  - Compact search bar
+  - Filter button with badge count
+  - View toggle (LayoutGridIcon / ListViewIcon)
+  - Add button
+- **Expandable Filter Panel:** Inline outlet/focus/relationship tags
+- **Recommended Journalists:** First 5 in list (not scattered)
+- **Grid Cards - Expand on Hover:**
+  - No avatars
+  - Amber tint for recommended (`bg-amber-50/30`)
+  - Star icon top-right (subtle)
+  - Name → teal on hover
+  - Smooth expand: bio, latest article, brand mentions, contact buttons
+  - Framer Motion (0.25s ease)
+- **List View:** Row layout with hover expand
+- **Relationship Labels:** Colored text badges (not dots)
+- **Icons:** Search01Icon, FilterHorizontalIcon, UserMultipleIcon, StarIcon, HeartAddIcon, Bookmark01Icon, LayoutGridIcon, ListViewIcon, Mail01Icon, MessageMultiple01Icon, Newspaper, ArrowUpRightIcon
+
 ### CalendarWidget (Tracker)
 Mini calendar showing deadlines.
 - Color-coded dots (Embargo=purple, Deadline=red, Launch=green)
 - Date selection shows events
 - Upcoming events list
+
+### OutreachSection
+Embedded in Quest Detail Distribution tab. Shows outreach campaign status or CTA.
+- **Locked state:** Shows warning when quest is not "ready"
+- **Ready state:** "Prepare Outreach" CTA button (opens OutreachComposer)
+- **Sent state:** Shows campaign stats (open rate, journalist list, response tracking)
+
+### OutreachComposer
+Full-page 3-step wizard for creating and sending pitch campaigns.
+- **Step 1:** Template selection (Exclusive, Embargo, Follow-up)
+- **Step 2:** Compose pitch (editable subject and body with auto-populated quest data)
+- **Step 3:** Select journalists
+  - Recommended section (top 5 matches for quest type)
+  - More Contacts section with search
+  - Send button in header
+- Campaigns stored in sessionStorage per quest
+
+**Data Model:**
+```typescript
+interface OutreachCampaign {
+    id: string;
+    status: 'draft' | 'sent' | 'scheduled';
+    sentAt?: string;
+    sentBy?: string;
+    journalists: JournalistContact[];
+    pitchContent: string;
+    subject: string;
+    openRate?: number;
+    responseCount?: number;
+}
+```
 
 ---
 
@@ -378,14 +474,30 @@ export const Component: React.FC<ComponentProps> = ({ label, onAction }) => {
 **Color Scheme**
 - Background: `#FAF9F6` (off-white)
 - Text: `#0a0a0a` (near-black)
-- Accent: Black with varying opacity
+- **Primary:** Teal (`bg-teal-600` / `#0D9488`) - Used for buttons, profile icons, active states, primary actions
+- **Accent:** Pantone Marigold (`#EBA832`) - Used for recommended items, highlights, selected states in specific contexts
+
+**Usage Guidelines**
+- **Primary (Teal):**
+  - All primary action buttons (Save, Send, Create, Post, Generate)
+  - Profile/avatar icons (all user initials)
+  - Active tab backgrounds (Quest Detail, Navigation)
+  - Selected states in lists
+  - Format toolbar active states
+  - Step indicators in wizards
+  
+- **Accent (Orange/Yellow):**
+  - Recommended journalists section header
+  - Selected journalist pills
+  - Email hover states in Distribution tab
+  - Selected tab indicator (Quest Detail Distribution tab)
+  - Outreach campaign "Prepare" CTA
 
 **Badges**
-- Type badges: Colored backgrounds with borders
-  - Press Release: Blue
-  - Blog Post: Emerald
-  - Strategy Memo: Violet
+- Type badges: Monochrome gray (no color coding)
+  - All types: `bg-gray-100 text-gray-700 border-gray-200`
 - Priority badges: Red/Amber/Gray based on level
+- Status badges: Use semantic colors (emerald for sent, blue for opened, etc.)
 
 ---
 

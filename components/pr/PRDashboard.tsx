@@ -3,13 +3,13 @@ import { ChevronLeft, Search, Bell, Plus, LayoutGrid, List } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { NewQuestView } from './NewQuestView';
 import { KanbanBoard } from './KanbanBoard';
-import { PitchGenerator } from './PitchGenerator';
 import { MediaDatabase } from './MediaDatabase';
-import { Analytics } from './Analytics';
 import { DocumentList } from './DocumentList';
 import { CalendarWidget } from './CalendarWidget';
-import { StatsOverview, FilterType, filterQuests, MOCK_QUESTS, Quest } from './StatsOverview';
-import { QuickActions } from './QuickActions';
+import { MOCK_QUESTS, Quest, filterQuests, type FilterType } from './StatsOverview';
+import { SocialReachStats } from './SocialReachStats';
+import { ActiveDistributions } from './ActiveDistributions';
+import { DistributionsPage } from './DistributionsPage';
 import { RecentActivity } from './RecentActivity';
 import { ExpandedQuestView } from './ExpandedQuestView';
 import { QuestDetailView } from './QuestDetailView';
@@ -33,7 +33,7 @@ const MOCK_ATTACHED = [
     { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
 ];
 
-type Tab = 'dashboard' | 'pitch' | 'media' | 'analytics';
+type Tab = 'dashboard' | 'distributions' | 'network';
 type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator' | 'outreach';
 type DashboardView = 'grid' | 'pipeline';
 
@@ -41,7 +41,7 @@ export const PRDashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('dashboard');
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [dashboardView, setDashboardView] = useState<DashboardView>('grid');
-    const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+    const [activeFilter] = useState<FilterType>('all');
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
     const [animatingQuestId, setAnimatingQuestId] = useState<number | null>(null);
     const [isNavigatingBack, setIsNavigatingBack] = useState(false);
@@ -183,10 +183,9 @@ export const PRDashboard: React.FC = () => {
                             <h2 className="font-serif text-lg text-black font-bold">&also</h2>
                         </div>
                         <nav className="flex items-center gap-1 bg-black/[0.03] p-1 rounded-xl">
-                            <NavPill active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setViewMode('list'); setSelectedQuest(null); }} label="Workspace" />
-                            <NavPill active={activeTab === 'pitch'} onClick={() => setActiveTab('pitch')} label="Compose" />
-                            <NavPill active={activeTab === 'media'} onClick={() => setActiveTab('media')} label="Contacts" />
-                            <NavPill active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} label="Insights" />
+                            <NavPill active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setViewMode('list'); setSelectedQuest(null); }} label="Quests" />
+                            <NavPill active={activeTab === 'distributions'} onClick={() => setActiveTab('distributions')} label="Distributions" />
+                            <NavPill active={activeTab === 'network'} onClick={() => setActiveTab('network')} label="Network" />
                         </nav>
                     </div>
 
@@ -212,6 +211,9 @@ export const PRDashboard: React.FC = () => {
                     </div>
                 </header>
 
+                {/* Stats Ticker */}
+                {activeTab === 'dashboard' && viewMode === 'list' && <SocialReachStats />}
+
                 {/* Content */}
                 <div className="flex-1 overflow-hidden relative">
                     <AnimatePresence mode="wait">
@@ -225,22 +227,6 @@ export const PRDashboard: React.FC = () => {
                                 className="h-full overflow-y-auto"
                             >
                                 <div className="max-w-[1600px] mx-auto p-6 space-y-6">
-                                    {/* Stats - hidden when filtered */}
-                                    <AnimatePresence>
-                                        {activeFilter === 'all' && (
-                                            <motion.div
-                                                initial={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -20 }}
-                                                transition={{ duration: 0.2 }}
-                                            >
-                                                <StatsOverview 
-                                                    activeFilter={activeFilter} 
-                                                    onFilterChange={setActiveFilter}
-                                                />
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
                                     <div className="grid grid-cols-12 gap-6">
                                         <div className="col-span-9 space-y-4">
                                             {/* Header - simplified when filtered */}
@@ -324,7 +310,7 @@ export const PRDashboard: React.FC = () => {
                                             </AnimatePresence>
                                         </div>
                                         <div className="col-span-3 space-y-6">
-                                            <QuickActions />
+                                            <ActiveDistributions />
                                             <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
                                                 <div className="p-4">
                                                     <CalendarWidget onEventClick={handleCalendarEventClick} />
@@ -432,14 +418,26 @@ export const PRDashboard: React.FC = () => {
                             </motion.div>
                         )}
 
-                        {activeTab === 'pitch' && (
-                            <motion.div key="pitch" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><PitchGenerator /></motion.div>
+                        {activeTab === 'distributions' && (
+                            <motion.div 
+                                key="distributions" 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                exit={{ opacity: 0 }} 
+                                className="h-full"
+                            >
+                                <DistributionsPage 
+                                    onNavigateToQuest={(quest) => {
+                                        setActiveTab('dashboard');
+                                        handleQuestClick(quest);
+                                    }}
+                                />
+                            </motion.div>
                         )}
-                        {activeTab === 'media' && (
-                            <motion.div key="media" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><MediaDatabase /></motion.div>
-                        )}
-                        {activeTab === 'analytics' && (
-                            <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white"><Analytics /></motion.div>
+                        {activeTab === 'network' && (
+                            <motion.div key="network" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white">
+                                <MediaDatabase />
+                            </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
