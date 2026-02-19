@@ -122,9 +122,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                                                 {!state.submitting && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
                                             </button>
                                             
-                                            <p className="text-center text-[11px] text-gray-400 mt-4">
-                                                No spam. Unsubscribe anytime.
-                                            </p>
+                                          
                                         </form>
                                     </>
                                 )}

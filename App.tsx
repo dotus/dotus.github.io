@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LandingPage } from './components/LandingPage';
-import { PRDashboard } from './components/pr/PRDashboard';
-import { Newsroom } from './components/pr/Newsroom';
 
 function App() {
   return (
@@ -50,8 +48,6 @@ function App() {
         <div className="relative z-10">
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/pr/*" element={<PRDashboard />} />
-            <Route path="/pr/newsroom" element={<Newsroom />} />
           </Routes>
         </div>
       </div>
