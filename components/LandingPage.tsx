@@ -210,7 +210,7 @@ export const LandingPage: React.FC = () => {
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
-                                className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed mb-12"
+                                className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto font-normal leading-relaxed mb-12"
                             >
                                 The modern PR workspace. Track announcements from draft to publication, 
                                 reach the right journalists, and never miss a deadline.
@@ -261,14 +261,14 @@ export const LandingPage: React.FC = () => {
                     <section className="py-32 px-6 bg-[#FAF9F6] text-gray-900">
                         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
                             <div className="space-y-6">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1] text-gray-900"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Every announcement is a quest
                                 </h2>
-                                <p className="text-lg text-gray-600 leading-relaxed">
-                                    From press releases to blog posts, track every piece of content through your pipeline. 
+                                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed">
+                                    From press releases to blog posts, track every piece of content through your pipeline.
                                     Draft, review, approve, publish — all in one place.
                                 </p>
                             </div>
@@ -286,14 +286,14 @@ export const LandingPage: React.FC = () => {
                                 <QuestCreatorDemo />
                             </div>
                             <div className="space-y-6 order-1 md:order-2">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1]"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Create quests in seconds
                                 </h2>
-                                <p className="text-lg text-white/60 leading-relaxed">
-                                    Start with a title and synopsis. Add timeline events, attach documents, 
+                                <p className="text-xl md:text-2xl text-white/60 leading-relaxed">
+                                    Start with a title and synopsis. Add timeline events, attach documents,
                                     set your distribution list. Everything you need to organize your announcement.
                                 </p>
                             </div>
@@ -305,14 +305,14 @@ export const LandingPage: React.FC = () => {
                         <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
                         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center relative">
                             <div className="space-y-6">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1] text-gray-900"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Everything in one place
                                 </h2>
-                                <p className="text-lg text-gray-600 leading-relaxed">
-                                    The quest detail view brings together your documents, timeline, outreach campaigns, 
+                                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed">
+                                    The quest detail view brings together your documents, timeline, outreach campaigns,
                                     team comments, and version history. No more hunting through emails and Slack.
                                 </p>
                             </div>
@@ -330,15 +330,15 @@ export const LandingPage: React.FC = () => {
                                 <ProductEditorDemo />
                             </div>
                             <div className="space-y-6 order-1 md:order-2">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1]"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Craft your story
                                 </h2>
-                                <p className="text-lg text-white/60 leading-relaxed">
-                                    A powerful editor for press releases, blog posts, and social content. 
-                                    AI-assisted drafting with your brand voice, real-time collaboration, 
+                                <p className="text-xl md:text-2xl text-white/60 leading-relaxed">
+                                    A powerful editor for press releases, blog posts, and social content.
+                                    AI-assisted drafting with your brand voice, real-time collaboration,
                                     and multi-platform formatting.
                                 </p>
                             </div>
@@ -349,14 +349,14 @@ export const LandingPage: React.FC = () => {
                     <section className="py-32 px-6 bg-[#F5F5F0] text-gray-900">
                         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
                             <div className="space-y-6">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1] text-gray-900"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Reach the right journalists
                                 </h2>
-                                <p className="text-lg text-gray-600 leading-relaxed">
-                                    Built-in media database with outreach tracking. See who's opened your pitch, 
+                                <p className="text-xl md:text-2xl text-gray-600 leading-relaxed">
+                                    Built-in media database with outreach tracking. See who's opened your pitch,
                                     who responded, and follow up at the right time.
                                 </p>
                             </div>
@@ -374,14 +374,14 @@ export const LandingPage: React.FC = () => {
                                 <CalendarDemo />
                             </div>
                             <div className="space-y-6 order-1 md:order-2">
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1]"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
                                     Never miss a deadline
                                 </h2>
-                                <p className="text-lg text-white/60 leading-relaxed">
-                                    Visual calendar with embargo management, review deadlines, and launch dates. 
+                                <p className="text-xl md:text-2xl text-white/60 leading-relaxed">
+                                    Visual calendar with embargo management, review deadlines, and launch dates.
                                     Your entire PR timeline at a glance.
                                 </p>
                             </div>
@@ -396,7 +396,7 @@ export const LandingPage: React.FC = () => {
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div className="space-y-8">
                                 <span className="text-xs font-mono uppercase tracking-[0.3em] text-teal-400">The Best of Both Worlds</span>
-                                <h2 
+                                <h2
                                     className="text-5xl md:text-6xl font-bold tracking-tighter leading-[1.1]"
                                     style={{ fontFamily: '"Instrument Serif", serif' }}
                                 >
@@ -404,9 +404,9 @@ export const LandingPage: React.FC = () => {
                                     <br />
                                     <span className="text-white/40">You nail the nuance.</span>
                                 </h2>
-                                <p className="text-xl text-white/60 leading-relaxed font-light">
-                                    Our AI drafts the first version, suggests journalists, and tracks responses. 
-                                    You bring the strategy, the relationships, and the final polish that makes 
+                                <p className="text-xl md:text-2xl text-white/60 leading-relaxed">
+                                    Our AI drafts the first version, suggests journalists, and tracks responses.
+                                    You bring the strategy, the relationships, and the final polish that makes
                                     your story land.
                                 </p>
                                 <div className="flex items-center gap-8 pt-4">
@@ -440,7 +440,7 @@ export const LandingPage: React.FC = () => {
                     <div className="max-w-6xl mx-auto">
                         <div className="text-center mb-20">
                             <span className="text-xs font-mono uppercase tracking-[0.3em] text-gray-400">Pricing</span>
-                            <h2 
+                            <h2
                                 className="text-5xl md:text-6xl font-bold tracking-tighter mt-6 text-gray-900"
                                 style={{ fontFamily: '"Instrument Serif", serif' }}
                             >
@@ -488,7 +488,7 @@ export const LandingPage: React.FC = () => {
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-gradient-to-r from-teal-500/10 via-purple-500/10 to-teal-500/10 rounded-full blur-3xl opacity-30"></div>
                     </div>
                     <div className="max-w-4xl mx-auto text-center space-y-10 relative">
-                        <h2 
+                        <h2
                             className="text-6xl md:text-8xl font-bold tracking-tighter"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
@@ -574,7 +574,7 @@ const JournalistSection: React.FC = () => {
             <div className="max-w-7xl mx-auto relative">
                 <div className="grid md:grid-cols-2 gap-20 items-center">
                     <motion.div style={{ y, opacity }} className="space-y-8">
-                        <h2 
+                        <h2
                             className="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.9]"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
@@ -1030,7 +1030,7 @@ const PricingCard: React.FC<{
         <div className="mb-6">
             <h3 className="text-xl font-bold mb-2 text-gray-900">{name}</h3>
             <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-gray-900" style={{ fontFamily: '"Instrument Serif", serif' }}>{price}</span>
+                <span className="text-4xl font-bold text-gray-900">{price}</span>
                 {period && <span className="text-gray-500">{period}</span>}
             </div>
             <p className="mt-2 text-sm text-gray-500">{description}</p>
@@ -1075,7 +1075,7 @@ const WaitlistModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isO
                                 ) : (
                                     <>
                                         <div className="mb-8">
-                                            <h2 className="text-3xl font-bold tracking-tight leading-none text-gray-900" style={{ fontFamily: '"Instrument Serif", serif' }}>Join Waitlist</h2>
+                                            <h2 className="text-3xl font-bold tracking-tight leading-none text-gray-900">Join Waitlist</h2>
                                             <p className="text-gray-500 mt-2 text-lg">Be among the first to experience Caybles.</p>
                                         </div>
                                         <form className="space-y-5" onSubmit={handleSubmit}>
