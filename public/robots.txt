@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://strifeinfive.com/sitemap.xml
+Sitemap: https://caybles.com/sitemap.xml

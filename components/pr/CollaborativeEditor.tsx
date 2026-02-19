@@ -52,7 +52,7 @@ export const CollaborativeEditor: React.FC = () => {
                                             <div className="flex flex-col">
                                                 <span className="text-[11px] font-bold text-black flex items-center gap-1.5">
                                                     Sarah Jenkins
-                                                    <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Strife Partner</span>
+                                                    <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Account Lead</span>
                                                 </span>
                                                 <span className="text-[9px] text-black/40">2h ago</span>
                                             </div>

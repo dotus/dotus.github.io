@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center group cursor-pointer">
-            <span className="text-2xl font-bold  text-white drop-shadow-sm">strife relations</span>
+            <span className="text-2xl font-bold  text-white drop-shadow-sm">caybles</span>
           </div>
 
           {/* Right Side Actions */}

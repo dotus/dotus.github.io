@@ -74,10 +74,10 @@ interface FilterState {
 // ============================================================================
 
 const MOCK_ARTICLES: Article[] = [
-    { id: 1, title: "&also Raises $45M Series B to Revolutionize PR Tech", outlet: "TechCrunch", publishedAt: "2026-01-10", isAboutBrand: true, excerpt: "The AI-native PR platform is changing how startups approach media relations...", engagement: { views: 45000, shares: 2300 } },
+    { id: 1, title: "Caybles Raises $45M Series B to Revolutionize PR Tech", outlet: "TechCrunch", publishedAt: "2026-01-10", isAboutBrand: true, excerpt: "The AI-native PR platform is changing how startups approach media relations...", engagement: { views: 45000, shares: 2300 } },
     { id: 2, title: "The Future of AI in Public Relations", outlet: "TechCrunch", publishedAt: "2026-01-08", excerpt: "How artificial intelligence is reshaping the PR industry..." },
     { id: 3, title: "Startup Funding Surges in Q4 2025", outlet: "Forbes", publishedAt: "2026-01-05" },
-    { id: 4, title: "&also's Approach to Media Relations: A Case Study", outlet: "Forbes", publishedAt: "2025-12-20", isAboutBrand: true },
+    { id: 4, title: "Caybles' Approach to Media Relations: A Case Study", outlet: "Forbes", publishedAt: "2025-12-20", isAboutBrand: true },
 ];
 
 const MOCK_JOURNALISTS_BASE: Journalist[] = [
@@ -282,7 +282,7 @@ const JournalistCard: React.FC<JournalistCardProps> = ({ journalist, index }) =>
                                 <HugeiconsIcon icon={Newspaper} size={10} />
                                 <span>Latest</span>
                                 {journalist.lastArticle.isAboutBrand && (
-                                    <span className="text-teal-600 font-medium">• About &also</span>
+                                    <span className="text-teal-600 font-medium">• About Caybles</span>
                                 )}
                             </div>
                             <p className="text-[11px] text-black/70 line-clamp-1">{journalist.lastArticle.title}</p>
@@ -293,7 +293,7 @@ const JournalistCard: React.FC<JournalistCardProps> = ({ journalist, index }) =>
                     {brandArticles.length > 0 && (
                         <div className="flex items-center gap-1.5 text-[10px] text-teal-600 mb-3">
                             <HugeiconsIcon icon={Bookmark01Icon} size={10} />
-                            <span>{brandArticles.length} article{brandArticles.length > 1 ? 's' : ''} about &also</span>
+                            <span>{brandArticles.length} article{brandArticles.length > 1 ? 's' : ''} about Caybles</span>
                         </div>
                     )}
 
@@ -418,7 +418,7 @@ export const MediaDatabase: React.FC = () => {
                             {journalist.lastArticle && (
                                 <p className="text-[11px] text-black/50 mt-2 max-w-[300px]">
                                     {journalist.lastArticle.title}
-                                    {journalist.lastArticle.isAboutBrand && <span className="text-teal-600 ml-1">• &also</span>}
+                                    {journalist.lastArticle.isAboutBrand && <span className="text-teal-600 ml-1">• Caybles</span>}
                                 </p>
                             )}
                             {brandArticles.length > 0 && (

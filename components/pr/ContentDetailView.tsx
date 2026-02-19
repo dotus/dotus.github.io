@@ -44,7 +44,7 @@ const MOCK_ATTACHED: AttachedDoc[] = [
 ];
 
 const MOCK_COMMENTS: Comment[] = [
-    { id: 1, user: 'Sarah Jenkins', userInitial: 'S', role: 'Strife Partner', text: 'The quote from the CTO is strong. Should we include something about engineering culture?', time: '2h ago' },
+    { id: 1, user: 'Sarah Jenkins', userInitial: 'S', role: 'Account Lead', text: 'The quote from the CTO is strong. Should we include something about engineering culture?', time: '2h ago' },
     { id: 2, user: 'Mike Chen', userInitial: 'M', role: 'Editor', text: 'Embargo confirmed with TechCrunch. 24hr exclusive.', time: '4h ago' },
 ];
 

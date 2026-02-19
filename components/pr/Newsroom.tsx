@@ -55,7 +55,7 @@ const CONTENT: ContentItem[] = [
     {
         id: 1,
         type: 'insight',
-        title: "Strife Relations Unveils 'Clarity': The First Cognitive PR Engine",
+        title: "Caybles Unveils 'Clarity': The First Cognitive PR Engine",
         content: "Marking a paradigm shift in reputation management, Clarity uses advanced predictive modeling to help Series B founders anticipate media sentiment before it happens. This tool isn't just about monitoring; it's about seeing around corners in a volatile news cycle.",
         category: "Product Launch",
         date: "Feb 12, 2026",
@@ -90,7 +90,7 @@ const CONTENT: ContentItem[] = [
     {
         id: 201,
         type: 'release',
-        title: "Strife Relations Expands Operations to Singapore and London",
+        title: "Caybles Expands Operations to Singapore and London",
         content: "Expansion aims to support growing fintech ecosystem in Southeast Asia and policy markets in the UK.",
         category: "Corporate",
         date: "Jan 28, 2026",
@@ -99,7 +99,7 @@ const CONTENT: ContentItem[] = [
     {
         id: 202,
         type: 'release',
-        title: "Quarterly Report: Strife sees 400% YoY Growth in AI Vertical",
+        title: "Quarterly Report: Caybles sees 400% YoY Growth in AI Vertical",
         content: "Fiscal year 2025 results exceed expectations driven by adoption of our automated outreach tools.",
         category: "Financials",
         date: "Jan 15, 2026",
@@ -109,7 +109,7 @@ const CONTENT: ContentItem[] = [
         id: 203,
         type: 'release',
         title: "Strategic Partnership Announced with Global Green Data",
-        content: "New partnership brings environmental data directly into the Strife dashboard for ESG reporting.",
+        content: "New partnership brings environmental data directly into the Caybles dashboard for ESG reporting.",
         category: "Partnerships",
         date: "Dec 12, 2025",
         readTime: "2 min read"
@@ -142,7 +142,7 @@ const CONTENT: ContentItem[] = [
 const PRESS_CONTACT = {
     name: "Sarah Jenkins",
     role: "Head of Global Communications",
-    email: "sarah.j@strifeinfive.com",
+    email: "sarah.j@caybles.com",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
 };
 
@@ -476,13 +476,13 @@ export const Newsroom: React.FC = () => {
             {/* Simple Footer */}
             <footer className="bg-white border-t border-black/5 py-12 px-6">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="font-serif text-xl font-bold tracking-tighter text-black">STRIFE.</div>
+                    <div className="font-serif text-xl font-bold tracking-tighter text-black">CAYBLES.</div>
                     <div className="flex gap-6 text-xs font-medium text-black/40 uppercase tracking-widest">
                         <a href="#" className="hover:text-black transition-colors">Privacy</a>
                         <a href="#" className="hover:text-black transition-colors">Terms</a>
                         <a href="#" className="hover:text-black transition-colors">Sitemap</a>
                     </div>
-                    <div className="text-xs text-black/40">© 2026 Strife Relations Inc.</div>
+                    <div className="text-xs text-black/40">© 2026 Caybles Inc.</div>
                 </div>
             </footer>
         </div>

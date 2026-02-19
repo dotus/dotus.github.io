@@ -40,7 +40,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
                     {/* Brand Column */}
                     <div className="space-y-4 max-w-sm">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold tracking-tighter drop-shadow-md">strife relations</span>
+                            <span className="text-lg font-bold tracking-tighter drop-shadow-md">caybles</span>
                         </div>
                         <p className="text-gray-400 text-sm leading-relaxed font-light">
                             The VCs of storytelling.
@@ -56,7 +56,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
 
                 {/* Copyright */}
                 <div className="mt-12 pt-8 flex justify-between items-center text-[10px] text-gray-500 font-mono uppercase tracking-widest opacity-50">
-                    <p>© 2026 Strife Relations Inc.</p>
+                    <p>© 2026 Caybles Inc.</p>
                     <p>lONDON, HONG KONG</p>
                 </div>
             </div>

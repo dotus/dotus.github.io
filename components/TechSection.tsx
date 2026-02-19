@@ -49,7 +49,7 @@ export const TechSection: React.FC = () => {
                                 <div className="flex gap-2">
                                     <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center text-white text-sm font-bold">S</div>
                                     <div className="bg-white border border-gray-200 p-2 text-sm rounded-sm w-full shadow-sm">
-                                        <span className="font-bold block mb-1 text-black">Strife Bot</span>
+                                        <span className="font-bold block mb-1 text-black">Caybles AI</span>
                                         How did the Q3 investor call go? Any new metrics we can share?
                                     </div>
                                 </div>

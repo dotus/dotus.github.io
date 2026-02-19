@@ -50,7 +50,7 @@ export const Analytics: React.FC = () => {
             <div className="bg-white border border-black/10 rounded-xl p-6 shadow-sm">
                 <h3 className="text-lg font-medium mb-4">Confirmed Placements</h3>
                 <div className="space-y-4">
-                    <PlacementRow outlet="TechCrunch" title="Strife Relations aims to disrupt PR with AI" date="2 hours ago" />
+                    <PlacementRow outlet="TechCrunch" title="Caybles aims to disrupt PR with AI" date="2 hours ago" />
                     <PlacementRow outlet="VentureBeat" title="The future of automated public relations" date="1 day ago" />
                     <PlacementRow outlet="PRWeek" title="New players entering the AI agency space" date="2 days ago" />
                 </div>

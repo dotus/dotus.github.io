@@ -1,18 +1,18 @@
 {
-  "name": "Strife Relations",
-  "description": "Next-generation AI-native PR agency. Combining ex-journalist expertise with deep AI integration to amplify stories in policy, environment, funding, and tech. Serving founders in Hong Kong, London, and worldwide at strifeinfive.com.",
+  "name": "Caybles",
+  "description": "AI-native PR platform for modern communications teams. Plan campaigns, craft stories with AI assistance, manage journalist outreach, and track results—all in one collaborative workspace. Built for startups, agencies, and in-house comms teams at caybles.com.",
   "locations": [
     "Hong Kong",
     "London"
   ],
   "services": [
-    "AI-Native PR",
-    "Storytelling",
-    "Policy PR",
-    "Environmental PR",
-    "Funding PR",
-    "Tech PR",
-    "Media Relations"
+    "AI-Native PR Platform",
+    "Campaign Management",
+    "Media Outreach",
+    "Press Release Creation",
+    "Journalist Database",
+    "PR Workflow Automation",
+    "Content Collaboration"
   ],
   "requestFramePermissions": []
 }

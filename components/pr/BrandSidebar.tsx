@@ -26,7 +26,7 @@ export const BrandSidebar: React.FC = () => {
                     </button>
                     {openSection === 'narrative' && (
                         <div className="p-4 pt-0 text-sm text-black/70 leading-relaxed animate-in slide-in-from-top-2">
-                            "Strife Relations is democratizing high-end PR for the next generation of policy and tech founders."
+                            "Caybles is democratizing high-end PR for the next generation of policy and tech founders."
                             <button className="flex items-center gap-2 text-xs text-black/40 mt-3 hover:text-black transition-colors">
                                 <Edit2 size={12} /> Edit Narrative
                             </button>

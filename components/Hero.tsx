@@ -178,7 +178,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                     {/* Channel Rail */}
                                     <div className="w-40 bg-black/40 border-r border-white/10 text-gray-300 flex flex-col py-3 hidden sm:flex flex-shrink-0 backdrop-blur-sm">
                                         <div className="px-3 mb-4 flex items-center justify-between font-bold text-white hover:bg-white/10 py-1 cursor-pointer text-xs rounded mx-1 transition-colors">
-                                            Strife Corp <span className="text-[8px]">▼</span>
+                                            Acme Corp <span className="text-[8px]">▼</span>
                                         </div>
                                         <div className="px-3 mb-2 text-[10px] opacity-50 uppercase tracking-wider font-bold">Channels</div>
                                         <div className="flex flex-col gap-0.5">
@@ -220,7 +220,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                                 </div>
                                                 <div className="w-full min-w-0">
                                                     <div className="flex items-baseline gap-2 flex-wrap">
-                                                        <span className="font-bold text-xs sm:text-sm text-white">Strife Bot</span>
+                                                        <span className="font-bold text-xs sm:text-sm text-white">Caybles AI</span>
                                                         <span className="bg-white/20 text-gray-200 px-1 rounded text-[9px] font-bold uppercase tracking-wide">APP</span>
                                                         <span className="text-[10px] text-gray-400">10:24 AM</span>
                                                     </div>
@@ -263,7 +263,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                                         </div>
                                                         <div className="w-full min-w-0">
                                                             <div className="flex items-baseline gap-2">
-                                                                <span className="font-bold text-xs sm:text-sm text-white">Strife Bot</span>
+                                                                <span className="font-bold text-xs sm:text-sm text-white">Caybles AI</span>
                                                                 <span className="bg-white/20 text-gray-200 px-1 rounded text-[9px] font-bold uppercase tracking-wide">APP</span>
                                                                 <span className="text-[10px] text-gray-400">10:25 AM</span>
                                                             </div>
@@ -376,7 +376,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenModal }) => {
                                                         </div>
                                                         <div>
                                                             <div className="flex items-baseline gap-2">
-                                                                <span className="font-bold text-xs sm:text-sm text-white">Strife Bot</span>
+                                                                <span className="font-bold text-xs sm:text-sm text-white">Caybles AI</span>
                                                                 <span className="bg-white/20 text-gray-200 px-1 rounded text-[9px] font-bold uppercase tracking-wide">APP</span>
                                                                 <span className="text-[10px] text-gray-400">10:36 AM</span>
                                                             </div>

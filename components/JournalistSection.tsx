@@ -96,8 +96,8 @@ export const JournalistSection: React.FC = () => {
 
                                         {/* Repeated Branding on Lanyard */}
                                         <div className="h-full flex flex-col gap-8 md:gap-12 py-4 opacity-40">
-                                            <span className="text-[6px] md:text-[8px] font-bold text-white tracking-[0.3em] -rotate-90 whitespace-nowrap">STRIFE</span>
-                                            <span className="text-[6px] md:text-[8px] font-bold text-white tracking-[0.3em] -rotate-90 whitespace-nowrap">STRIFE</span>
+                                            <span className="text-[6px] md:text-[8px] font-bold text-white tracking-[0.3em] -rotate-90 whitespace-nowrap">CAYBLES</span>
+                                            <span className="text-[6px] md:text-[8px] font-bold text-white tracking-[0.3em] -rotate-90 whitespace-nowrap">CAYBLES</span>
                                         </div>
                                     </div>
 

@@ -5,20 +5,20 @@ export const PitchGenerator: React.FC = () => {
     const [generated, setGenerated] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const MOCK_PITCH = `Subject: Exclusive: AI-Native PR Agency Strife Relations raises mock Series B
+    const MOCK_PITCH = `Subject: Exclusive: AI-Native PR Platform Caybles raises mock Series B
 
 Hi [Name],
 
 I saw your recent piece on the evolution of agency models and thought this would be right up your alley.
 
-Strife Relations is today announcing its Series B (mock) funding. What makes this interesting is their approach: completely eschewing the traditional account manager model for an AI-first collaborative dashboard that puts founders in direct control.
+Caybles is today announcing its Series B (mock) funding. What makes this interesting is their approach: completely eschewing the traditional account manager model for an AI-first collaborative dashboard that puts founders in direct control.
 
 I have the CEO, [Founder Name], available for an interview this Thursday or Friday.
 
 Attached is the full press release.
 
 Best,
-The Strife Team`;
+The Caybles Team`;
 
     return (
         <div className="h-full flex flex-col max-w-3xl mx-auto py-8">

@@ -1,15 +1,15 @@
-# &also - Project Documentation
+# Caybles - Project Documentation
 
 ## Project Overview
 
-&also is an AI-native Public Relations agency platform featuring a marketing landing page and an internal PR Dashboard tool called "Quests". The platform helps PR teams manage campaigns from draft to publication with integrated workflow management, document collaboration, and media outreach tracking.
+Caybles is an AI-native Public Relations platform featuring a marketing landing page and an internal PR Dashboard tool called "Quests". The platform helps PR teams manage campaigns from draft to publication with integrated workflow management, document collaboration, and media outreach tracking.
 
 **Key URLs:**
 - Landing Page: `/`
 - PR Dashboard: `/pr/*`
 - Newsroom: `/pr/newsroom`
 
-**Brand:** &also (pronounced "and also")
+**Brand:** Caybles
 
 ---
 
@@ -45,7 +45,7 @@ The project uses CDN imports for production dependencies:
 
 ### Deployment
 - **Hosting:** GitHub Pages
-- **Domain:** strifeinfive.com
+- **Domain:** caybles.com
 - **Base URL:** `/` (configured in `vite.config.ts`)
 
 ---
@@ -53,7 +53,7 @@ The project uses CDN imports for production dependencies:
 ## Project Structure
 
 ```
-strife-relations/
+caybles/
 ├── components/                 # React components
 │   ├── ui/                    # Reusable UI components
 │   │   ├── ContactModal.tsx   # Contact form modal (Formspree integration)
@@ -117,7 +117,7 @@ strife-relations/
 ## Core Concepts
 
 ### Quests
-A "Quest" is the core unit of work in the &also platform. It represents a PR campaign, press release, blog post, or strategy memo going through the workflow from draft to publication.
+A "Quest" is the core unit of work in the Caybles platform. It represents a PR campaign, press release, blog post, or strategy memo going through the workflow from draft to publication.
 
 **Quest Statuses:**
 - `draft` - Work in progress
@@ -517,7 +517,7 @@ export const Component: React.FC<ComponentProps> = ({ label, onAction }) => {
 Place in `public/` folder - copied to `dist/` during build.
 
 **Images:**
-- `logo.png` - &also logo
+- `logo.png` - Caybles logo
 - `hero-bg.png` - Hero background
 - `background.png` - General background
 - `presswoman.png` - Journalist section
@@ -570,7 +570,7 @@ No automated test suite is currently configured. Manual testing workflow:
 
 1. **CDN Dependencies:** Loaded from CDN in `index.html`
 2. **Path Aliases:** `@/` points to project root
-3. **Brand:** All references should use "&also" not "Strife Relations"
+3. **Brand:** All references should use "Caybles"
 4. **Terminology:** Use "Quests" not "Content" or "Documents"
 5. **Git Ignore:** `node_modules`, `dist`, `*.local` ignored
 6. **Working Docs:** No status/stages (draft/review/final) - stages are only on Quests

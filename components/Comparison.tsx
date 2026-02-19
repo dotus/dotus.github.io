@@ -78,7 +78,7 @@ export const Comparison: React.FC = () => {
                             </div>
                         </motion.div>
 
-                        {/* The Strife Post-It / Overlay */}
+                        {/* The Caybles Post-It / Overlay */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
                             whileInView={{ opacity: 1, scale: 1, rotate: 2 }}
@@ -87,7 +87,7 @@ export const Comparison: React.FC = () => {
                             className="absolute -bottom-6 -right-6 md:-right-12 bg-black border border-white/20 p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] max-w-[260px] z-30"
                         >
                             <div className="text-xs font-bold uppercase text-green-400 mb-2 tracking-widest flex items-center gap-2">
-                                <Check className="w-4 h-4 border border-green-400 rounded-full p-0.5" /> The Strife Model
+                                <Check className="w-4 h-4 border border-green-400 rounded-full p-0.5" /> The Caybles Model
                             </div>
                             <div className="text-3xl font-bold text-white mb-2 tracking-tighter leading-none">
                                 Pay for output, not overhead
