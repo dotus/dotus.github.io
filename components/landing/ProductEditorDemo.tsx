@@ -11,7 +11,7 @@ const ATTACHED_DOCS = [
 ];
 
 export const ProductEditorDemo: React.FC = () => (
-    <div className="bg-white border border-black/5 shadow-2xl shadow-black/10 overflow-hidden rounded-xl">
+    <div className="demo-container">
         {/* Header with Toolbar */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-black/[0.06] bg-white">
             <div className="flex items-center gap-2">
@@ -176,8 +176,6 @@ export const ProductEditorDemo: React.FC = () => (
                         Voice: Professional yet approachable
                     </p>
                 </div>
-
-  
 
                 {/* Quick Actions */}
                 <div className="px-2.5 py-1.5 border-t border-black/[0.06]">

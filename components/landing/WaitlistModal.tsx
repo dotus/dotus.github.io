@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useForm, ValidationError } from '@formspree/react';
 
 interface WaitlistModalProps {
@@ -29,10 +29,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
                         className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
                     >
-                        <div className="bg-white w-full max-w-md pointer-events-auto rounded-2xl shadow-2xl border border-black/[0.06] overflow-hidden">
-                            {/* Header gradient */}
-                      
-                            
+                        <div className="bg-white w-full max-w-md pointer-events-auto rounded-2xl shadow-2xl border border-black/[0.06] overflow-hidden max-h-[90vh] overflow-y-auto">
                             <button 
                                 onClick={onClose} 
                                 className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-lg transition-colors z-10"
@@ -62,7 +59,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                                 ) : (
                                     <>
                                         <div className="mb-8">
-                               
                                             <h2 className="text-3xl font-serif font-medium text-gray-900">
                                                 Join the waitlist
                                             </h2>
@@ -102,7 +98,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                                             
                                             <div className="space-y-1.5">
                                                 <label htmlFor="waitlist-company" className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-                                                    Company <span className="text-gray-300 font-normal">(optional)</span>
+                                                    Company
                                                 </label>
                                                 <input 
                                                     id="waitlist-company" 
@@ -110,6 +106,36 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                                                     type="text" 
                                                     className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all placeholder:text-gray-400" 
                                                     placeholder="Acme Inc" 
+                                                    required
+                                                />
+                                                <ValidationError prefix="Company" field="company" errors={state.errors} className="text-red-500 text-xs mt-1 block" />
+                                            </div>
+
+                                            <div className="space-y-1.5">
+                                                <label htmlFor="waitlist-location" className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                                                    Location
+                                                </label>
+                                                <input 
+                                                    id="waitlist-location" 
+                                                    name="location" 
+                                                    type="text" 
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all placeholder:text-gray-400" 
+                                                    placeholder="London, UK" 
+                                                    required
+                                                />
+                                                <ValidationError prefix="Location" field="location" errors={state.errors} className="text-red-500 text-xs mt-1 block" />
+                                            </div>
+
+                                            <div className="space-y-1.5">
+                                                <label htmlFor="waitlist-questions" className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                                                    Any questions? <span className="text-gray-300 font-normal">(optional)</span>
+                                                </label>
+                                                <textarea 
+                                                    id="waitlist-questions" 
+                                                    name="questions" 
+                                                    rows={3}
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-900 focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all placeholder:text-gray-400 resize-none" 
+                                                    placeholder="Tell us about your PR needs..."
                                                 />
                                             </div>
                                             
@@ -121,8 +147,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                                                 {state.submitting ? 'Joining...' : 'Join Waitlist'}
                                                 {!state.submitting && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
                                             </button>
-                                            
-                                          
                                         </form>
                                     </>
                                 )}
