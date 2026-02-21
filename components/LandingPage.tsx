@@ -97,7 +97,7 @@ const Navigation: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist }
                                 onClick={onOpenWaitlist}
                                 className="group bg-white text-black px-6 py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-200 transition-all flex items-center gap-2"
                             >
-                                Join Waitlist
+                                Book a Demo
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </button>
                         </MagneticElement>
@@ -191,9 +191,9 @@ const HeroSection: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist 
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto leading-relaxed mb-12"
+                        className="text-lg md:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed mb-12"
                     >
-                        The PR toolkit for growing businesses
+                       Plan, pitch, and manage your entire PR workflow.
                     </motion.p>
 
                     <motion.div
@@ -207,7 +207,7 @@ const HeroSection: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist 
                                 onClick={onOpenWaitlist}
                                 className="group flex items-center gap-3 px-10 py-5 bg-white text-black font-bold uppercase tracking-wider text-sm hover:bg-gray-200 transition-all shadow-[0_0_60px_rgba(255,255,255,0.3)]"
                             >
-                                Join the Waitlist
+                                Book a Demo
                             </button>
                         </MagneticElement>
                         <MagneticElement strength={15}>
@@ -480,14 +480,14 @@ export const LandingPage: React.FC = () => {
                                         onClick={openWaitlist}
                                         className="group inline-flex items-center gap-4 px-12 py-6 bg-white text-black font-bold uppercase tracking-wider text-base hover:bg-gray-200 transition-all shadow-[0_0_80px_rgba(255,255,255,0.2)]"
                                     >
-                                        Join the Waitlist
+                                        Book a demo
                                         <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                                     </button>
                                 </MagneticElement>
                             </ScrollReveal>
                             <ScrollReveal delay={0.4}>
                                 <p className="text-white/30 text-sm max-w-md mx-auto font-light">
-                                    Early access rolling out soon. Join the waitlist to secure your spot.
+                                    Early access is rolling out. Book a demo to secure your spot.
                                 </p>
                             </ScrollReveal>
                         </div>
