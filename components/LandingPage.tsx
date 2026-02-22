@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { CayblesLogo } from './ui/CayblesLogo';
 import {
@@ -29,27 +29,13 @@ const DEMO_TIMELINE = [
     { id: 3, title: 'Press Release Final', date: 'Jan 14', time: 'Done', type: 'complete', color: 'green' },
 ];
 
-// Animated gradient orb that follows scroll
+// Static gradient orbs - no scroll transforms to avoid expensive compositing of large blurred elements
 const GradientOrbs: React.FC = () => {
-    const { scrollYProgress } = useSmoothScroll();
-    const orb1Y = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-    const orb2Y = useTransform(scrollYProgress, [0, 1], ['20%', '80%']);
-    const orb3Y = useTransform(scrollYProgress, [0, 1], ['50%', '30%']);
-
     return (
         <>
-            <motion.div
-                className="fixed top-0 right-0 w-[800px] h-[800px] bg-gradient-to-b from-teal-500/20 to-transparent rounded-full blur-3xl opacity-40 pointer-events-none z-0"
-                style={{ y: orb1Y }}
-            />
-            <motion.div
-                className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-t from-purple-500/20 to-transparent rounded-full blur-3xl opacity-30 pointer-events-none z-0"
-                style={{ y: orb2Y }}
-            />
-            <motion.div
-                className="fixed top-1/2 left-1/2 w-[500px] h-[500px] bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl opacity-20 pointer-events-none z-0 -translate-x-1/2"
-                style={{ y: orb3Y }}
-            />
+            <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-gradient-to-b from-teal-500/20 to-transparent rounded-full blur-3xl opacity-40 pointer-events-none z-0" />
+            <div className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-t from-purple-500/20 to-transparent rounded-full blur-3xl opacity-30 pointer-events-none z-0" />
+            <div className="fixed top-1/2 left-1/2 w-[500px] h-[500px] bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl opacity-20 pointer-events-none z-0 -translate-x-1/2 -translate-y-1/2" />
         </>
     );
 };
@@ -112,19 +98,14 @@ const Navigation: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist }
 const HeroSection: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist }) => {
     const { scrollYProgress } = useSmoothScroll();
     const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-    const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.9]);
-    const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -100]);
-    const blurAmount = useTransform(scrollYProgress, [0, 0.15], [0, 20]);
+    const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
+    const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -60]);
 
     return (
         <motion.section
-            style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+            style={{ opacity: heroOpacity, scale: heroScale, y: heroY, willChange: 'transform, opacity' }}
             className="min-h-screen flex flex-col overflow-hidden relative"
         >
-            <motion.div
-                className="absolute inset-0 bg-black/0"
-                style={{ backdropFilter: useTransform(blurAmount, (v) => `blur(${v}px)`) }}
-            />
 
             {/* Floating Cards - Background decoration, scaled */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -265,24 +246,12 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
                     y={60}
                     delay={0.1}
                 >
-                    <motion.h2
-                        className="text-5xl md:text-6xl font-serif"
-                        whileInView={{ opacity: 1, y: 0 }}
-                        initial={{ opacity: 0, y: 40 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                    >
+                    <h2 className="text-5xl md:text-6xl font-serif">
                         {title}
-                    </motion.h2>
-                    <motion.p
-                        className={`text-lg md:text-xl ${accentColor} font-light leading-relaxed`}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        initial={{ opacity: 0, y: 30 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
+                    </h2>
+                    <p className={`text-lg md:text-xl ${accentColor} font-light leading-relaxed`}>
                         {description}
-                    </motion.p>
+                    </p>
                 </ScrollReveal>
                 <ScrollReveal
                     className={`overflow-visible ${reversed ? 'order-2 md:order-1' : ''}`}
@@ -312,21 +281,10 @@ export const LandingPage: React.FC = () => {
 
                 {/* Fixed Background */}
                 <div className="fixed inset-0 z-0">
-                    <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
-                        <defs>
-                            <filter id="hero-wave-filter">
-                                <feTurbulence type="fractalNoise" baseFrequency="0.002 0.003" numOctaves="1" result="warp">
-                                    <animate attributeName="baseFrequency" dur="20s" values="0.002 0.003; 0.002 0.005; 0.002 0.003" repeatCount="indefinite" />
-                                </feTurbulence>
-                                <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="30" in="SourceGraphic" in2="warp" />
-                            </filter>
-                        </defs>
-                    </svg>
                     <img
                         src="/hero-bg.png"
                         alt=""
                         className="w-full h-full object-cover opacity-60 scale-110"
-                        style={{ filter: 'url(#hero-wave-filter)' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
                 </div>

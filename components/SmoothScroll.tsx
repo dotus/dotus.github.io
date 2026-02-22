@@ -26,44 +26,49 @@ export const SmoothScrollProvider: React.FC<SmoothScrollProviderProps> = ({ chil
   const velocity = useMotionValue(0);
   
   const smoothScrollY = useSpring(scrollY, {
-    stiffness: 150,
-    damping: 15,
+    stiffness: 300,
+    damping: 40,
     mass: 0.1,
   });
 
   const lastScrollY = useRef(0);
   const lastTime = useRef(Date.now());
+  const rafId = useRef<number>(0);
+  const pendingUpdate = useRef(false);
 
   useEffect(() => {
-    let rafId: number;
-    let isActive = true;
+    const scheduleUpdate = (currentScrollY: number) => {
+      if (pendingUpdate.current) return;
+      pendingUpdate.current = true;
 
-    const updateScroll = () => {
-      if (!isActive) return;
-      
-      const currentScrollY = window.scrollY;
-      const currentTime = Date.now();
-      const deltaTime = currentTime - lastTime.current;
-      
-      if (deltaTime > 0) {
-        const currentVelocity = (currentScrollY - lastScrollY.current) / deltaTime;
-        velocity.set(currentVelocity * 10);
-      }
-      
-      scrollY.set(currentScrollY);
-      scrollYProgress.set(currentScrollY / (document.documentElement.scrollHeight - window.innerHeight));
-      
-      lastScrollY.current = currentScrollY;
-      lastTime.current = currentTime;
-      
-      rafId = requestAnimationFrame(updateScroll);
+      rafId.current = requestAnimationFrame(() => {
+        pendingUpdate.current = false;
+        const currentTime = Date.now();
+        const deltaTime = currentTime - lastTime.current;
+
+        if (deltaTime > 0) {
+          const currentVelocity = (currentScrollY - lastScrollY.current) / deltaTime;
+          velocity.set(currentVelocity * 10);
+        }
+
+        scrollY.set(currentScrollY);
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        scrollYProgress.set(maxScroll > 0 ? currentScrollY / maxScroll : 0);
+
+        lastScrollY.current = currentScrollY;
+        lastTime.current = currentTime;
+      });
     };
 
-    rafId = requestAnimationFrame(updateScroll);
-    
+    const handleScroll = () => scheduleUpdate(window.scrollY);
+
+    // Set initial values
+    scheduleUpdate(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
-      isActive = false;
-      cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(rafId.current);
     };
   }, [scrollY, scrollYProgress, velocity]);
 
@@ -135,6 +140,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   return (
     <motion.div
       className={className}
+      style={{ willChange: 'transform, opacity' }}
       initial={{ opacity: 0, y, scale: scale * 0.95, rotate }}
       whileInView={{ opacity: 1, y: 0, scale, rotate: 0 }}
       viewport={{ once: true, margin: '-100px' }}
