@@ -45,15 +45,17 @@ const Navigation: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist }
     const [isScrolled, setIsScrolled] = useState(false);
     const [showNavCta, setShowNavCta] = useState(false);
     const [navReady, setNavReady] = useState(false);
-    const { scrollY } = useSmoothScroll();
 
     useEffect(() => {
-        const unsubscribe = scrollY.on('change', (latest) => {
-            setIsScrolled(latest > 50);
-            setShowNavCta(latest > window.innerHeight - 100);
-        });
-        return unsubscribe;
-    }, [scrollY]);
+        const handleScroll = () => {
+            const scrollY = window.scrollY;
+            setIsScrolled(scrollY > 50);
+            setShowNavCta(scrollY > window.innerHeight - 100);
+        };
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
         <motion.nav
@@ -65,28 +67,22 @@ const Navigation: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist }
         >
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 <div className="flex justify-between items-center h-20">
-                    <MagneticElement strength={20}>
-                        {navReady && <CayblesLogo size="full" theme="white" height={48} />}
-                    </MagneticElement>
+                    {navReady && <CayblesLogo size="full" theme="white" height={48} />}
                     <motion.div
-                        className="flex items-center gap-6"
-                        initial={false}
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{
                             opacity: showNavCta ? 1 : 0,
-                            y: showNavCta ? 0 : -20,
-                            pointerEvents: showNavCta ? 'auto' : 'none',
+                            y: showNavCta ? 0 : -10,
                         }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.3 }}
                     >
-                        <MagneticElement strength={15}>
-                            <button
-                                onClick={onOpenWaitlist}
-                                className="group bg-white text-black px-6 py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-200 transition-all flex items-center gap-2"
-                            >
-                                Book a Demo
-                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                            </button>
-                        </MagneticElement>
+                        <button
+                            onClick={onOpenWaitlist}
+                            className="group bg-white text-black px-6 py-3 text-sm font-bold uppercase tracking-wider hover:bg-gray-200 transition-all flex items-center gap-2"
+                        >
+                            Book a Demo
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </button>
                     </motion.div>
                 </div>
             </div>
