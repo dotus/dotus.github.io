@@ -18,8 +18,6 @@ import {
     ScrollReveal,
     StaggerContainer,
     StaggerItem,
-    MagneticElement,
-    ScrollProgressBar,
     useSmoothScroll,
 } from './SmoothScroll';
 
@@ -170,7 +168,7 @@ const HeroSection: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist 
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="text-lg md:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed mb-12"
                     >
-                       Plan, pitch, and manage your entire PR workflow.
+                       Plan, draft, and manage outreach - all in one intuitive workspace
                     </motion.p>
 
                     <motion.div
@@ -179,34 +177,30 @@ const HeroSection: React.FC<{ onOpenWaitlist: () => void }> = ({ onOpenWaitlist 
                         transition={{ duration: 0.8, delay: 0.9 }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-6"
                     >
-                        <MagneticElement strength={25}>
-                            <button
-                                onClick={onOpenWaitlist}
-                                className="group flex items-center gap-3 px-10 py-5 bg-white text-black font-bold uppercase tracking-wider text-sm hover:bg-gray-200 transition-all shadow-[0_0_60px_rgba(255,255,255,0.3)]"
+                        <button
+                            onClick={onOpenWaitlist}
+                            className="group flex items-center gap-3 px-10 py-5 bg-white text-black font-bold uppercase tracking-wider text-sm hover:bg-gray-200 transition-all shadow-[0_0_60px_rgba(255,255,255,0.3)]"
+                        >
+                            Book a Demo
+                        </button>
+                        <a
+                            href="#tour"
+                            className="group flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/60 hover:text-white text-sm uppercase tracking-widest transition-colors"
+                        >
+                            <span>See how it works</span>
+                            {/* Scroll indicator inline on desktop, below on mobile */}
+                            <motion.div
+                                className="w-4 h-6 sm:w-5 sm:h-8 border-2 border-current rounded-full flex justify-center"
+                                animate={{ y: [0, 4, 0] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
                             >
-                                Book a Demo
-                            </button>
-                        </MagneticElement>
-                        <MagneticElement strength={15}>
-                            <a
-                                href="#tour"
-                                className="group flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/60 hover:text-white text-sm uppercase tracking-widest transition-colors"
-                            >
-                                <span>See how it works</span>
-                                {/* Scroll indicator inline on desktop, below on mobile */}
                                 <motion.div
-                                    className="w-4 h-6 sm:w-5 sm:h-8 border-2 border-current rounded-full flex justify-center"
-                                    animate={{ y: [0, 4, 0] }}
+                                    className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-current rounded-full mt-1 sm:mt-1.5"
+                                    animate={{ y: [0, 6, 0], opacity: [1, 0, 1] }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
-                                >
-                                    <motion.div
-                                        className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-current rounded-full mt-1 sm:mt-1.5"
-                                        animate={{ y: [0, 6, 0], opacity: [1, 0, 1] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                    />
-                                </motion.div>
-                            </a>
-                        </MagneticElement>
+                                />
+                            </motion.div>
+                        </a>
                     </motion.div>
                 </div>
             </div>
@@ -272,7 +266,7 @@ export const LandingPage: React.FC = () => {
     return (
         <SmoothScrollProvider>
             <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
-                <ScrollProgressBar color="bg-[#0D9488]" />
+
                 <GradientOrbs />
 
                 {/* Fixed Background */}
@@ -359,57 +353,53 @@ export const LandingPage: React.FC = () => {
                     </div>
 
                     {/* Pricing Section */}
+                    {/* Pricing Section */}
                     <section className="py-32 px-6 bg-[#FAF9F6] text-gray-900">
                         <div className="max-w-4xl mx-auto">
                             <ScrollReveal className="text-center mb-16">
                                 <h2 className="text-5xl md:text-6xl font-serif">
-                                    Simple pricing.
+                                    Unmatched pricing
                                 </h2>
                                 <p className="mt-4 text-lg text-gray-500 font-light">
-                                    Start free. Scale when you need to.
+                                    Caybles costs a fraction of traditional agencies and you can also opt for a seasoned Caybles partner.
                                 </p>
                             </ScrollReveal>
 
-                            <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8" staggerDelay={0.15}>
+                            <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto" staggerDelay={0.15}>
+                                {/* Free Tier */}
                                 <StaggerItem>
-                                    <PricingCard
-                                        name="Free"
-                                        price="$0"
-                                        priceSubtext="/month"
-                                        description="Basic campaign management for small teams."
-                                        features={["3 active quests", "Basic editor", "Email support"]}
-                                        cta="Get Started"
-                                        onCta={openWaitlist}
-                                    />
-                                </StaggerItem>
-                                <StaggerItem>
-                                    <PricingCard
-                                        name="Scale"
-                                        price="$29"
-                                        priceSubtext="/month + credits"
-                                        description="Everything in Free, plus AI credits for content generation."
-                                        features={["Unlimited quests", "AI-powered content", "Inject internal docs", "Brand assets", "Priority support", "Monthly spending limits"]}
-                                        cta="Start Free Trial"
-                                        onCta={openWaitlist}
-                                        highlighted
-                                    />
-                                </StaggerItem>
-                            </StaggerContainer>
-
-                            <ScrollReveal delay={0.4}>
-                                <div className="text-center p-6 bg-gray-50 rounded-2xl border border-gray-200">
-                                    <p className="text-gray-900 font-medium mb-1">Need a Caybles expert to review your campaigns?</p>
-                                    <p className="text-sm text-gray-500 mb-4">Our seasoned experts also provide strategy, planning, and editorial support.</p>
-                                    <MagneticElement strength={10}>
+                                    <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                                      
+                                        <div className="text-4xl font-serif text-gray-900 mb-4">$0</div>
+                                        <p className="text-sm text-gray-500 mb-8 px-2 flex-grow">
+                                            Basic campaign management, 3 active quests, and standard editor access to get your team started.
+                                        </p>
                                         <button
                                             onClick={openWaitlist}
-                                            className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
+                                            className="mt-auto w-full py-2.5 px-4 rounded-xl border border-gray-200 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                                        >
+                                            Book a demo
+                                        </button>
+                                    </div>
+                                </StaggerItem>
+
+                                {/* Scale / Custom Tier - Styled exactly like the previous 'Talk to us' section */}
+                                <StaggerItem>
+                                    <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-gray-50 rounded-2xl border border-gray-200">
+                                    
+                                       <div className="text-4xl font-serif text-gray-900 mb-4">Scale & Custom</div>
+                                        <p className="text-sm text-gray-500 mb-8 px-2 flex-grow">
+                                            Need unlimited quests, media pitching, AI-assisted content generation, or seasoned experts?
+                                        </p>
+                                        <button
+                                            onClick={openWaitlist}
+                                            className="mt-auto text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
                                         >
                                             Talk to us →
                                         </button>
-                                    </MagneticElement>
-                                </div>
-                            </ScrollReveal>
+                                    </div>
+                                </StaggerItem>
+                            </StaggerContainer>
                         </div>
                     </section>
 
@@ -429,15 +419,13 @@ export const LandingPage: React.FC = () => {
                                 </h2>
                             </ScrollReveal>
                             <ScrollReveal delay={0.2}>
-                                <MagneticElement strength={30}>
-                                    <button
-                                        onClick={openWaitlist}
-                                        className="group inline-flex items-center gap-4 px-12 py-6 bg-white text-black font-bold uppercase tracking-wider text-base hover:bg-gray-200 transition-all shadow-[0_0_80px_rgba(255,255,255,0.2)]"
-                                    >
-                                        Book a demo
-                                        <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                                    </button>
-                                </MagneticElement>
+                                <button
+                                    onClick={openWaitlist}
+                                    className="group inline-flex items-center gap-4 px-12 py-6 bg-white text-black font-bold uppercase tracking-wider text-base hover:bg-gray-200 transition-all shadow-[0_0_80px_rgba(255,255,255,0.2)]"
+                                >
+                                    Book a demo
+                                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                                </button>
                             </ScrollReveal>
                             <ScrollReveal delay={0.4}>
                                 <p className="text-white/30 text-sm max-w-md mx-auto font-light">
@@ -457,9 +445,7 @@ export const LandingPage: React.FC = () => {
                                 transition={{ duration: 0.6 }}
                                 className="flex flex-col md:flex-row items-center justify-between gap-6"
                             >
-                                <MagneticElement strength={15}>
-                                    <CayblesLogo size="full" theme="light" height={58} />
-                                </MagneticElement>
+                                <CayblesLogo size="full" theme="light" height={58} />
                                 <p className="text-white/30 text-sm font-mono uppercase tracking-wider">
                                     © 2026 Caybles Inc.
                                 </p>
