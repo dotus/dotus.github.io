@@ -73,7 +73,7 @@ export const DistributionsDemo: React.FC = () => (
                         <h4 className="text-sm font-medium text-gray-900 break-words mb-1 group-hover:text-blue-600 transition-colors">
                             {dist.title}
                         </h4>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                             <span>{dist.journalists} journalists</span>
                             {dist.status === 'sent' && (
                                 <>
@@ -85,7 +85,7 @@ export const DistributionsDemo: React.FC = () => (
                                     </span>
                                 </>
                             )}
-                            <span className="ml-auto text-gray-400">{dist.time}</span>
+                            <span className="ml-auto text-gray-400 text-[10px]">{dist.time}</span>
                         </div>
                     </div>
                 </div>
