@@ -106,9 +106,9 @@ const OUTPUT_TYPES: { id: OutputType; label: string; icon: typeof TwitterIcon }[
 const PUBLISH_CHANNELS: { id: string; label: string; icon: typeof TwitterIcon; connected: boolean }[] = [
     { id: 'x', label: 'X (Twitter)', icon: TwitterIcon, connected: true },
     { id: 'linkedin', label: 'LinkedIn', icon: Linkedin01Icon, connected: true },
-    { id: 'instagram', label: 'Instagram', icon: InstagramIcon, connected: false },
+    { id: 'instagram', label: 'Instagram', icon: InstagramIcon, connected: true },
     { id: 'website', label: 'Company Website', icon: GlobalIcon, connected: true },
-    { id: 'prnewswire', label: 'PR Newswire', icon: FileAttachmentIcon, connected: false },
+    { id: 'prnewswire', label: 'PR Newswire', icon: FileAttachmentIcon, connected: true },
     { id: 'email', label: 'Email Distribution', icon: Mail01Icon, connected: true },
 ];
 
@@ -177,7 +177,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         ]);
         
         return () => clearTimeout(timer);
-    }, [product]);
+    }, [product.id]);
     
     // Re-initialize editor content when product type changes (for conditional rendering)
     useEffect(() => {
@@ -216,6 +216,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
 
     const formatContentToHTML = (text: string): string => {
         if (!text) return '';
+        if (text.includes('<p>') || text.includes('<br>')) return text; // Already HTML
         // Simple HTML conversion - preserve paragraphs
         return text
             .split('\n\n')
@@ -225,11 +226,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
 
     const getContentFromEditor = (): string => {
         if (!editorRef.current) return '';
-        const html = editorRef.current.innerHTML;
-        // Convert HTML to plain text with paragraph breaks
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        return temp.innerText || '';
+        return editorRef.current.innerHTML;
     };
 
     // Use a ref to track if we're processing content to avoid cursor jumping
@@ -240,8 +237,13 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         if (isProcessingContent.current) return;
         
         const content = getContentFromEditor();
-        const wordCount = content.split(/\s+/).filter(w => w.length > 0).length;
-        const charCount = content.length;
+        
+        // Calculate counts based on plain text
+        const temp = document.createElement('div');
+        temp.innerHTML = content;
+        const plainText = temp.innerText || '';
+        const wordCount = plainText.split(/\s+/).filter(w => w.length > 0).length;
+        const charCount = plainText.length;
         
         // Update local stats immediately without triggering re-render of editor
         setWordCount(wordCount);
@@ -310,18 +312,8 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
     };
 
     const execCommand = (command: string, value: string = '') => {
-        // Save selection before executing command
-        const selection = window.getSelection();
-        const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-        
         document.execCommand(command, false, value);
         editorRef.current?.focus();
-        
-        // Restore selection if needed
-        if (range && selection) {
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
         
         handleContentChange();
         
@@ -366,23 +358,30 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         let responseText = '';
         let updatedContent = currentContent;
         
+        // Helper to extract plain text
+        const temp = document.createElement('div');
+        temp.innerHTML = currentContent;
+        const plainText = temp.innerText || '';
+        
         // Simulate processing time based on content length
-        const processingTime = Math.min(800 + currentContent.length * 2, 2000);
+        const processingTime = Math.min(800 + plainText.length * 2, 2000);
         await new Promise(r => setTimeout(r, processingTime));
         
         if (lowerInput.includes('shorter') || lowerInput.includes('concise')) {
             responseText = 'Tightened the copy by removing filler words and condensing ideas.';
             // Actually shorten the content
-            const sentences = currentContent.split(/[.!?]+/).filter(s => s.trim());
+            const sentences = plainText.split(/[.!?]+/).filter(s => s.trim());
             if (sentences.length > 1) {
                 // Keep first 60% of sentences
-                updatedContent = sentences.slice(0, Math.max(1, Math.ceil(sentences.length * 0.6))).map(s => s.trim()).join('. ') + '.';
+                const shortenedText = sentences.slice(0, Math.max(1, Math.ceil(sentences.length * 0.6))).map(s => s.trim()).join('. ') + '.';
+                updatedContent = `<p>${shortenedText}</p>`;
             } else {
                 // If only one sentence, remove filler words
-                updatedContent = currentContent
+                const shortenedText = plainText
                     .replace(/\b(very|really|quite|rather|just|actually|basically|literally)\b/gi, '')
                     .replace(/\s+/g, ' ')
                     .trim();
+                updatedContent = `<p>${shortenedText}</p>`;
             }
         } else if (lowerInput.includes('longer') || lowerInput.includes('expand')) {
             responseText = 'Added supporting details and context to strengthen the narrative.';
@@ -392,26 +391,28 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                 'instagram-post': '\n\nSwipe to see more behind-the-scenes moments from this incredible journey. 💫',
                 'default': '\n\nWe believe this represents an important step forward in our mission to deliver exceptional value to our customers and community.'
             };
-            updatedContent = currentContent + (expansions[currentProduct.type] || expansions.default);
+            updatedContent = currentContent + `<p>${expansions[currentProduct.type] || expansions.default}</p>`;
         } else if (lowerInput.includes('professional') || lowerInput.includes('formal')) {
             responseText = 'Elevated the tone with more precise language and structure.';
             // Transform to professional tone
-            updatedContent = currentContent
+            const profText = plainText
                 .replace(/\b(great|awesome|cool|nice|good)\b/gi, 'exceptional')
                 .replace(/\b(get|got)\b/gi, 'obtain')
                 .replace(/\b(big|huge)\b/gi, 'significant')
                 .replace(/\b(we're|we are)\b/gi, 'we are')
                 .replace(/!{2,}/g, '.')
                 .replace(/\?/g, '.');
+            updatedContent = `<p>${profText}</p>`;
         } else if (lowerInput.includes('casual') || lowerInput.includes('friendly')) {
             responseText = 'Relaxed the tone to feel more conversational and approachable.';
             // Transform to casual tone
-            updatedContent = currentContent
+            const casualText = plainText
                 .replace(/\b(exceptional|outstanding|remarkable)\b/gi, 'great')
                 .replace(/\b(obtain|acquire|secure)\b/gi, 'get')
                 .replace(/\b(significant|substantial)\b/gi, 'big')
                 .replace(/\.(\s+)(?=[A-Z])/g, '!$1')
                 .replace(/we are\b/gi, "we're");
+            updatedContent = `<p>${casualText}</p>`;
         } else if (lowerInput.includes('call-to-action') || lowerInput.includes('cta')) {
             responseText = 'Added a clear call-to-action to drive engagement.';
             const ctas: Record<string, string> = {
@@ -420,7 +421,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                 'instagram-post': '\n\nTap the link in bio to learn more ✨',
                 'default': '\n\nReady to learn more? Get in touch today.'
             };
-            updatedContent = currentContent + (ctas[currentProduct.type] || ctas.default);
+            updatedContent = currentContent + `<p>${ctas[currentProduct.type] || ctas.default}</p>`;
         } else {
             responseText = 'Made the requested adjustments to your content.';
         }
@@ -525,6 +526,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         isActive?: boolean;
     }) => (
         <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={onClick}
             className={`p-2 rounded-lg transition-colors ${
                 isActive 
@@ -541,7 +543,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
         <div className="h-full flex flex-col bg-[#FAF9F6] relative">
 
             {/* Header with Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0 z-10 sticky top-0">
                 <div className="flex items-center gap-3">
                     <button onClick={onClose} className="p-2 hover:bg-black/[0.04] rounded-lg transition-colors">
                         <HugeiconsIcon icon={ArrowLeft01Icon} size={18} className="text-black/40" />
@@ -786,7 +788,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 {/* InstagramIcon Caption (Editable) */}
                                 <div className="px-4 pb-4">
                                     <div className="flex items-start gap-2">
-                                        <span className="text-[13px] font-semibold flex-shrink-0">yourbrand</span>
+                                        <span className="text-[13px] font-semibold flex-shrink-0">{CLIENT_CONFIG.social.instagram}</span>
                                         <div
                                             ref={editorRef}
                                             contentEditable
@@ -1136,7 +1138,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                         setActiveFormats(formats);
                                     }, 0);
                                 }}
-                                className="min-h-[400px] text-[16px] leading-[1.8] outline-none font-serif [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-black/30"
+                                className="min-h-[400px] text-[16px] leading-[1.8] outline-none font-serif p-4 rounded-xl transition-colors focus:bg-white focus:shadow-sm focus:ring-1 focus:ring-black/5 [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-black/30"
                                 data-placeholder="Start writing..."
                             />
                             
@@ -1224,14 +1226,16 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
                         {chatMessages.map((msg) => (
-                            <div key={msg.id} className="space-y-1">
+                            <div key={msg.id} className={`flex flex-col space-y-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                                 <div className={`text-[12px] ${msg.role === 'user' ? 'text-right' : ''}`}>
                                     <span className="text-black/40">
                                         {msg.role === 'user' ? 'You' : 'Teal'}
                                     </span>
                                 </div>
-                                <div className={`text-[14px] leading-relaxed font-serif ${
-                                    msg.role === 'user' ? 'text-right text-black/70' : 'text-black'
+                                <div className={`text-[14px] leading-relaxed font-light p-3 rounded-2xl max-w-[90%] ${
+                                    msg.role === 'user' 
+                                        ? 'bg-black/[0.04] text-black/80 rounded-tr-sm' 
+                                        : 'bg-white border border-black/[0.06] shadow-sm text-black rounded-tl-sm'
                                 }`}>
                                     {msg.content}
                                 </div>
@@ -1240,7 +1244,7 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                         {isProcessing && (
                             <div className="space-y-1">
                                 <div className="text-[12px] text-black/40">Teal</div>
-                                <div className="flex items-center gap-2 text-black/50 font-serif">
+                                <div className="flex items-center gap-2 text-black/50 font-light">
                                     <span className="w-1 h-1 bg-black/30 rounded-full animate-bounce" />
                                     <span className="w-1 h-1 bg-black/30 rounded-full animate-bounce [animation-delay:0.1s]" />
                                     <span className="w-1 h-1 bg-black/30 rounded-full animate-bounce [animation-delay:0.2s]" />
@@ -1275,9 +1279,9 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 value={chatInput}
                                 onChange={(e) => setChatInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                placeholder="Ask Also to edit..."
+                                placeholder="Ask Caybles to edit..."
                                 disabled={isProcessing}
-                                className="w-full text-[14px] font-serif pl-0 pr-10 py-2 bg-transparent border-b border-black/[0.08] focus:border-black/30 outline-none transition-colors placeholder:text-black/30 placeholder:font-sans disabled:opacity-50"
+                                className="w-full text-[14px] font-light pl-0 pr-10 py-2 bg-transparent border-b border-black/[0.08] focus:border-black/30 outline-none transition-colors placeholder:text-black/30 placeholder:font-sans disabled:opacity-50"
                             />
                             <button
                                 onClick={handleSendMessage}
@@ -1344,18 +1348,37 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                                             );
                                                         }}
                                                         disabled={!channel.connected}
-                                                        className={`w-full flex items-center gap-3 p-2.5 rounded-lg border transition-all text-left ${
+                                                        className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left group ${
                                                             selectedChannels.includes(channel.id)
-                                                                ? 'bg-gray-50 border-black/20'
+                                                                ? 'bg-teal-50 border-teal-200 shadow-sm'
                                                                 : channel.connected
-                                                                    ? 'bg-white border-black/[0.06] hover:border-black/10'
+                                                                    ? 'bg-white border-black/[0.08] hover:border-black/20 hover:shadow-sm'
                                                                     : 'bg-gray-50 border-transparent opacity-50 cursor-not-allowed'
                                                         }`}
                                                     >
-                                                        {selectedChannels.includes(channel.id) && <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-teal-600 flex-shrink-0" />}
-                                                        <div className="p-1.5 bg-gray-50 rounded-md"><HugeiconsIcon icon={channel.icon} size={16} /></div>
-                                                        <div className="flex-1"><p className="text-[13px]">{channel.label}</p></div>
-                                                        {!channel.connected && <span className="text-[11px] text-black/40">Connect</span>}
+                                                        <div className={`p-2 rounded-lg transition-colors ${
+                                                            selectedChannels.includes(channel.id) 
+                                                                ? 'bg-teal-100 text-teal-700' 
+                                                                : 'bg-gray-100 text-black/60 group-hover:text-black/80'
+                                                        }`}>
+                                                            <HugeiconsIcon icon={channel.icon} size={18} />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className={`text-[14px] font-medium transition-colors ${
+                                                                selectedChannels.includes(channel.id) ? 'text-teal-900' : 'text-black'
+                                                            }`}>
+                                                                {channel.label}
+                                                            </p>
+                                                        </div>
+                                                        {selectedChannels.includes(channel.id) && (
+                                                            <motion.div 
+                                                                initial={{ scale: 0, opacity: 0 }} 
+                                                                animate={{ scale: 1, opacity: 1 }} 
+                                                                className="flex items-center justify-center w-6 h-6 rounded-full bg-teal-600 text-white"
+                                                            >
+                                                                <Check size={14} strokeWidth={3} />
+                                                            </motion.div>
+                                                        )}
                                                     </button>
                                                 ))}
                                             </div>

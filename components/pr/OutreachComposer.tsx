@@ -22,8 +22,9 @@ import {
     NewOfficeIcon,
     Tag01Icon,
     TextFontIcon,
+    StarIcon,
 } from '@hugeicons/core-free-icons';
-import { Quest, OutreachCampaign, JournalistContact, MOCK_JOURNALISTS, getOutreachStorageKey, getRecommendedJournalists, MOCK_BRAND_ASSETS } from './StatsOverview';
+import { Quest, OutreachCampaign, JournalistContact, MOCK_JOURNALISTS, getOutreachStorageKey, getRecommendedJournalists, MOCK_BRAND_ASSETS, PITCH_TEMPLATES, MOCK_QUEST_DOCS } from './StatsOverview';
 
 
 interface OutreachComposerProps {
@@ -32,57 +33,7 @@ interface OutreachComposerProps {
     onCampaignSent?: (campaign: OutreachCampaign) => void;
 }
 
-const PITCH_TEMPLATES = {
-    exclusive: {
-        label: 'Exclusive',
-        description: 'For top-tier exclusives',
-        subject: 'Exclusive: {{title}}',
-        body: `Hi {{name}},
 
-I hope this finds you well. I saw your recent piece on {{topic}} and thought this would be right up your alley.
-
-We're announcing {{title}} — {{synopsis}}
-
-I'd love to offer you an exclusive on this story. I have {{founder}} available for an interview this week.
-
-The embargo lifts on {{embargoDate}} at {{embargoTime}}.
-
-Best regards,
-{{sender}}`
-    },
-    embargo: {
-        label: 'Embargo',
-        description: 'Standard embargo pitch',
-        subject: 'Embargo: {{title}}',
-        body: `Hi {{name}},
-
-Under embargo until {{embargoDate}} at {{embargoTime}}:
-
-{{title}}
-
-{{synopsis}}
-
-I have {{founder}} available for interviews. Let me know if you're interested.
-
-Best,
-{{sender}}`
-    },
-    followup: {
-        label: 'Follow-up',
-        description: 'Checking in',
-        subject: 'Re: {{title}}',
-        body: `Hi {{name}},
-
-Just following up on my previous email about {{title}}.
-
-{{synopsis}}
-
-Would you be interested in covering this? Happy to provide more details or connect you with {{founder}}.
-
-Best,
-{{sender}}`
-    }
-};
 
 // Template Variable Button Component
 interface TemplateVarProps {
@@ -127,13 +78,8 @@ const Step2ComposePitch: React.FC<Step2Props> = ({
     const [attachedDocs, setAttachedDocs] = useState<number[]>([]);
     const [copiedNarrative, setCopiedNarrative] = useState(false);
 
-    // Mock quest documents
-    const questDocs = [
-        { id: 1, name: 'Series B Press Release', type: 'doc', size: '24 KB' },
-        { id: 2, name: 'Founder Bio - Mithil Aggarwal', type: 'doc', size: '12 KB' },
-        { id: 3, name: 'Caybles Fact Sheet', type: 'sheet', size: '18 KB' },
-        { id: 4, name: 'Product Screenshots', type: 'image', size: '2.4 MB' },
-    ];
+    // Quest documents from mock data
+    const questDocs = MOCK_QUEST_DOCS;
 
     const handleCopyNarrative = () => {
         navigator.clipboard.writeText(MOCK_BRAND_ASSETS.narrative);
@@ -351,6 +297,48 @@ interface Step3Props {
     isSending: boolean;
 }
 
+const ContactRow: React.FC<{ contact: JournalistContact, selected: boolean, onToggle: (j: JournalistContact) => void, isRecommended: boolean }> = ({ contact, selected, onToggle, isRecommended }) => (
+    <button
+        onClick={() => onToggle(contact)}
+        className={`
+            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-all group relative overflow-hidden
+            ${selected 
+                ? 'bg-teal-50 border-teal-200 shadow-sm ring-1 ring-teal-500/10'
+                : isRecommended
+                    ? 'bg-[#EBA832]/[0.04] border-[#EBA832]/30 hover:bg-[#EBA832]/[0.08] hover:border-[#EBA832]/50 hover:shadow-sm'
+                    : 'bg-white border-black/[0.06] hover:border-black/20 hover:shadow-sm'
+            }
+        `}
+    >
+        <div className="w-5 flex justify-center flex-shrink-0 z-10">
+            {selected ? (
+                <HugeiconsIcon icon={CheckmarkSquare03Icon} size={18} className="text-teal-600" />
+            ) : (
+                <div className={`w-4 h-4 rounded border-2 transition-colors ${isRecommended ? 'border-[#EBA832]/40 group-hover:border-[#EBA832]/60' : 'border-black/20 group-hover:border-black/40'}`} />
+            )}
+        </div>
+        <div className="flex-1 min-w-0 z-10">
+            <div className="flex items-center gap-1.5">
+                <span className={`text-[14px] font-medium truncate ${selected ? 'text-teal-900' : 'text-black'}`}>
+                    {contact.name}
+                </span>
+                {isRecommended && (
+                    <div className="flex items-center" title="Recommended Match">
+                        <HugeiconsIcon icon={StarIcon} size={12} className={selected ? 'text-teal-500' : 'text-[#EBA832]'} />
+                    </div>
+                )}
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-black/50 mt-0.5">
+                <span className={`font-medium ${selected ? 'text-teal-700' : isRecommended ? 'text-[#EBA832]/90' : 'text-black/60'}`}>
+                    {contact.outlet}
+                </span>
+                <span className={`w-1 h-1 rounded-full ${selected ? 'bg-teal-200' : isRecommended ? 'bg-[#EBA832]/30' : 'bg-black/20'}`} />
+                <span className={`truncate ${selected ? 'text-teal-600/80' : ''}`}>{contact.focus}</span>
+            </div>
+        </div>
+    </button>
+);
+
 const Step3SelectJournalists: React.FC<Step3Props> = ({
     quest,
     selectedJournalists,
@@ -358,27 +346,32 @@ const Step3SelectJournalists: React.FC<Step3Props> = ({
     onSendCampaign,
     isSending
 }) => {
+    const [activeTab, setActiveTab] = useState<'journalist' | 'influencer'>('journalist');
     const [searchQuery, setSearchQuery] = useState('');
-    const recommendedJournalists = getRecommendedJournalists(quest);
     
-    // Get remaining journalists (not in recommended)
-    const recommendedIds = new Set(recommendedJournalists.map(j => j.id));
-    const additionalJournalists = MOCK_JOURNALISTS.filter(j => !recommendedIds.has(j.id));
+    // Filter base lists by active tab
+    const allOfActiveType = MOCK_JOURNALISTS.filter(j => (j.category || 'journalist') === activeTab);
+    const recommendedAll = getRecommendedJournalists(quest);
+    const recommendedOfActiveType = recommendedAll.filter(j => (j.category || 'journalist') === activeTab).slice(0, 4);
     
-    // Filter journalists based on search
-    const filteredAdditional = searchQuery 
-        ? additionalJournalists.filter(j => 
-            j.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.outlet.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.focus.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : additionalJournalists;
+    // Get additional
+    const recommendedIds = new Set(recommendedOfActiveType.map(j => j.id));
+    const additionalOfActiveType = allOfActiveType.filter(j => !recommendedIds.has(j.id));
+    
+    // Apply search query
+    const searchFilter = (j: JournalistContact) => 
+        j.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        j.outlet.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        j.focus.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const filteredRecommended = searchQuery ? recommendedOfActiveType.filter(searchFilter) : recommendedOfActiveType;
+    const filteredAdditional = searchQuery ? additionalOfActiveType.filter(searchFilter) : additionalOfActiveType;
 
     const isSelected = (journalist: JournalistContact) => 
         selectedJournalists.some(j => j.id === journalist.id);
 
     const selectAllRecommended = () => {
-        recommendedJournalists.forEach(j => {
+        filteredRecommended.forEach(j => {
             if (!isSelected(j)) onToggleJournalist(j);
         });
     };
@@ -387,12 +380,11 @@ const Step3SelectJournalists: React.FC<Step3Props> = ({
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
+            className="space-y-6"
         >
-            {/* Header with Send Button */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="font-serif text-2xl">Select Journalists</h2>
+                    <h2 className="font-serif text-2xl">Select Contacts</h2>
                     <p className="text-[13px] text-black/50 mt-1">
                         {selectedJournalists.length > 0 ? (
                             <span className="text-black font-medium">{selectedJournalists.length} selected</span>
@@ -430,82 +422,25 @@ const Step3SelectJournalists: React.FC<Step3Props> = ({
                 </div>
             </div>
 
-            {/* Selected Pills */}
-            {selectedJournalists.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                    {selectedJournalists.map((journalist) => (
-                        <span 
-                            key={journalist.id}
-                            className="inline-flex items-center gap-1.5 text-[12px] bg-[#EBA832] text-white pl-2.5 pr-1.5 py-1 rounded-md"
+            <div className="max-w-3xl mx-auto">
+                {/* Tabs & Search Unified Header */}
+                <div className="bg-white rounded-xl border border-black/10 p-2 mb-6 flex items-center justify-between shadow-sm">
+                    <div className="flex bg-gray-50 p-1 rounded-lg">
+                        <button 
+                            onClick={() => setActiveTab('journalist')}
+                            className={`px-5 py-1.5 text-[13px] font-medium rounded-md transition-all ${activeTab === 'journalist' ? 'bg-white text-teal-700 shadow-sm border border-black/[0.04]' : 'text-black/50 hover:text-black/70'}`}
                         >
-                            {journalist.name}
-                            <button 
-                                onClick={() => onToggleJournalist(journalist)}
-                                className="hover:bg-white/20 rounded w-4 h-4 flex items-center justify-center transition-colors text-white/70 hover:text-white"
-                            >
-                                &times;
-                            </button>
-                        </span>
-                    ))}
-                </div>
-            )}
-
-            <div className="max-w-3xl mx-auto space-y-4">
-                {/* Recommended Section */}
-                <div>
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-[14px] font-medium text-[#EBA832]">Recommended</h3>
-                        <button
-                            onClick={selectAllRecommended}
-                            className="text-[11px] text-black/50 hover:text-black"
+                            Journalists
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('influencer')}
+                            className={`px-5 py-1.5 text-[13px] font-medium rounded-md transition-all ${activeTab === 'influencer' ? 'bg-white text-teal-700 shadow-sm border border-black/[0.04]' : 'text-black/50 hover:text-black/70'}`}
                         >
-                            Select All
+                            Influencers
                         </button>
                     </div>
-
-                    <div className="space-y-1">
-                        {recommendedJournalists.map((journalist) => {
-                            const selected = isSelected(journalist);
-                            return (
-                                <button
-                                    key={journalist.id}
-                                    onClick={() => onToggleJournalist(journalist)}
-                                    className={`
-                                        w-full flex items-center gap-3 px-3 py-2 rounded-lg border text-left transition-all
-                                        ${selected 
-                                            ? 'bg-[#EBA832]/10 border-[#EBA832]/30' 
-                                            : 'bg-white border-black/[0.06] hover:border-[#EBA832]/20 hover:bg-[#EBA832]/5'
-                                        }
-                                    `}
-                                >
-                                    {/* Checkmark */}
-                                    <div className="w-5 flex justify-center flex-shrink-0">
-                                        {selected && <HugeiconsIcon icon={CheckmarkSquare03Icon} size={18} className="text-[#EBA832]" />}
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[14px] font-medium truncate">{journalist.name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[11px] text-black/50">
-                                            <span className="text-[#EBA832] font-medium">{journalist.outlet}</span>
-                                            <span className="w-1 h-1 rounded-full bg-black/20" />
-                                            <span>{journalist.focus}</span>
-                                        </div>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* Additional Journalists */}
-                <div>
-                    <h3 className="text-[14px] font-medium text-black/50 mb-2">More Contacts</h3>
-
-                    {/* Search */}
-                    <div className="relative mb-2">
+                    
+                    <div className="relative w-64 mr-1">
                         <HugeiconsIcon 
                             icon={Search01Icon} 
                             size={16} 
@@ -513,51 +448,89 @@ const Step3SelectJournalists: React.FC<Step3Props> = ({
                         />
                         <input
                             type="text"
-                            placeholder="Search journalists..."
+                            placeholder={`Search ${activeTab}s...`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-white border border-black/10 rounded-lg text-[13px] placeholder:text-black/40 focus:outline-none focus:border-black/30"
+                            className="w-full pl-9 pr-3 py-1.5 bg-gray-50 border-transparent rounded-lg text-[13px] placeholder:text-black/40 focus:bg-white focus:outline-none focus:ring-1 focus:ring-black/10 transition-all"
                         />
                     </div>
+                </div>
 
-                    <div className="space-y-1 max-h-[240px] overflow-y-auto">
-                        {filteredAdditional.length === 0 ? (
-                            <div className="text-center py-6 text-black/40">
-                                <p className="text-[13px]">No journalists found</p>
+                {/* Selected Pills */}
+                {selectedJournalists.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+                        {selectedJournalists.map((journalist) => (
+                            <span 
+                                key={journalist.id}
+                                className="inline-flex items-center gap-1.5 text-[12px] bg-white border border-teal-200 text-teal-800 pl-2.5 pr-1.5 py-1 rounded-md shadow-sm"
+                            >
+                                {journalist.name}
+                                <span className="text-teal-600/50 text-[10px]">({journalist.category || 'journalist'})</span>
+                                <button 
+                                    onClick={() => onToggleJournalist(journalist)}
+                                    className="hover:bg-teal-100 rounded w-4 h-4 flex items-center justify-center transition-colors text-teal-600 hover:text-teal-900 ml-1"
+                                >
+                                    &times;
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                <div className="space-y-6">
+                    {/* Recommended Section */}
+                    {filteredRecommended.length > 0 && (
+                        <div>
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-[#EBA832]" />
+                                    <h3 className="text-[13px] font-semibold text-[#EBA832] uppercase tracking-wide">Recommended for you</h3>
+                                </div>
+                                <button
+                                    onClick={selectAllRecommended}
+                                    className="text-[11px] font-medium text-black/40 hover:text-black transition-colors bg-white border border-black/10 px-2 py-1 rounded"
+                                >
+                                    Select All
+                                </button>
                             </div>
-                        ) : (
-                            filteredAdditional.map((journalist) => {
-                                const selected = isSelected(journalist);
-                                return (
-                                    <button
-                                        key={journalist.id}
-                                        onClick={() => onToggleJournalist(journalist)}
-                                        className={`
-                                            w-full flex items-center gap-3 px-3 py-2 rounded-lg border text-left transition-all
-                                            ${selected 
-                                                ? 'bg-black/[0.03] border-black/20' 
-                                                : 'bg-white border-black/[0.06] hover:border-black/10 hover:bg-black/[0.02]'
-                                            }
-                                        `}
-                                    >
-                                        {/* Checkmark */}
-                                        <div className="w-5 flex justify-center flex-shrink-0">
-                                            {selected && <HugeiconsIcon icon={CheckmarkSquare03Icon} size={18} className="text-black" />}
-                                        </div>
 
-                                        {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-[14px] font-medium truncate">{journalist.name}</div>
-                                            <div className="flex items-center gap-2 text-[11px] text-black/50">
-                                                <span className="text-black/60 font-medium">{journalist.outlet}</span>
-                                                <span className="w-1 h-1 rounded-full bg-black/20" />
-                                                <span className="truncate">{journalist.focus}</span>
-                                            </div>
-                                        </div>
-                                    </button>
-                                );
-                            })
+                            <div className="grid grid-cols-2 gap-3">
+                                {filteredRecommended.map((contact) => (
+                                    <ContactRow 
+                                        key={contact.id} 
+                                        contact={contact} 
+                                        selected={isSelected(contact)} 
+                                        onToggle={onToggleJournalist}
+                                        isRecommended={true}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Additional Section */}
+                    <div>
+                        {filteredRecommended.length > 0 && (
+                            <h3 className="text-[13px] font-semibold text-black/50 uppercase tracking-wide mb-3 mt-2">More {activeTab === 'journalist' ? 'Journalists' : 'Influencers'}</h3>
                         )}
+
+                        <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 pb-2">
+                            {filteredAdditional.length === 0 ? (
+                                <div className="col-span-2 text-center py-10 bg-white rounded-xl border border-black/[0.06]">
+                                    <p className="text-[13px] text-black/40">No {activeTab}s found matching "{searchQuery}"</p>
+                                </div>
+                            ) : (
+                                filteredAdditional.map((contact) => (
+                                    <ContactRow 
+                                        key={contact.id} 
+                                        contact={contact} 
+                                        selected={isSelected(contact)} 
+                                        onToggle={onToggleJournalist}
+                                        isRecommended={false}
+                                    />
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -899,73 +899,115 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                     )}
 
                     {activeTab === 'quotes' && (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {/* Quotes Header */}
-                            <div className="flex items-center justify-between">
-                                <p className="text-[13px] text-black/50">
-                                    Internally approved quotes for use across this quest
-                                </p>
+                            <div className="flex items-center justify-between pb-4 border-b border-black/[0.06]">
+                                <div>
+                                    <p className="text-[13px] text-black/70 font-medium">
+                                        Approved Quotes
+                                    </p>
+                                    <p className="text-[12px] text-black/40 mt-0.5">
+                                        Internally vetted quotes for use across this quest
+                                    </p>
+                                </div>
                                 <button 
                                     onClick={() => setShowAddQuoteDialog(true)}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+                                    className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors shadow-sm"
                                 >
-                                    <Plus size={12} />
+                                    <Plus size={14} />
                                     Add Quote
                                 </button>
                             </div>
                             
                             {/* Quotes List */}
-                            <div className="space-y-3">
-                                {questQuotes.map((quote) => (
+                            <div className="space-y-4">
+                                {questQuotes.map((quote, index) => (
                                     <div 
                                         key={quote.id} 
-                                        className="group p-5 bg-gray-50/50 rounded-xl border border-transparent hover:border-teal-200 hover:bg-teal-50/20 transition-all relative"
+                                        className="group bg-white rounded-xl border border-black/[0.06] hover:border-black/15 hover:shadow-sm transition-all duration-200"
                                     >
-                                        {/* Delete Button - visible on hover */}
-                                        <button
-                                            onClick={() => setQuestQuotes(prev => prev.filter(q => q.id !== quote.id))}
-                                            className="absolute top-3 right-3 p-2 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 text-black/20 rounded-lg transition-all"
-                                            title="Delete quote"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                        
-                                        <p className="text-[15px] text-black/80 leading-relaxed mb-4 italic pr-8">
-                                            &ldquo;{quote.text}&rdquo;
-                                        </p>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[11px] font-semibold">
-                                                    {quote.speaker.split(' ').map(n => n[0]).join('')}
+                                        <div className="p-5">
+                                            {/* Quote Content */}
+                                            <div className="relative mb-5">
+                                                {/* Large decorative quote mark */}
+                                                <span className="absolute -top-2 -left-2 font-serif text-6xl text-teal-100 select-none leading-none">
+                                                    &ldquo;
+                                                </span>
+                                                <p className="relative text-[16px] text-black/80 leading-relaxed font-serif">
+                                                    {quote.text}
+                                                </p>
+                                                <span className="absolute -bottom-4 right-0 font-serif text-6xl text-teal-100 select-none leading-none">
+                                                    &rdquo;
+                                                </span>
+                                            </div>
+                                            
+                                            {/* Speaker Info Row */}
+                                            <div className="flex items-center justify-between pt-4 border-t border-black/[0.04]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-[11px] font-semibold shadow-sm">
+                                                        {quote.speaker.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[13px] font-medium text-black">{quote.speaker}</p>
+                                                        <p className="text-[11px] text-black/50">{quote.role}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <span className="text-[13px] font-medium text-black">{quote.speaker}</span>
-                                                    <span className="text-[12px] text-black/40 ml-1.5">{quote.role}</span>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    {/* Usage count pill */}
+                                                    <span className="text-[10px] px-2.5 py-1 bg-black/[0.03] text-black/40 rounded-full">
+                                                        Used {quote.usageCount} time{quote.usageCount !== 1 ? 's' : ''}
+                                                    </span>
+                                                    
+                                                    {/* Copy button */}
+                                                    <button
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(`"${quote.text}" — ${quote.speaker}, ${quote.role}`);
+                                                        }}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-black/40 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all"
+                                                        title="Copy quote with attribution"
+                                                    >
+                                                        <Copy size={13} />
+                                                        Copy
+                                                    </button>
+                                                    
+                                                    {/* Delete button */}
+                                                    <button
+                                                        onClick={() => setQuestQuotes(prev => prev.filter(q => q.id !== quote.id))}
+                                                        className="p-1.5 text-black/20 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                                        title="Delete quote"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(`"${quote.text}" — ${quote.speaker}, ${quote.role}`);
-                                                }}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-black/40 hover:text-teal-600 hover:bg-white rounded-lg transition-all"
-                                                title="Copy quote with attribution"
-                                            >
-                                                <Copy size={14} />
-                                                Copy
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-black/[0.04]">
-                                            {quote.tags.map(tag => (
-                                                <span key={tag} className="text-[10px] px-2.5 py-0.5 bg-white text-black/50 rounded-full border border-black/[0.04]">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                            <span className="text-[10px] text-black/30 ml-auto">
-                                                Used {quote.usageCount} time{quote.usageCount !== 1 ? 's' : ''}
-                                            </span>
+                                            
+                                            {/* Tags */}
+                                            {quote.tags.length > 0 && (
+                                                <div className="flex items-center gap-1.5 mt-3">
+                                                    {quote.tags.map(tag => (
+                                                        <span key={tag} className="text-[10px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                            
+                            {/* Usage Tip */}
+                            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-black/[0.04]">
+                                <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span className="text-teal-600 text-xs">💡</span>
+                                </div>
+                                <div>
+                                    <p className="text-[12px] font-medium text-black/70">Pro Tip</p>
+                                    <p className="text-[12px] text-black/50 mt-0.5">
+                                        Click "Copy" to get the formatted quote with attribution, ready to paste into pitches or documents.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     )}

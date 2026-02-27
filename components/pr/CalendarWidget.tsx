@@ -196,39 +196,46 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
                             </div>
 
                             {selectedDeadlines.length > 0 ? (
-                                <div className="space-y-3">
+                                <div className="space-y-2">
                                     {selectedDeadlines.map((event, i) => (
                                         <motion.button
                                             key={event.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
                                             onClick={() => handleEventClick(event)}
-                                            className="w-full relative group text-left outline-none"
+                                            className="w-full group text-left"
                                         >
-                                            <div className="absolute inset-0 bg-white rounded-2xl border border-black/[0.04] shadow-sm transform group-hover:-translate-y-0.5 transition-all duration-300 group-hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] group-hover:border-black/[0.08]" />
-
-                                            <div className="relative p-3.5 pl-5">
-                                                <div className="flex justify-between items-start gap-3 mb-1.5">
-                                                    <p className="text-[13px] font-semibold text-gray-900 group-hover:text-teal-600 transition-colors leading-tight line-clamp-2">
-                                                        {event.questTitle}
-                                                    </p>
-                                                    {event.time && (
-                                                        <span className="text-[11px] font-medium text-gray-400 flex items-center gap-1 shrink-0 bg-gray-50 px-1.5 py-0.5 rounded border border-black/[0.03]">
-                                                            <Clock size={10} />
-                                                            {event.time}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span
-                                                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gradient-to-r text-transparent bg-clip-text ${TYPE_GRADIENTS[event.type]} bg-gray-50 border border-black/5`}
-                                                    >
-                                                        {TYPE_LABELS[event.type]}
-                                                    </span>
-                                                    <span className="text-[12px] text-gray-500 truncate font-medium flex-1">
-                                                        {event.title}
-                                                    </span>
+                                            <div className="relative overflow-hidden rounded-xl bg-teal-50/40 backdrop-blur-sm border border-teal-100/60 p-3.5 transition-all duration-200 group-hover:bg-teal-50/60 group-hover:border-teal-200/80">
+                                                {/* Subtle teal glow effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-br from-teal-100/20 via-transparent to-emerald-100/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                
+                                                <div className="relative flex items-start gap-3">
+                                                    {/* Type indicator dot */}
+                                                    <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 bg-gradient-to-br ${TYPE_GRADIENTS[event.type]}`} />
+                                                    
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <p className="text-[13px] font-medium text-gray-900 group-hover:text-teal-700 transition-colors truncate">
+                                                                {event.questTitle}
+                                                            </p>
+                                                            {event.time && (
+                                                                <span className="text-[10px] font-medium text-teal-600/70 bg-teal-100/50 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0">
+                                                                    <Clock size={9} />
+                                                                    {event.time}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/60 text-gray-600 border border-teal-100/50`}>
+                                                                {TYPE_LABELS[event.type]}
+                                                            </span>
+                                                            <span className="text-[11px] text-gray-500 truncate">
+                                                                {event.title}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </motion.button>

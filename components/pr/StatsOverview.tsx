@@ -26,6 +26,7 @@ export interface JournalistContact {
     status: 'pending' | 'opened' | 'responded' | 'bounced';
     openedAt?: string;
     respondedAt?: string;
+    category?: 'journalist' | 'influencer';
 }
 
 export interface Quest {
@@ -52,18 +53,22 @@ export type DocItem = Quest;
 export const getOutreachStorageKey = (questId: number) => `quest_outreach_${questId}`;
 
 export const MOCK_JOURNALISTS: JournalistContact[] = [
-    { id: 1, name: 'Mike Butcher', outlet: 'TechCrunch', email: 'mike@techcrunch.com', focus: 'Startups, Europe', status: 'opened', openedAt: '2h ago' },
-    { id: 2, name: 'Alex Konrad', outlet: 'Forbes', email: 'alex.konrad@forbes.com', focus: 'VC, Cloud', status: 'responded', respondedAt: '1h ago' },
-    { id: 3, name: 'Casey Newton', outlet: 'Platformer', email: 'casey@platformer.news', focus: 'Social Media, Democracy', status: 'pending' },
-    { id: 4, name: 'Kara Swisher', outlet: 'Pivot / NYMag', email: 'kara@nymag.com', focus: 'Tech, Business', status: 'pending' },
-    { id: 5, name: 'Ryan Lawler', outlet: 'TechCrunch', email: 'ryan@techcrunch.com', focus: 'AI, Enterprise', status: 'pending' },
-    { id: 6, name: 'Ingrid Lunden', outlet: 'TechCrunch', email: 'ingrid@techcrunch.com', focus: 'Funding, Europe', status: 'pending' },
-    { id: 7, name: 'Natasha Mascarenhas', outlet: 'TechCrunch', email: 'natasha@techcrunch.com', focus: 'Startups, VC', status: 'pending' },
-    { id: 8, name: 'Amanda Silberling', outlet: 'TechCrunch', email: 'amanda@techcrunch.com', focus: 'Creator Economy', status: 'pending' },
-    { id: 9, name: 'Taylor Hatmaker', outlet: 'TechCrunch', email: 'taylor@techcrunch.com', focus: 'AI, Policy', status: 'pending' },
-    { id: 10, name: 'Aisha Malik', outlet: 'TechCrunch', email: 'aisha@techcrunch.com', focus: 'Apps, Consumer', status: 'pending' },
-    { id: 11, name: 'Kyle Wiggers', outlet: 'TechCrunch', email: 'kyle@techcrunch.com', focus: 'AI, Robotics', status: 'pending' },
-    { id: 12, name: 'Paul Sawers', outlet: 'TechCrunch', email: 'paul@techcrunch.com', focus: 'Europe, AI', status: 'pending' },
+    { id: 1, name: 'Mike Butcher', outlet: 'TechCrunch', email: 'mike@techcrunch.com', focus: 'Startups, Europe', status: 'opened', openedAt: '2h ago', category: 'journalist' },
+    { id: 2, name: 'Alex Konrad', outlet: 'Forbes', email: 'alex.konrad@forbes.com', focus: 'VC, Cloud', status: 'responded', respondedAt: '1h ago', category: 'journalist' },
+    { id: 3, name: 'Casey Newton', outlet: 'Platformer', email: 'casey@platformer.news', focus: 'Social Media, Democracy', status: 'pending', category: 'journalist' },
+    { id: 4, name: 'Kara Swisher', outlet: 'Pivot / NYMag', email: 'kara@nymag.com', focus: 'Tech, Business', status: 'pending', category: 'journalist' },
+    { id: 5, name: 'Ryan Lawler', outlet: 'TechCrunch', email: 'ryan@techcrunch.com', focus: 'AI, Enterprise', status: 'pending', category: 'journalist' },
+    { id: 6, name: 'Ingrid Lunden', outlet: 'TechCrunch', email: 'ingrid@techcrunch.com', focus: 'Funding, Europe', status: 'pending', category: 'journalist' },
+    { id: 7, name: 'Natasha Mascarenhas', outlet: 'TechCrunch', email: 'natasha@techcrunch.com', focus: 'Startups, VC', status: 'pending', category: 'journalist' },
+    { id: 8, name: 'Amanda Silberling', outlet: 'TechCrunch', email: 'amanda@techcrunch.com', focus: 'Creator Economy', status: 'pending', category: 'journalist' },
+    { id: 9, name: 'Marques Brownlee', outlet: 'YouTube', email: 'mkbhd@gmail.com', focus: 'Tech Hardware, AI', status: 'pending', category: 'influencer' },
+    { id: 10, name: 'Justine Ezarik', outlet: 'iJustine / YouTube', email: 'ijustine@gmail.com', focus: 'Consumer Tech', status: 'pending', category: 'influencer' },
+    { id: 11, name: 'Linus Sebastian', outlet: 'LTT / YouTube', email: 'linus@linusmediagroup.com', focus: 'PC Hardware', status: 'pending', category: 'influencer' },
+    { id: 12, name: 'MrWhoseTheBoss', outlet: 'YouTube', email: 'mrwhosetheboss@gmail.com', focus: 'Smartphones', status: 'pending', category: 'influencer' },
+    { id: 13, name: 'Cleo Abram', outlet: 'YouTube / Instagram', email: 'cleo@cleoabram.com', focus: 'Tech Explainers', status: 'pending', category: 'influencer' },
+    { id: 14, name: 'Taylor Hatmaker', outlet: 'TechCrunch', email: 'taylor@techcrunch.com', focus: 'AI, Policy', status: 'pending', category: 'journalist' },
+    { id: 15, name: 'Aisha Malik', outlet: 'TechCrunch', email: 'aisha@techcrunch.com', focus: 'Apps, Consumer', status: 'pending', category: 'journalist' },
+    { id: 16, name: 'Kyle Wiggers', outlet: 'TechCrunch', email: 'kyle@techcrunch.com', focus: 'AI, Robotics', status: 'pending', category: 'journalist' },
 ];
 
 export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => {
@@ -90,8 +95,7 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
     });
 
     return scored
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 5);
+        .sort((a, b) => (b.score || 0) - (a.score || 0));
 };
 
 // =============================================================================
@@ -689,3 +693,70 @@ export const initializeMockProducts = () => {
         sessionStorage.setItem(storageKey, JSON.stringify(products));
     });
 };
+
+// =============================================================================
+// PITCH TEMPLATES
+// =============================================================================
+
+export const PITCH_TEMPLATES = {
+    exclusive: {
+        label: 'Exclusive',
+        description: 'For top-tier exclusives',
+        subject: '{{title}}',
+        body: `Hi {{name}},
+
+I hope this finds you well. I saw your recent piece on {{topic}} and thought this would be right up your alley.
+
+We're announcing {{title}} — {{synopsis}}
+
+I'd love to offer you an exclusive on this story. I have {{founder}} available for an interview this week.
+
+The embargo lifts on {{embargoDate}} at {{embargoTime}}.
+
+Best regards,
+{{sender}}`
+    },
+    embargo: {
+        label: 'Embargo',
+        description: 'Standard embargo pitch',
+        subject: '{{title}}',
+        body: `Hi {{name}},
+
+Under embargo until {{embargoDate}} at {{embargoTime}}:
+
+{{title}}
+
+{{synopsis}}
+
+I have {{founder}} available for interviews. Let me know if you're interested.
+
+Best,
+{{sender}}`
+    },
+    followup: {
+        label: 'Follow-up',
+        description: 'Checking in',
+        subject: '{{title}}',
+        body: `Hi {{name}},
+
+Just following up on my previous email about {{title}}.
+
+{{synopsis}}
+
+Would you be interested in covering this? Happy to provide more details or connect you with {{founder}}.
+
+Best,
+{{sender}}`
+    }
+};
+
+// =============================================================================
+// QUEST DOCUMENTS (for outreach attachments)
+// =============================================================================
+
+export const MOCK_QUEST_DOCS = [
+    { id: 1, name: 'Series B Press Release', type: 'doc', size: '24 KB' },
+    { id: 2, name: 'Founder Bio - Mithil Aggarwal', type: 'doc', size: '12 KB' },
+    { id: 3, name: 'Caybles Fact Sheet', type: 'sheet', size: '18 KB' },
+    { id: 4, name: 'Product Screenshots', type: 'image', size: '2.4 MB' },
+];

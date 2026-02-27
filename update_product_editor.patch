@@ -1,0 +1,168 @@
+--- components/pr/ProductEditor.tsx
++++ components/pr/ProductEditor.tsx
+@@ -153,7 +153,7 @@
+     const chatInputRef = useRef<HTMLInputElement>(null);
+ 
+     // Initialize
+     useEffect(() => {
+         const content = product.content || '';
+         setWordCount(content.split(/\s+/).filter(w => w.length > 0).length);
+         setCharCount(content.length);
+         setTitleValue(product.title);
+@@ -176,7 +176,7 @@
+         ]);
+         
+         return () => clearTimeout(timer);
+-    }, [product]);
++    }, [product.id]);
+     
+     // Re-initialize editor content when product type changes (for conditional rendering)
+     useEffect(() => {
+@@ -216,19 +216,19 @@
+     const formatContentToHTML = (text: string): string => {
+         if (!text) return '';
++        if (text.includes('<p>') || text.includes('<br>')) return text; // Already HTML
+         // Simple HTML conversion - preserve paragraphs
+         return text
+             .split('\n\n')
+             .map(p => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '')
+             .join('');
+     };
+ 
+     const getContentFromEditor = (): string => {
+         if (!editorRef.current) return '';
+-        const html = editorRef.current.innerHTML;
+-        // Convert HTML to plain text with paragraph breaks
+-        const temp = document.createElement('div');
+-        temp.innerHTML = html;
+-        return temp.innerText || '';
++        return editorRef.current.innerHTML;
+     };
+ 
+     // Use a ref to track if we're processing content to avoid cursor jumping
+@@ -240,11 +240,14 @@
+         if (isProcessingContent.current) return;
+         
+         const content = getContentFromEditor();
+-        const wordCount = content.split(/\s+/).filter(w => w.length > 0).length;
+-        const charCount = content.length;
++        
++        // Calculate counts based on plain text
++        const temp = document.createElement('div');
++        temp.innerHTML = content;
++        const plainText = temp.innerText || '';
++        const wordCount = plainText.split(/\s+/).filter(w => w.length > 0).length;
++        const charCount = plainText.length;
+         
+         // Update local stats immediately without triggering re-render of editor
+         setWordCount(wordCount);
+@@ -311,19 +314,8 @@
+     };
+ 
+     const execCommand = (command: string, value: string = '') => {
+-        // Save selection before executing command
+-        const selection = window.getSelection();
+-        const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+-        
+         document.execCommand(command, false, value);
+         editorRef.current?.focus();
+-        
+-        // Restore selection if needed
+-        if (range && selection) {
+-            selection.removeAllRanges();
+-            selection.addRange(range);
+-        }
+         
+         handleContentChange();
+         
+@@ -367,20 +359,27 @@
+         const lowerInput = input.toLowerCase();
+         const currentContent = currentProduct.content;
+         let responseText = '';
+         let updatedContent = currentContent;
++        
++        // Helper to extract plain text
++        const temp = document.createElement('div');
++        temp.innerHTML = currentContent;
++        const plainText = temp.innerText || '';
+         
+         // Simulate processing time based on content length
+-        const processingTime = Math.min(800 + currentContent.length * 2, 2000);
++        const processingTime = Math.min(800 + plainText.length * 2, 2000);
+         await new Promise(r => setTimeout(r, processingTime));
+         
+         if (lowerInput.includes('shorter') || lowerInput.includes('concise')) {
+             responseText = 'Tightened the copy by removing filler words and condensing ideas.';
+             // Actually shorten the content
+-            const sentences = currentContent.split(/[.!?]+/).filter(s => s.trim());
++            const sentences = plainText.split(/[.!?]+/).filter(s => s.trim());
+             if (sentences.length > 1) {
+                 // Keep first 60% of sentences
+-                updatedContent = sentences.slice(0, Math.max(1, Math.ceil(sentences.length * 0.6))).map(s => s.trim()).join('. ') + '.';
++                const shortenedText = sentences.slice(0, Math.max(1, Math.ceil(sentences.length * 0.6))).map(s => s.trim()).join('. ') + '.';
++                updatedContent = `<p>${shortenedText}</p>`;
+             } else {
+                 // If only one sentence, remove filler words
+-                updatedContent = currentContent
++                const shortenedText = plainText
+                     .replace(/\b(very|really|quite|rather|just|actually|basically|literally)\b/gi, '')
+                     .replace(/\s+/g, ' ')
+                     .trim();
++                updatedContent = `<p>${shortenedText}</p>`;
+             }
+         } else if (lowerInput.includes('longer') || lowerInput.includes('expand')) {
+@@ -393,22 +392,26 @@
+                 'default': '\n\nWe believe this represents an important step forward in our mission to deliver exceptional value to our customers and community.'
+             };
+-            updatedContent = currentContent + (expansions[currentProduct.type] || expansions.default);
++            updatedContent = currentContent + `<p>${expansions[currentProduct.type] || expansions.default}</p>`;
+         } else if (lowerInput.includes('professional') || lowerInput.includes('formal')) {
+             responseText = 'Elevated the tone with more precise language and structure.';
+             // Transform to professional tone
+-            updatedContent = currentContent
++            const profText = plainText
+                 .replace(/\b(great|awesome|cool|nice|good)\b/gi, 'exceptional')
+                 .replace(/\b(get|got)\b/gi, 'obtain')
+                 .replace(/\b(big|huge)\b/gi, 'significant')
+                 .replace(/\b(we're|we are)\b/gi, 'we are')
+                 .replace(/!{2,}/g, '.')
+                 .replace(/\?/g, '.');
++            updatedContent = `<p>${profText}</p>`;
+         } else if (lowerInput.includes('casual') || lowerInput.includes('friendly')) {
+             responseText = 'Relaxed the tone to feel more conversational and approachable.';
+             // Transform to casual tone
+-            updatedContent = currentContent
++            const casualText = plainText
+                 .replace(/\b(exceptional|outstanding|remarkable)\b/gi, 'great')
+                 .replace(/\b(obtain|acquire|secure)\b/gi, 'get')
+                 .replace(/\b(significant|substantial)\b/gi, 'big')
+                 .replace(/\.(\s+)(?=[A-Z])/g, '!$1')
+                 .replace(/we are\b/gi, "we're");
++            updatedContent = `<p>${casualText}</p>`;
+         } else if (lowerInput.includes('call-to-action') || lowerInput.includes('cta')) {
+             responseText = 'Added a clear call-to-action to drive engagement.';
+@@ -419,7 +422,7 @@
+                 'instagram-post': '\n\nTap the link in bio to learn more ✨',
+                 'default': '\n\nReady to learn more? Get in touch today.'
+             };
+-            updatedContent = currentContent + (ctas[currentProduct.type] || ctas.default);
++            updatedContent = currentContent + `<p>${ctas[currentProduct.type] || ctas.default}</p>`;
+         } else {
+             responseText = 'Made the requested adjustments to your content.';
+         }
+@@ -525,6 +528,7 @@
+         isActive?: boolean;
+     }) => (
+         <button
++            onMouseDown={(e) => e.preventDefault()}
+             onClick={onClick}
+             className={`p-2 rounded-lg transition-colors ${
+                 isActive 
+@@ -541,7 +545,7 @@
+         <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+ 
+             {/* Header with Toolbar */}
+-            <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0">
++            <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0 z-10 sticky top-0">
+                 <div className="flex items-center gap-3">
+                     <button onClick={onClose} className="p-2 hover:b
