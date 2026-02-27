@@ -1087,6 +1087,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             ))}
                         </div>
                     )}
+
+
                 </div>
             </div>
 

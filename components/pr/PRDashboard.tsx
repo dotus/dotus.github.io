@@ -20,6 +20,8 @@ import { OutreachComposer } from './OutreachComposer';
 import { BrandAssetsView } from './BrandAssetsView';
 import { BrandAssetsOverview } from './BrandAssetsOverview';
 import { PRSidebar } from './PRSidebar';
+import { KnowledgePage } from './KnowledgePage';
+import { initializeMockProducts } from './StatsOverview';
 import type { ProductOutput } from './ProductSection';
 import { FileText, FileSpreadsheet, Image as ImageIcon, Link2 } from 'lucide-react';
 
@@ -37,7 +39,7 @@ const MOCK_ATTACHED = [
     { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
 ];
 
-type Tab = 'dashboard' | 'brand-assets' | 'distributions' | 'network';
+type Tab = 'dashboard' | 'brand-assets' | 'distributions' | 'network' | 'knowledge';
 type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator' | 'outreach';
 type DashboardView = 'grid' | 'pipeline';
 
@@ -75,6 +77,8 @@ export const PRDashboard: React.FC = () => {
         if (storedOverrides) {
             try { setStatusOverrides(JSON.parse(storedOverrides)); } catch { }
         }
+        // Initialize mock blog post products for demo
+        initializeMockProducts();
     }, []);
 
     const allQuests = [...MOCK_QUESTS, ...customQuests]
@@ -278,6 +282,7 @@ export const PRDashboard: React.FC = () => {
                             <NavPill active={activeTab === 'brand-assets'} onClick={() => setActiveTab('brand-assets')} label="Brand" />
                             <NavPill active={activeTab === 'distributions'} onClick={() => setActiveTab('distributions')} label="Distributions" />
                             <NavPill active={activeTab === 'network'} onClick={() => setActiveTab('network')} label="Network" />
+                            <NavPill active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')} label="Knowledge" />
                         </nav>
                     </div>
 
@@ -569,6 +574,14 @@ export const PRDashboard: React.FC = () => {
                         {activeTab === 'brand-assets' && (
                             <motion.div key="brand-assets" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white">
                                 <BrandAssetsView />
+                            </motion.div>
+                        )}
+                        {activeTab === 'knowledge' && (
+                            <motion.div key="knowledge" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
+                                <KnowledgePage onNavigateToQuest={(quest) => {
+                                    setActiveTab('dashboard');
+                                    handleQuestClick(quest);
+                                }} />
                             </motion.div>
                         )}
                     </AnimatePresence>

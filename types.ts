@@ -17,3 +17,29 @@ export interface Testimonial {
   role: string;
   company: string;
 }
+
+// Blog Post types for Knowledge section
+export interface BlogPost {
+  id: string;
+  title: string;
+  subtitle?: string;
+  excerpt: string;
+  content: string;
+  author: {
+    name: string;
+    role: string;
+    initials: string;
+  };
+  publishedAt: string;
+  readTime: string;
+  category: string;
+  tags: string[];
+  featured: boolean;
+  coverImage?: string;
+  relatedQuestId?: number;
+  relatedQuestTitle?: string;
+  stats?: {
+    views: number;
+    shares: number;
+  };
+}

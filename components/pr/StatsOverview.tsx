@@ -1,5 +1,6 @@
 import React from 'react';
 import { Eye, Heart, Share2, Users, Mail } from 'lucide-react';
+import type { BlogPost } from '../../types';
 
 // Types
 export type FilterType = 'all' | 'draft' | 'ready' | 'live' | 'review';
@@ -483,4 +484,207 @@ export const EmailDLDisplay: React.FC<{ emails: string[]; max?: number }> = ({ e
             </div>
         </div>
     );
+};
+
+// =============================================================================
+// KNOWLEDGE / BLOG POSTS
+// Mock blog posts for the Knowledge section - represents client's public blog
+// =============================================================================
+
+export const MOCK_BLOG_POSTS: BlogPost[] = [
+    {
+        id: '1',
+        title: 'The Future of AI in Enterprise Communications',
+        subtitle: 'Why traditional PR is dying and what comes next',
+        excerpt: 'As AI reshapes how information flows through organizations, the old playbook of press releases and media lists is becoming obsolete. Here\'s what forward-thinking companies are doing instead.',
+        content: `The communications landscape is undergoing its most significant transformation since the advent of the internet. AI isn't just changing how we write—it's fundamentally altering how ideas spread through organizations and across markets.
+
+For decades, the PR playbook remained remarkably consistent: craft a press release, build a media list, pitch journalists, hope for coverage. But this model was already showing cracks before AI entered the picture. The democratization of publishing through social media, the fragmentation of attention across platforms, and the declining trust in traditional media all pointed to an inevitable disruption.
+
+AI has accelerated this disruption exponentially. Today's communications leaders aren't just writers—they're data analysts, platform strategists, and community builders. They're using AI to identify emerging narratives before they hit the mainstream, to personalize messaging at scale, and to measure impact in real-time.
+
+The companies that will dominate the next decade of public relations are those that embrace this shift. They're building direct relationships with their audiences rather than relying on media gatekeepers. They're creating owned media properties that rival traditional outlets in quality and reach. And they're using AI to do it all with teams a fraction of the size of their predecessors.
+
+This isn't the death of PR—it's the birth of something far more powerful.`,
+        author: {
+            name: 'Mithil Aggarwal',
+            role: 'Chief Executive Officer',
+            initials: 'MA'
+        },
+        publishedAt: '2026-02-20',
+        readTime: '8 min read',
+        category: 'Thought Leadership',
+        tags: ['AI', 'Future of Work', 'Communications', 'Strategy'],
+        featured: true,
+        relatedQuestId: 2,
+        relatedQuestTitle: 'AI Policy Framework 2026',
+        stats: { views: 12400, shares: 342 }
+    },
+    {
+        id: '2',
+        title: 'Series B Lessons: What $45M Taught Us About Storytelling',
+        subtitle: 'The narrative frameworks that resonated with Andreessen Horowitz',
+        excerpt: 'Our recent funding round was about more than capital—it was a masterclass in how to craft a company narrative that cuts through the noise of a crowded market.',
+        content: `When we announced our Series B last month, the response exceeded our expectations. Not just in terms of media coverage—though we were thrilled with the TechCrunch exclusive and subsequent pickups—but in the quality of conversations that followed. Founders started reaching out asking not about our product, but about how we told our story.
+
+The truth is, we spent nearly as much time refining our narrative as we did our pitch deck. We knew that in today's market, investors have seen every variation of "AI-powered platform." What they hadn't seen was our specific lens on the problem: that the best ideas are losing not because they're inferior, but because they're not being heard.
+
+Our narrative framework had three pillars:
+
+First, the problem had to feel urgent and relatable. Every founder has felt the frustration of knowing they have something valuable to offer the world, but being unable to break through the noise. We made this feeling visceral.
+
+Second, our solution had to feel inevitable. Not just possible, but clearly the direction the industry was heading. We positioned AI not as a buzzword, but as the natural evolution of communications technology.
+
+Third, our traction had to validate the thesis. We didn't just show growth metrics—we showed that our approach was already working for the kinds of companies we wanted to serve.
+
+The result was a narrative that felt less like a pitch and more like a movement. And that's exactly what the best communications should feel like.`,
+        author: {
+            name: 'Sarah Jenkins',
+            role: 'Head of Communications',
+            initials: 'SJ'
+        },
+        publishedAt: '2026-02-15',
+        readTime: '6 min read',
+        category: 'Company News',
+        tags: ['Funding', 'Startup Life', 'Storytelling', 'Lessons Learned'],
+        featured: false,
+        relatedQuestId: 1,
+        relatedQuestTitle: 'Series B Funding Announcement',
+        stats: { views: 8900, shares: 218 }
+    },
+    {
+        id: '3',
+        title: 'Building Neural Search: A Technical Deep Dive',
+        subtitle: 'How we achieved sub-100ms semantic search across billions of documents',
+        excerpt: 'Our engineering team shares the architecture decisions, trade-offs, and breakthroughs that powered the neural search capabilities in our V3 launch.',
+        content: `When we set out to build neural search for V3, we knew we were entering uncharted territory. The challenge wasn't just semantic understanding—though that's hard enough—but doing it at scale, with latency low enough to feel instantaneous, while keeping costs manageable for a startup.
+
+Our breakthrough came from a counterintuitive decision: we didn't build one model. We built a cascade.
+
+At the top level, a lightweight embedding model handles the initial retrieval. It's fast—milliseconds fast—but relatively coarse. Think of it as casting a wide net. This gives us a candidate set of a few hundred documents from our billions.
+
+Then a more sophisticated cross-encoder re-ranks those candidates. This model is slower, but since it's only processing hundreds rather than billions of documents, the latency remains acceptable. The cross-encoder captures nuanced relationships that the embedding model misses.
+
+Finally, for the top results, we apply a third layer: a fine-tuned language model that generates contextual snippets highlighting exactly why each result is relevant to the specific query. This is what creates that "magic" feeling when users see exactly what they were looking for, even when their query was vague.
+
+The architecture required significant infrastructure investment. We run embedding models on GPUs with aggressive caching. Our vector database is sharded across multiple regions to minimize network latency. And we've built sophisticated monitoring to detect when any part of the cascade is underperforming.
+
+But the results speak for themselves. Average query latency is under 100ms. User satisfaction scores for search are up 340% from V2. And we're handling ten times the query volume without breaking a sweat.
+
+For the technical readers: we'll be open-sourcing our evaluation framework next quarter. Stay tuned.`,
+        author: {
+            name: 'Dr. Elena Rostova',
+            role: 'Chief Technology Officer',
+            initials: 'ER'
+        },
+        publishedAt: '2026-02-10',
+        readTime: '12 min read',
+        category: 'Engineering',
+        tags: ['Technical', 'AI/ML', 'Search', 'Architecture', 'Product'],
+        featured: false,
+        relatedQuestId: 5,
+        relatedQuestTitle: 'Product Launch V3',
+        stats: { views: 15200, shares: 567 }
+    }
+];
+
+// Helper to get blog posts by quest ID
+export const getBlogPostsByQuestId = (questId: number): BlogPost[] => {
+    return MOCK_BLOG_POSTS.filter(post => post.relatedQuestId === questId);
+};
+
+// =============================================================================
+// MOCK PRODUCTS - Blog posts as products linked to quests
+// These are pre-populated into sessionStorage for demo purposes
+// =============================================================================
+
+import type { ProductOutput } from './ProductSection';
+
+const MOCK_PRODUCTS: Record<number, ProductOutput[]> = {
+    // AI Policy Framework quest - linked to "The Future of AI in Enterprise Communications" blog post
+    2: [
+        {
+            id: 1001,
+            title: 'The Future of AI in Enterprise Communications',
+            type: 'blog-post',
+            status: 'published',
+            wordCount: 1450,
+            updatedAt: '2026-02-20',
+            subtitle: 'Why traditional PR is dying and what comes next',
+            excerpt: 'As AI reshapes how information flows through organizations, the old playbook of press releases and media lists is becoming obsolete.',
+            author: {
+                name: 'Mithil Aggarwal',
+                role: 'Chief Executive Officer',
+                initials: 'MA'
+            },
+            publishedAt: '2026-02-20',
+            readTime: '8 min read',
+            category: 'Thought Leadership',
+            tags: ['AI', 'Future of Work', 'Communications', 'Strategy'],
+            featured: true,
+            content: MOCK_BLOG_POSTS[0].content,
+            stats: { views: 12400, shares: 342 }
+        }
+    ],
+    // Series B Funding quest - linked to "Series B Lessons" blog post
+    1: [
+        {
+            id: 1002,
+            title: 'Series B Lessons: What $45M Taught Us About Storytelling',
+            type: 'blog-post',
+            status: 'published',
+            wordCount: 980,
+            updatedAt: '2026-02-15',
+            subtitle: 'The narrative frameworks that resonated with Andreessen Horowitz',
+            excerpt: 'Our recent funding round was about more than capital—it was a masterclass in how to craft a company narrative that cuts through the noise.',
+            author: {
+                name: 'Sarah Jenkins',
+                role: 'Head of Communications',
+                initials: 'SJ'
+            },
+            publishedAt: '2026-02-15',
+            readTime: '6 min read',
+            category: 'Company News',
+            tags: ['Funding', 'Startup Life', 'Storytelling', 'Lessons Learned'],
+            featured: false,
+            content: MOCK_BLOG_POSTS[1].content,
+            stats: { views: 8900, shares: 218 }
+        }
+    ],
+    // Product Launch V3 quest - linked to technical deep dive
+    5: [
+        {
+            id: 1003,
+            title: 'Building Neural Search: A Technical Deep Dive',
+            type: 'blog-post',
+            status: 'published',
+            wordCount: 2100,
+            updatedAt: '2026-02-10',
+            subtitle: 'How we achieved sub-100ms semantic search across billions of documents',
+            excerpt: 'Our engineering team shares the architecture decisions, trade-offs, and breakthroughs that powered the neural search capabilities in our V3 launch.',
+            author: {
+                name: 'Dr. Elena Rostova',
+                role: 'Chief Technology Officer',
+                initials: 'ER'
+            },
+            publishedAt: '2026-02-10',
+            readTime: '12 min read',
+            category: 'Engineering',
+            tags: ['Technical', 'AI/ML', 'Search', 'Architecture', 'Product'],
+            featured: false,
+            content: MOCK_BLOG_POSTS[2].content,
+            stats: { views: 15200, shares: 567 }
+        }
+    ]
+};
+
+// Initialize mock products in sessionStorage (for demo purposes)
+export const initializeMockProducts = () => {
+    Object.entries(MOCK_PRODUCTS).forEach(([questId, products]) => {
+        const storageKey = `quest_products_${questId}`;
+        const existing = sessionStorage.getItem(storageKey);
+        if (!existing) {
+            sessionStorage.setItem(storageKey, JSON.stringify(products));
+        }
+    });
 };
