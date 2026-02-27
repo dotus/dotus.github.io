@@ -19,6 +19,7 @@ import {
 import {
     Search, Plus, X, Check
 } from 'lucide-react';
+import { GridBackground } from '../ui/GridBackground';
 
 // ============================================================================
 // TYPES
@@ -438,7 +439,8 @@ export const MediaDatabase: React.FC = () => {
     // ============================================================================
 
     return (
-        <div className="h-full flex flex-col bg-[#FAF9F6]">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+            <GridBackground />
             {/* Compact Header with Integrated Filters */}
             <div className="border-b border-black/5 bg-white px-6 py-3 shrink-0">
                 <div className="flex items-center gap-4">

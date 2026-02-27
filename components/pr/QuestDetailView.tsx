@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-    FileText, FileSpreadsheet, Image as ImageIcon, Link2, 
-    Download, Upload, Plus, Clock, 
+import {
+    FileText, FileSpreadsheet, Image as ImageIcon, Link2,
+    Download, Upload, Plus, Clock,
     History, CheckCircle2, Flame, ChevronDown,
     ChevronLeft, Mail, Copy, Calendar, Edit3,
-    X, Users, Send
+    X, Users, Send, Trash2, MoreHorizontal
 } from 'lucide-react';
+import { EditableField } from '../ui/EditableField';
 import { Quest, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
 import { ProductSection } from './ProductSection';
 import { OutreachSection } from './OutreachSection';
+
 
 interface AttachedDoc {
     id: number;
@@ -76,6 +78,43 @@ const MOCK_VERSIONS: Version[] = [
     { id: 3, version: 'v1.2', author: 'Mithil', date: '3d ago', changes: 'Initial draft' },
 ];
 
+// Approved quotes for use across the quest
+interface QuestQuote {
+    id: number;
+    text: string;
+    speaker: string;
+    role: string;
+    tags: string[];
+    usageCount: number;
+}
+
+const MOCK_QUEST_QUOTES: QuestQuote[] = [
+    { 
+        id: 1, 
+        text: "This funding round represents a pivotal moment for our company's growth trajectory.", 
+        speaker: "Mithil Aggarwal", 
+        role: "CEO",
+        tags: ['Funding', 'CEO'],
+        usageCount: 3
+    },
+    { 
+        id: 2, 
+        text: "We're not just building a product; we're reshaping how the industry operates.", 
+        speaker: "Sarah Jenkins", 
+        role: "Head of Product",
+        tags: ['Vision', 'Product'],
+        usageCount: 1
+    },
+    { 
+        id: 3, 
+        text: "Our customers have been asking for this, and we're thrilled to deliver.", 
+        speaker: "Mike Chen", 
+        role: "CTO",
+        tags: ['Customer', 'Tech'],
+        usageCount: 0
+    },
+];
+
 const FILE_ICONS: Record<string, React.ReactNode> = {
     doc: <FileText size={18} className="text-blue-600" />,
     sheet: <FileSpreadsheet size={18} className="text-green-600" />,
@@ -98,11 +137,12 @@ interface QuestDetailViewProps {
     quest: Quest;
     onClose: () => void;
     onOpenEditor?: () => void;
+    onDelete?: (id: number) => void;
     onOpenProduct?: (product: import('./ProductSection').ProductOutput) => void;
     onCreateProduct?: () => void;
     onOpenOutreach?: () => void;
     highlightedEventId?: number | null;
-    defaultTab?: 'overview' | 'timeline' | 'distribution' | 'documents' | 'activity';
+    defaultTab?: 'overview' | 'timeline' | 'distribution' | 'documents' | 'quotes' | 'activity';
 }
 
 // Helper to get storage key for this quest's timeline
@@ -133,105 +173,12 @@ const QUEST_STATUSES = [
     { id: 'live', label: 'Published', color: 'bg-blue-50 text-blue-700 border-blue-200', dot: '#3B82F6' },
 ];
 
-// Editable Field Component
-interface EditableFieldProps {
-    value: string;
-    onSave: (newValue: string) => void;
-    className?: string;
-    inputClassName?: string;
-    multiline?: boolean;
-    rows?: number;
-}
 
-const EditableField: React.FC<EditableFieldProps> = ({ 
-    value, 
-    onSave, 
-    className = '', 
-    inputClassName = '',
-    multiline = false,
-    rows = 3
-}) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editValue, setEditValue] = useState(value);
-    const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
-    useEffect(() => {
-        if (isEditing && inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.select();
-        }
-    }, [isEditing]);
-
-    const handleSave = () => {
-        if (editValue.trim() !== value) {
-            onSave(editValue.trim());
-        }
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditValue(value);
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !multiline) {
-            handleSave();
-        } else if (e.key === 'Escape') {
-            handleCancel();
-        }
-    };
-
-    if (isEditing) {
-        return (
-            <div className="relative">
-                {multiline ? (
-                    <textarea
-                        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onBlur={handleSave}
-                        onKeyDown={handleKeyDown}
-                        rows={rows}
-                        className={inputClassName}
-                    />
-                ) : (
-                    <input
-                        ref={inputRef as React.RefObject<HTMLInputElement>}
-                        type="text"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onBlur={handleSave}
-                        onKeyDown={handleKeyDown}
-                        className={inputClassName}
-                    />
-                )}
-            </div>
-        );
-    }
-
-    return (
-        <div 
-            className={`group relative cursor-pointer ${className}`}
-            onClick={() => setIsEditing(true)}
-        >
-            <span>{value}</span>
-            <button 
-                className="absolute -right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-black/[0.04] rounded-md"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditing(true);
-                }}
-            >
-                <Edit3 size={14} className="text-black/40" />
-            </button>
-        </div>
-    );
-};
-
-export const QuestDetailView: React.FC<QuestDetailViewProps> = ({ 
-    quest, 
-    onClose, 
+export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
+    quest,
+    onClose,
+    onDelete,
     onOpenEditor,
     onOpenProduct,
     onCreateProduct,
@@ -243,30 +190,38 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     if (!quest) {
         return <div className="h-full flex items-center justify-center text-black/40">Quest not found</div>;
     }
-    const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'activity'>(defaultTab);
+    const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'quotes' | 'activity'>(defaultTab);
     const [campaign, setCampaign] = useState<OutreachCampaign | undefined>(quest.outreachCampaign);
     const [showComment, setShowComment] = useState(false);
     const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
-    
+
+    // Quotes state
+    const [questQuotes, setQuestQuotes] = useState<QuestQuote[]>(MOCK_QUEST_QUOTES);
+    const [showAddQuoteDialog, setShowAddQuoteDialog] = useState(false);
+    const [newQuoteText, setNewQuoteText] = useState('');
+    const [newQuoteSpeaker, setNewQuoteSpeaker] = useState('');
+    const [newQuoteRole, setNewQuoteRole] = useState('');
+    const [newQuoteTags, setNewQuoteTags] = useState('');
+
     // Quest metadata state (toggleable)
     const [questType, setQuestType] = useState(quest.type);
     const [questStatus, setQuestStatus] = useState(quest.status);
     const [isHot, setIsHot] = useState(quest.priority === 'high');
     const [showTypeDropdown, setShowTypeDropdown] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-    
+
     // Track last saved state to determine if there are unsaved changes
     const [lastSavedState, setLastSavedState] = useState({
         type: quest.type,
         status: quest.status,
         isHot: quest.priority === 'high',
     });
-    
+
     // Track if changes were made (compare against last saved state, not original quest)
     const hasChanges = questType !== lastSavedState.type || questStatus !== lastSavedState.status || isHot !== lastSavedState.isHot;
     const [isSaving, setIsSaving] = useState(false);
     const [savedMessage, setSavedMessage] = useState<string | null>(null);
-    
+
     // Timeline state with sessionStorage persistence
     const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
     const [editingEventId, setEditingEventId] = useState<number | null>(null);
@@ -275,7 +230,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     const [newEventTitle, setNewEventTitle] = useState('');
     const [newEventDate, setNewEventDate] = useState('');
     const [newEventTime, setNewEventTime] = useState('');
-    
+
     const typeDropdownRef = useRef<HTMLDivElement>(null);
     const statusDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -295,18 +250,18 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     // Handle campaign updates
     const handleCampaignUpdate = (newCampaign: OutreachCampaign | undefined) => {
         setCampaign(newCampaign);
-        
+
         // Auto-add campaign send date to timeline
         if (newCampaign?.status === 'sent' && newCampaign.sentAt) {
             const sendDate = new Date(newCampaign.sentAt);
             const dateStr = sendDate.toISOString().split('T')[0];
             const timeStr = sendDate.toTimeString().slice(0, 5);
-            
+
             // Check if we already have this event
-            const existingEvent = timeline.find(e => 
+            const existingEvent = timeline.find(e =>
                 e.title === 'Outreach Campaign Sent' && e.date === dateStr
             );
-            
+
             if (!existingEvent) {
                 const campaignEvent: TimelineEvent = {
                     id: Date.now(),
@@ -340,7 +295,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     useEffect(() => {
         const metadataKey = getQuestMetadataKey(quest.id);
         const stored = sessionStorage.getItem(metadataKey);
-        
+
         if (stored) {
             try {
                 const metadata = JSON.parse(stored);
@@ -363,7 +318,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     useEffect(() => {
         const storageKey = getTimelineStorageKey(quest.id);
         const stored = sessionStorage.getItem(storageKey);
-        
+
         if (stored) {
             try {
                 setTimeline(JSON.parse(stored));
@@ -397,10 +352,10 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
             // Find matching event by date + type since IDs don't match
             const calendarEvent = CALENDAR_EVENT_MAP[highlightedEventId];
             if (calendarEvent) {
-                const matchingEvent = timeline.find(e => 
+                const matchingEvent = timeline.find(e =>
                     e.date === calendarEvent.date && e.type === calendarEvent.type
                 );
-                
+
                 if (matchingEvent) {
                     setActiveTab('timeline');
                     // Store the matching timeline event ID for highlighting
@@ -426,7 +381,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
 
     const addEvent = () => {
         if (!newEventTitle || !newEventDate) return;
-        
+
         const newEvent: TimelineEvent = {
             id: Date.now(),
             type: newEventType,
@@ -434,11 +389,11 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
             date: newEventDate,
             time: newEventTime || undefined,
         };
-        
+
         const updated = [...timeline, newEvent];
         setTimeline(updated);
         saveTimelineToStorage(updated);
-        
+
         // Reset form
         setShowAddEvent(false);
         setNewEventType('embargo');
@@ -467,24 +422,24 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     // Save quest metadata to sessionStorage
     const handleSave = () => {
         setIsSaving(true);
-        
+
         const metadata = {
             type: questType,
             status: questStatus,
             isHot: isHot,
             savedAt: new Date().toISOString(),
         };
-        
+
         const metadataKey = getQuestMetadataKey(quest.id);
         sessionStorage.setItem(metadataKey, JSON.stringify(metadata));
-        
+
         // Update last saved state so button disappears
         setLastSavedState({
             type: questType,
             status: questStatus,
             isHot: isHot,
         });
-        
+
         // Show success message briefly
         setSavedMessage('Saved');
         setTimeout(() => {
@@ -498,7 +453,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     };
 
     return (
-        <div className="h-full flex flex-col bg-white">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+
             {/* Header - turns slightly red when hot */}
             <div className={`flex items-center justify-between px-6 py-4 border-b transition-colors duration-300 ${isHot ? 'bg-red-50/50 border-red-100' : 'border-black/[0.06]'}`}>
                 <div className="flex items-center gap-3">
@@ -506,7 +462,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         <ChevronLeft size={18} className="text-black/40" />
                     </button>
                     <div className="h-4 w-px bg-black/10" />
-                    
+
                     {/* Status Selector Dropdown */}
                     <div className="relative" ref={statusDropdownRef}>
                         <button
@@ -516,14 +472,14 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 ${QUEST_STATUSES.find(s => s.id === questStatus)?.color || QUEST_STATUSES[0].color}
                             `}
                         >
-                            <span 
-                                className="w-1.5 h-1.5 rounded-full" 
+                            <span
+                                className="w-1.5 h-1.5 rounded-full"
                                 style={{ backgroundColor: QUEST_STATUSES.find(s => s.id === questStatus)?.dot || '#6B7280' }}
                             />
                             {QUEST_STATUSES.find(s => s.id === questStatus)?.label || 'Draft'}
                             <ChevronDown size={12} className="opacity-60" />
                         </button>
-                        
+
                         {showStatusDropdown && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50 min-w-[140px]">
                                 {QUEST_STATUSES.map(status => (
@@ -558,7 +514,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             {questType}
                             <ChevronDown size={12} className="opacity-60" />
                         </button>
-                        
+
                         {showTypeDropdown && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50 min-w-[160px]">
                                 {QUEST_TYPES.map(type => (
@@ -580,14 +536,14 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             </div>
                         )}
                     </div>
-                    
+
                     {/* Hot Toggle */}
                     <button
                         onClick={() => setIsHot(!isHot)}
                         className={`
                             flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-lg border transition-all
-                            ${isHot 
-                                ? 'bg-red-50 text-red-700 border-red-200' 
+                            ${isHot
+                                ? 'bg-red-50 text-red-700 border-red-200'
                                 : 'bg-gray-50 text-gray-400 border-gray-200 hover:text-gray-600 hover:border-gray-300'
                             }
                         `}
@@ -595,7 +551,20 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         <Flame size={14} className={isHot ? 'fill-current' : ''} />
                         {isHot ? 'Hot' : 'Mark Hot'}
                     </button>
-                    
+
+                    {/* Delete Button */}
+                    <button
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to delete this quest?')) {
+                                if (onDelete) onDelete(quest.id);
+                            }
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
+                    >
+                        <Trash2 size={14} />
+                        Delete
+                    </button>
+
                     {/* Save Button - appears when changes made */}
                     {hasChanges && (
                         <button
@@ -606,7 +575,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             {isSaving ? 'Saving...' : 'Save'}
                         </button>
                     )}
-                    
+
                     {/* Saved confirmation */}
                     {savedMessage && !hasChanges && (
                         <span className="text-[12px] text-emerald-600 font-medium">
@@ -620,16 +589,16 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
             <div className="flex-1 overflow-y-auto">
                 <div className="max-w-2xl mx-auto px-6 py-8">
                     {/* Editable Title */}
-                    <EditableField 
+                    <EditableField
                         value={quest.title}
                         onSave={(newTitle) => console.log('Title updated:', newTitle)}
                         className="text-2xl font-serif font-medium text-black mb-3"
                         inputClassName="text-2xl font-serif font-medium w-full px-3 py-2 border border-black/20 rounded-lg outline-none focus:border-black"
                         multiline={false}
                     />
-                    
+
                     {/* Editable Synopsis */}
-                    <EditableField 
+                    <EditableField
                         value={quest.synopsis}
                         onSave={(newSynopsis) => console.log('Synopsis updated:', newSynopsis)}
                         className="text-[15px] text-black/50 leading-relaxed mb-6"
@@ -655,12 +624,12 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
 
                     {/* Product Section */}
                     <div className="mb-6">
-                        <ProductSection 
+                        <ProductSection
                             questId={quest.id}
                             workingDocs={MOCK_WORKING_DOCS}
                             attachedDocs={MOCK_ATTACHED}
-                            onOpenProduct={onOpenProduct || (() => {})}
-                            onCreateNew={onCreateProduct || (() => {})}
+                            onOpenProduct={onOpenProduct || (() => { })}
+                            onCreateNew={onCreateProduct || (() => { })}
                         />
                     </div>
 
@@ -670,15 +639,15 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             { id: 'overview', label: 'Overview', count: MOCK_COMMENTS.length },
                             { id: 'timeline', label: 'Timeline', count: timeline.length },
                             { id: 'distribution', label: 'Distribution', count: quest.emailDL.length + 1 },
+                            { id: 'quotes', label: 'Quotes', count: questQuotes.length },
                             { id: 'documents', label: 'Documents', count: MOCK_WORKING_DOCS.length + MOCK_ATTACHED.length },
                             { id: 'activity', label: 'History', count: MOCK_VERSIONS.length },
                         ].map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
-                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
-                                    activeTab === tab.id ? 'bg-teal-600 text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
-                                }`}
+                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === tab.id ? 'bg-teal-600 text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
+                                    }`}
                             >
                                 {tab.label}
                                 <span className="ml-1.5 opacity-60">{tab.count}</span>
@@ -722,7 +691,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-[11px] font-semibold text-black/40 uppercase tracking-wide">Key Dates</span>
-                                <button 
+                                <button
                                     onClick={() => setShowAddEvent(true)}
                                     className="flex items-center gap-1 text-[11px] text-black/50 hover:text-black transition-colors"
                                 >
@@ -735,18 +704,18 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 {[...timeline].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(event => {
                                     // Check if this event matches the highlighted calendar event
                                     const calendarEvent = highlightedEventId ? CALENDAR_EVENT_MAP[highlightedEventId] : null;
-                                    const isHighlighted = calendarEvent ? 
+                                    const isHighlighted = calendarEvent ?
                                         (event.date === calendarEvent.date && event.type === calendarEvent.type) : false;
                                     const style = getEventStyle(event.type);
-                                    
+
                                     return (
-                                        <div 
+                                        <div
                                             key={event.id}
                                             data-event-id={event.id}
                                             className={`
                                                 group flex items-center gap-3 p-3 rounded-xl transition-all
-                                                ${isHighlighted 
-                                                    ? 'bg-violet-50 border-2 border-violet-200 shadow-sm highlighted-event' 
+                                                ${isHighlighted
+                                                    ? 'bg-violet-50 border-2 border-violet-200 shadow-sm highlighted-event'
                                                     : 'bg-gray-50 hover:bg-gray-100 border border-transparent'
                                                 }
                                             `}
@@ -754,7 +723,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                             {editingEventId === event.id ? (
                                                 <div className="flex-1 flex flex-col gap-2">
                                                     <div className="flex items-center gap-2">
-                                                        <select 
+                                                        <select
                                                             value={event.type}
                                                             onChange={(e) => updateEvent(event.id, { type: e.target.value as any })}
                                                             className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
@@ -766,8 +735,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                                             <option value="launch">Launch</option>
                                                             <option value="custom">Custom</option>
                                                         </select>
-                                                        <input 
-                                                            type="text" 
+                                                        <input
+                                                            type="text"
                                                             value={event.title}
                                                             onChange={(e) => updateEvent(event.id, { title: e.target.value })}
                                                             className="text-[12px] bg-white border border-black/10 rounded px-2 py-1 flex-1"
@@ -775,14 +744,14 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                                         />
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <input 
-                                                            type="date" 
+                                                        <input
+                                                            type="date"
                                                             value={event.date}
                                                             onChange={(e) => updateEvent(event.id, { date: e.target.value })}
                                                             className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
                                                         />
-                                                        <input 
-                                                            type="time" 
+                                                        <input
+                                                            type="time"
                                                             value={event.time || ''}
                                                             onChange={(e) => updateEvent(event.id, { time: e.target.value })}
                                                             className="text-[12px] bg-white border border-black/10 rounded px-2 py-1 w-24"
@@ -823,7 +792,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 <div className="p-3 bg-gray-50 rounded-xl border border-black/[0.06]">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
-                                            <select 
+                                            <select
                                                 value={newEventType}
                                                 onChange={(e) => setNewEventType(e.target.value as any)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
@@ -835,8 +804,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                                 <option value="launch">Launch</option>
                                                 <option value="custom">Custom</option>
                                             </select>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="Event title"
                                                 value={newEventTitle}
                                                 onChange={(e) => setNewEventTitle(e.target.value)}
@@ -844,14 +813,14 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                             />
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 value={newEventDate}
                                                 onChange={(e) => setNewEventDate(e.target.value)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
                                             />
-                                            <input 
-                                                type="time" 
+                                            <input
+                                                type="time"
                                                 value={newEventTime}
                                                 onChange={(e) => setNewEventTime(e.target.value)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1 w-24"
@@ -874,8 +843,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 <div className="mb-3">
                                     <span className="text-[11px] font-medium text-black/60 uppercase tracking-wide">Outreach Campaign</span>
                                 </div>
-                                <OutreachSection 
-                                    quest={{...quest, status: questStatus}}
+                                <OutreachSection
+                                    quest={{ ...quest, status: questStatus }}
                                     onCampaignUpdate={handleCampaignUpdate}
                                     onOpenComposer={onOpenOutreach}
                                 />
@@ -929,13 +898,85 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                         </div>
                     )}
 
+                    {activeTab === 'quotes' && (
+                        <div className="space-y-4">
+                            {/* Quotes Header */}
+                            <div className="flex items-center justify-between">
+                                <p className="text-[13px] text-black/50">
+                                    Internally approved quotes for use across this quest
+                                </p>
+                                <button 
+                                    onClick={() => setShowAddQuoteDialog(true)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+                                >
+                                    <Plus size={12} />
+                                    Add Quote
+                                </button>
+                            </div>
+                            
+                            {/* Quotes List */}
+                            <div className="space-y-3">
+                                {questQuotes.map((quote) => (
+                                    <div 
+                                        key={quote.id} 
+                                        className="group p-5 bg-gray-50/50 rounded-xl border border-transparent hover:border-teal-200 hover:bg-teal-50/20 transition-all relative"
+                                    >
+                                        {/* Delete Button - visible on hover */}
+                                        <button
+                                            onClick={() => setQuestQuotes(prev => prev.filter(q => q.id !== quote.id))}
+                                            className="absolute top-3 right-3 p-2 opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 text-black/20 rounded-lg transition-all"
+                                            title="Delete quote"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                        
+                                        <p className="text-[15px] text-black/80 leading-relaxed mb-4 italic pr-8">
+                                            &ldquo;{quote.text}&rdquo;
+                                        </p>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[11px] font-semibold">
+                                                    {quote.speaker.split(' ').map(n => n[0]).join('')}
+                                                </div>
+                                                <div>
+                                                    <span className="text-[13px] font-medium text-black">{quote.speaker}</span>
+                                                    <span className="text-[12px] text-black/40 ml-1.5">{quote.role}</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(`"${quote.text}" — ${quote.speaker}, ${quote.role}`);
+                                                }}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-black/40 hover:text-teal-600 hover:bg-white rounded-lg transition-all"
+                                                title="Copy quote with attribution"
+                                            >
+                                                <Copy size={14} />
+                                                Copy
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-black/[0.04]">
+                                            {quote.tags.map(tag => (
+                                                <span key={tag} className="text-[10px] px-2.5 py-0.5 bg-white text-black/50 rounded-full border border-black/[0.04]">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                            <span className="text-[10px] text-black/30 ml-auto">
+                                                Used {quote.usageCount} time{quote.usageCount !== 1 ? 's' : ''}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {activeTab === 'documents' && (
                         <div className="space-y-6">
                             {/* Working Documents Section */}
                             <div>
                                 <div className="flex items-center justify-between mb-3">
                                     <span className="text-[11px] font-semibold text-black/40 uppercase tracking-wide">Working Documents</span>
-                                    <button 
+                                    <button
                                         onClick={onOpenEditor}
                                         className="flex items-center gap-1 text-[11px] text-black/50 hover:text-black transition-colors"
                                     >
@@ -973,8 +1014,8 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                 </div>
                                 <div className="space-y-2">
                                     {MOCK_ATTACHED.map(file => (
-                                        <div 
-                                            key={file.id} 
+                                        <div
+                                            key={file.id}
                                             className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors group"
                                         >
                                             <div className="w-9 h-9 bg-white border border-black/[0.06] rounded-lg flex items-center justify-center">
@@ -1028,7 +1069,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                                     </div>
                                 </div>
                             )}
-                            
+
                             {MOCK_VERSIONS.map((v, i) => (
                                 <div key={v.id} className="flex gap-4 relative pb-6">
                                     {i !== MOCK_VERSIONS.length - 1 && <div className="absolute left-[9px] top-6 bottom-0 w-px bg-black/[0.06]" />}
@@ -1048,6 +1089,118 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                     )}
                 </div>
             </div>
+
+            {/* Add Quote Dialog */}
+            {showAddQuoteDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div 
+                        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+                        onClick={() => setShowAddQuoteDialog(false)}
+                    />
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.06]">
+                            <h3 className="font-serif text-lg font-medium">Add New Quote</h3>
+                            <button 
+                                onClick={() => setShowAddQuoteDialog(false)}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <X size={16} className="text-black/40" />
+                            </button>
+                        </div>
+                        
+                        {/* Form */}
+                        <div className="p-5 space-y-4">
+                            <div>
+                                <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-2">
+                                    Quote Text
+                                </label>
+                                <textarea
+                                    value={newQuoteText}
+                                    onChange={(e) => setNewQuoteText(e.target.value)}
+                                    rows={4}
+                                    className="w-full px-3 py-2.5 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 resize-none"
+                                    placeholder="Enter the quote..."
+                                />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-2">
+                                        Speaker Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newQuoteSpeaker}
+                                        onChange={(e) => setNewQuoteSpeaker(e.target.value)}
+                                        className="w-full px-3 py-2.5 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10"
+                                        placeholder="e.g. John Smith"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-2">
+                                        Role
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newQuoteRole}
+                                        onChange={(e) => setNewQuoteRole(e.target.value)}
+                                        className="w-full px-3 py-2.5 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10"
+                                        placeholder="e.g. CEO"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-2">
+                                    Tags (comma separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newQuoteTags}
+                                    onChange={(e) => setNewQuoteTags(e.target.value)}
+                                    className="w-full px-3 py-2.5 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10"
+                                    placeholder="e.g. Vision, Product"
+                                />
+                            </div>
+                        </div>
+                        
+                        {/* Footer */}
+                        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-black/[0.06] bg-gray-50/50">
+                            <button
+                                onClick={() => setShowAddQuoteDialog(false)}
+                                className="px-4 py-2 text-[13px] font-medium text-black/60 hover:text-black hover:bg-black/[0.05] rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (newQuoteText.trim() && newQuoteSpeaker.trim()) {
+                                        const newQuote: QuestQuote = {
+                                            id: Date.now(),
+                                            text: newQuoteText.trim(),
+                                            speaker: newQuoteSpeaker.trim(),
+                                            role: newQuoteRole.trim() || 'Team Member',
+                                            tags: newQuoteTags.split(',').map(t => t.trim()).filter(Boolean),
+                                            usageCount: 0,
+                                        };
+                                        setQuestQuotes(prev => [newQuote, ...prev]);
+                                        setNewQuoteText('');
+                                        setNewQuoteSpeaker('');
+                                        setNewQuoteRole('');
+                                        setNewQuoteTags('');
+                                        setShowAddQuoteDialog(false);
+                                    }
+                                }}
+                                disabled={!newQuoteText.trim() || !newQuoteSpeaker.trim()}
+                                className="px-4 py-2 text-[13px] font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Add Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

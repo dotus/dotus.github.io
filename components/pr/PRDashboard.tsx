@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Search, Bell, Plus, LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CayblesLogo } from '../ui/CayblesLogo';
@@ -7,7 +7,7 @@ import { KanbanBoard } from './KanbanBoard';
 import { MediaDatabase } from './MediaDatabase';
 import { DocumentList } from './DocumentList';
 import { CalendarWidget } from './CalendarWidget';
-import { MOCK_QUESTS, Quest, filterQuests, type FilterType } from './StatsOverview';
+import { MOCK_QUESTS, Quest, filterQuests, type FilterType, CLIENT_CONFIG, getQuestEmail } from './StatsOverview';
 import { SocialReachStats } from './SocialReachStats';
 import { ActiveDistributions } from './ActiveDistributions';
 import { DistributionsPage } from './DistributionsPage';
@@ -17,6 +17,9 @@ import { QuestDetailView } from './QuestDetailView';
 import { ProductEditor } from './ProductEditor';
 import { ProductCreator } from './ProductCreator';
 import { OutreachComposer } from './OutreachComposer';
+import { BrandAssetsView } from './BrandAssetsView';
+import { BrandAssetsOverview } from './BrandAssetsOverview';
+import { PRSidebar } from './PRSidebar';
 import type { ProductOutput } from './ProductSection';
 import { FileText, FileSpreadsheet, Image as ImageIcon, Link2 } from 'lucide-react';
 
@@ -34,7 +37,7 @@ const MOCK_ATTACHED = [
     { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
 ];
 
-type Tab = 'dashboard' | 'distributions' | 'network';
+type Tab = 'dashboard' | 'brand-assets' | 'distributions' | 'network';
 type ViewMode = 'list' | 'editor' | 'detail' | 'product' | 'product-creator' | 'outreach';
 type DashboardView = 'grid' | 'pipeline';
 
@@ -42,15 +45,61 @@ export const PRDashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('dashboard');
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [dashboardView, setDashboardView] = useState<DashboardView>('grid');
-    const [activeFilter] = useState<FilterType>('all');
+    const [activeFilter, setActiveFilter] = useState<FilterType>('all');
     const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
     const [animatingQuestId, setAnimatingQuestId] = useState<number | null>(null);
     const [isNavigatingBack, setIsNavigatingBack] = useState(false);
     const [highlightedEventId, setHighlightedEventId] = useState<number | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<ProductOutput | null>(null);
     const [detailDefaultTab, setDetailDefaultTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents' | 'activity'>('overview');
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-    const filteredQuests = filterQuests(MOCK_QUESTS, activeFilter);
+    const [customQuests, setCustomQuests] = useState<Quest[]>([]);
+    const [deletedQuestIds, setDeletedQuestIds] = useState<number[]>([]);
+    const [statusOverrides, setStatusOverrides] = useState<Record<number, Quest['status']>>({});
+
+    // Determine if sidebar should be visible (hidden on home/dashboard list view)
+    const isHomeView = activeTab === 'dashboard' && viewMode === 'list';
+    const showSidebar = !isHomeView;
+
+    useEffect(() => {
+        const storedCustom = sessionStorage.getItem('pr_quests_custom');
+        if (storedCustom) {
+            try { setCustomQuests(JSON.parse(storedCustom)); } catch { }
+        }
+        const storedDeleted = sessionStorage.getItem('pr_quests_deleted');
+        if (storedDeleted) {
+            try { setDeletedQuestIds(JSON.parse(storedDeleted)); } catch { }
+        }
+        const storedOverrides = sessionStorage.getItem('pr_quests_status_overrides');
+        if (storedOverrides) {
+            try { setStatusOverrides(JSON.parse(storedOverrides)); } catch { }
+        }
+    }, []);
+
+    const allQuests = [...MOCK_QUESTS, ...customQuests]
+        .filter(q => !deletedQuestIds.includes(q.id))
+        .map(q => statusOverrides[q.id] ? { ...q, status: statusOverrides[q.id] } : q);
+    const filteredQuests = filterQuests(allQuests, activeFilter);
+
+    const handleUpdateQuestStatus = (questId: number, newStatus: Quest['status']) => {
+        setStatusOverrides(prev => {
+            const next = { ...prev, [questId]: newStatus };
+            sessionStorage.setItem('pr_quests_status_overrides', JSON.stringify(next));
+            return next;
+        });
+
+        setCustomQuests(prev => {
+            const index = prev.findIndex(q => q.id === questId);
+            if (index >= 0) {
+                const updated = [...prev];
+                updated[index] = { ...updated[index], status: newStatus };
+                sessionStorage.setItem('pr_quests_custom', JSON.stringify(updated));
+                return updated;
+            }
+            return prev;
+        });
+    };
 
     const handleQuestClick = (quest: Quest) => {
         setAnimatingQuestId(quest.id);
@@ -102,11 +151,11 @@ export const PRDashboard: React.FC = () => {
     const saveProductToStorage = (product: ProductOutput & { questId?: number }) => {
         const questId = product.questId || selectedQuest?.id;
         if (!questId) return;
-        
+
         const storageKey = `quest_products_${questId}`;
         const stored = sessionStorage.getItem(storageKey);
         let products: ProductOutput[] = [];
-        
+
         if (stored) {
             try {
                 products = JSON.parse(stored);
@@ -114,7 +163,7 @@ export const PRDashboard: React.FC = () => {
                 products = [];
             }
         }
-        
+
         // Check if product already exists
         const existingIndex = products.findIndex(p => p.id === product.id);
         if (existingIndex >= 0) {
@@ -122,7 +171,7 @@ export const PRDashboard: React.FC = () => {
         } else {
             products.push(product);
         }
-        
+
         sessionStorage.setItem(storageKey, JSON.stringify(products));
     };
 
@@ -151,7 +200,7 @@ export const PRDashboard: React.FC = () => {
     };
 
     const handleCalendarEventClick = (questId: number, eventId: number) => {
-        const quest = MOCK_QUESTS.find(q => q.id === questId);
+        const quest = allQuests.find(q => q.id === questId);
         if (quest) {
             // Create a copy to avoid reference issues
             const questCopy = { ...quest };
@@ -170,21 +219,63 @@ export const PRDashboard: React.FC = () => {
         handleQuestClick(quest);
     };
 
+    const handleSidebarQuestClick = (quest: Quest) => {
+        setActiveTab('dashboard');
+        handleQuestClick(quest);
+    };
+
+    const handleNavigateToDistributions = () => {
+        setActiveTab('distributions');
+    };
+
     return (
         <div className="flex h-screen bg-[#FAF9F6] text-black font-sans selection:bg-black/10 overflow-hidden">
-            <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0" 
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }} 
+            <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}
             />
+
+            {/* Collapsible Sidebar - Hidden on home view */}
+            <motion.div
+                initial={false}
+                animate={{
+                    width: showSidebar ? (isSidebarCollapsed ? 64 : 280) : 0,
+                    opacity: showSidebar ? 1 : 1,
+                }}
+                transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                className="h-full shrink-0 overflow-hidden"
+                style={{ willChange: 'width' }}
+            >
+                <div style={{ width: isSidebarCollapsed ? 64 : 280 }} className="h-full">
+                    <PRSidebar
+                        quests={allQuests}
+                        isCollapsed={isSidebarCollapsed}
+                        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                        onQuestClick={handleSidebarQuestClick}
+                        onNavigateToDistributions={handleNavigateToDistributions}
+                        selectedQuestId={selectedQuest?.id}
+                    />
+                </div>
+            </motion.div>
 
             <div className="flex-1 overflow-hidden relative z-10 flex flex-col">
                 {/* Header with centered prominent search */}
                 <header className="h-16 border-b border-black/5 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-6 w-64">
-                        <div className="shrink-0">
+                        {/* Logo - cross-fades with sidebar */}
+                        <motion.div
+                            initial={false}
+                            animate={{
+                                width: showSidebar ? 0 : 120,
+                                opacity: showSidebar ? 0 : 1,
+                            }}
+                            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                            className="shrink-0 overflow-hidden"
+                        >
                             <CayblesLogo size="full" theme="dark" height={32} />
-                        </div>
+                        </motion.div>
                         <nav className="flex items-center gap-1 bg-black/[0.03] p-1 rounded-xl">
                             <NavPill active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setViewMode('list'); setSelectedQuest(null); }} label="Quests" />
+                            <NavPill active={activeTab === 'brand-assets'} onClick={() => setActiveTab('brand-assets')} label="Brand" />
                             <NavPill active={activeTab === 'distributions'} onClick={() => setActiveTab('distributions')} label="Distributions" />
                             <NavPill active={activeTab === 'network'} onClick={() => setActiveTab('network')} label="Network" />
                         </nav>
@@ -194,9 +285,9 @@ export const PRDashboard: React.FC = () => {
                     <div className="flex-1 flex justify-center max-w-2xl">
                         <div className="relative w-full max-w-md">
                             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30" />
-                            <input 
-                                type="text" 
-                                placeholder="Search anything" 
+                            <input
+                                type="text"
+                                placeholder="Search anything"
                                 className="w-full bg-gray-50 border border-black/[0.08] rounded-xl pl-11 pr-4 py-2.5 text-sm placeholder:text-black/30 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-black/15 focus:bg-white transition-all shadow-sm hover:shadow-md hover:border-black/10"
                             />
                         </div>
@@ -233,7 +324,7 @@ export const PRDashboard: React.FC = () => {
                                             {/* Header - simplified when filtered */}
                                             <AnimatePresence mode="wait">
                                                 {activeFilter === 'all' ? (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key="full-header"
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
@@ -258,24 +349,24 @@ export const PRDashboard: React.FC = () => {
                                             {/* Pipeline View */}
                                             <AnimatePresence mode="wait">
                                                 {activeFilter !== 'all' ? (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key="expanded-view"
                                                         initial={{ opacity: 0, x: 40, scale: 0.98 }}
                                                         animate={{ opacity: 1, x: 0, scale: 1 }}
-                                                        exit={{ 
-                                                            opacity: 0, 
-                                                            x: isNavigatingBack ? -40 : 40, 
+                                                        exit={{
+                                                            opacity: 0,
+                                                            x: isNavigatingBack ? -40 : 40,
                                                             scale: 0.98,
                                                             transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }
                                                         }}
-                                                        transition={{ 
-                                                            duration: 0.35, 
+                                                        transition={{
+                                                            duration: 0.35,
                                                             ease: [0.25, 0.1, 0.25, 1]
                                                         }}
                                                         className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden h-[calc(100vh-200px)]"
                                                     >
-                                                        <ExpandedQuestView 
-                                                            quests={filteredQuests} 
+                                                        <ExpandedQuestView
+                                                            quests={filteredQuests}
                                                             status={activeFilter}
                                                             onQuestClick={handleQuestClick}
                                                             onBack={handleBackFromExpanded}
@@ -283,7 +374,7 @@ export const PRDashboard: React.FC = () => {
                                                         />
                                                     </motion.div>
                                                 ) : dashboardView === 'pipeline' ? (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key="pipeline-view"
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
@@ -293,19 +384,28 @@ export const PRDashboard: React.FC = () => {
                                                         <DocumentList onOpenDoc={() => setViewMode('editor')} />
                                                     </motion.div>
                                                 ) : (
-                                                    <motion.div 
+                                                    <motion.div
                                                         key="kanban-view"
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
                                                         exit={{ opacity: 0 }}
-                                                        className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden h-[calc(100vh-260px)]"
+                                                        className="space-y-6"
                                                     >
-                                                        <KanbanBoard 
-                                                            onQuestClick={handleQuestClick} 
-                                                            onExpandColumn={handleExpandColumn}
-                                                            animatingId={animatingQuestId}
-                                                            onCampaignBadgeClick={handleCampaignBadgeClick}
-                                                        />
+                                                        <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden h-[calc(100vh-380px)]">
+                                                            <KanbanBoard
+                                                                quests={filteredQuests}
+                                                                onQuestClick={handleQuestClick}
+                                                                onExpandColumn={handleExpandColumn}
+                                                                animatingId={animatingQuestId}
+                                                                onCampaignBadgeClick={handleCampaignBadgeClick}
+                                                                onUpdateQuestStatus={handleUpdateQuestStatus}
+                                                                onAddQuest={(status) => {
+                                                                    // Future proofing for defaulting status
+                                                                    setViewMode('editor');
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <BrandAssetsOverview onViewFullAssets={() => setActiveTab('brand-assets')} />
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
@@ -333,9 +433,17 @@ export const PRDashboard: React.FC = () => {
                                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                                 className="h-full"
                             >
-                                <QuestDetailView 
-                                    quest={selectedQuest} 
-                                    onClose={handleCloseDetail} 
+                                <QuestDetailView
+                                    quest={selectedQuest}
+                                    onClose={handleCloseDetail}
+                                    onDelete={(id) => {
+                                        setDeletedQuestIds(prev => {
+                                            const next = [...prev, id];
+                                            sessionStorage.setItem('pr_quests_deleted', JSON.stringify(next));
+                                            return next;
+                                        });
+                                        handleCloseDetail();
+                                    }}
                                     onOpenEditor={() => setViewMode('editor')}
                                     onOpenProduct={handleOpenProduct}
                                     onCreateProduct={handleCreateProduct}
@@ -354,10 +462,28 @@ export const PRDashboard: React.FC = () => {
                                 exit={{ opacity: 0 }}
                                 className="h-full"
                             >
-                                <NewQuestView 
+                                <NewQuestView
                                     onClose={() => setViewMode('list')}
                                     onSave={(questData) => {
-                                        console.log('New quest created:', questData);
+                                        const newQuest: Quest = {
+                                            id: Date.now(),
+                                            title: questData.title,
+                                            synopsis: questData.synopsis,
+                                            type: questData.type as any,
+                                            status: questData.status as any,
+                                            author: questData.author,
+                                            authorRole: questData.authorRole,
+                                            updated: 'Just now',
+                                            tags: [],
+                                            priority: questData.isHot ? 'high' : 'medium',
+                                            emailDL: questData.emailDL,
+                                            uniqueEmail: getQuestEmail(questData.title),
+                                        };
+                                        setCustomQuests(prev => {
+                                            const next = [...prev, newQuest];
+                                            sessionStorage.setItem('pr_quests_custom', JSON.stringify(next));
+                                            return next;
+                                        });
                                         setViewMode('list');
                                     }}
                                 />
@@ -373,7 +499,7 @@ export const PRDashboard: React.FC = () => {
                                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                                 className="h-full"
                             >
-                                <ProductEditor 
+                                <ProductEditor
                                     product={selectedProduct}
                                     workingDocs={MOCK_WORKING_DOCS}
                                     attachedDocs={MOCK_ATTACHED}
@@ -392,7 +518,7 @@ export const PRDashboard: React.FC = () => {
                                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                                 className="h-full"
                             >
-                                <ProductCreator 
+                                <ProductCreator
                                     questId={selectedQuest.id}
                                     workingDocs={MOCK_WORKING_DOCS}
                                     attachedDocs={MOCK_ATTACHED}
@@ -411,7 +537,7 @@ export const PRDashboard: React.FC = () => {
                                 transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                                 className="h-full"
                             >
-                                <OutreachComposer 
+                                <OutreachComposer
                                     quest={selectedQuest}
                                     onClose={handleCloseOutreach}
                                     onCampaignSent={handleCampaignSent}
@@ -420,14 +546,14 @@ export const PRDashboard: React.FC = () => {
                         )}
 
                         {activeTab === 'distributions' && (
-                            <motion.div 
-                                key="distributions" 
-                                initial={{ opacity: 0 }} 
-                                animate={{ opacity: 1 }} 
-                                exit={{ opacity: 0 }} 
+                            <motion.div
+                                key="distributions"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
                                 className="h-full"
                             >
-                                <DistributionsPage 
+                                <DistributionsPage
                                     onNavigateToQuest={(quest) => {
                                         setActiveTab('dashboard');
                                         handleQuestClick(quest);
@@ -438,6 +564,11 @@ export const PRDashboard: React.FC = () => {
                         {activeTab === 'network' && (
                             <motion.div key="network" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white">
                                 <MediaDatabase />
+                            </motion.div>
+                        )}
+                        {activeTab === 'brand-assets' && (
+                            <motion.div key="brand-assets" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full bg-white">
+                                <BrandAssetsView />
                             </motion.div>
                         )}
                     </AnimatePresence>

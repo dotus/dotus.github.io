@@ -7,14 +7,24 @@ import {
     ArrowRight02Icon,
     CheckmarkSquare03Icon,
     CheckmarkCircle02Icon,
+    Tick02Icon,
     Clock01Icon,
     File01Icon,
     File02Icon,
     Loading03Icon,
     TextAlignLeftIcon,
     Search01Icon,
+    Building03Icon,
+    Attachment01Icon,
+    Link01Icon,
+    UserIcon,
+    Calendar01Icon,
+    NewOfficeIcon,
+    Tag01Icon,
+    TextFontIcon,
 } from '@hugeicons/core-free-icons';
-import { Quest, OutreachCampaign, JournalistContact, MOCK_JOURNALISTS, getOutreachStorageKey, getRecommendedJournalists } from './StatsOverview';
+import { Quest, OutreachCampaign, JournalistContact, MOCK_JOURNALISTS, getOutreachStorageKey, getRecommendedJournalists, MOCK_BRAND_ASSETS } from './StatsOverview';
+
 
 interface OutreachComposerProps {
     quest: Quest;
@@ -72,6 +82,264 @@ Would you be interested in covering this? Happy to provide more details or conne
 Best,
 {{sender}}`
     }
+};
+
+// Template Variable Button Component
+interface TemplateVarProps {
+    label: string;
+    code: string;
+    icon: any;
+    onInsert: () => void;
+}
+
+const TemplateVar: React.FC<TemplateVarProps> = ({ label, code, icon, onInsert }) => (
+    <button
+        onClick={onInsert}
+        className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 hover:bg-teal-50 border border-transparent hover:border-teal-200 transition-all group"
+        title={`Insert ${label}`}
+    >
+        <HugeiconsIcon icon={icon} size={10} className="text-black/30 group-hover:text-teal-600" />
+        <span className="text-[10px] font-medium text-black/60 group-hover:text-teal-700">{code}</span>
+    </button>
+);
+
+// Step 2 Component: Compose Pitch with Brand Assets & Quest Docs
+interface Step2Props {
+    quest: Quest;
+    pitchSubject: string;
+    setPitchSubject: (s: string) => void;
+    pitchBody: string;
+    setPitchBody: (s: string) => void;
+    onCopy: () => void;
+    copied: boolean;
+}
+
+const Step2ComposePitch: React.FC<Step2Props> = ({
+    quest,
+    pitchSubject,
+    setPitchSubject,
+    pitchBody,
+    setPitchBody,
+    onCopy,
+    copied
+}) => {
+    const [showNarrative, setShowNarrative] = useState(false);
+    const [attachedDocs, setAttachedDocs] = useState<number[]>([]);
+    const [copiedNarrative, setCopiedNarrative] = useState(false);
+
+    // Mock quest documents
+    const questDocs = [
+        { id: 1, name: 'Series B Press Release', type: 'doc', size: '24 KB' },
+        { id: 2, name: 'Founder Bio - Mithil Aggarwal', type: 'doc', size: '12 KB' },
+        { id: 3, name: 'Caybles Fact Sheet', type: 'sheet', size: '18 KB' },
+        { id: 4, name: 'Product Screenshots', type: 'image', size: '2.4 MB' },
+    ];
+
+    const handleCopyNarrative = () => {
+        navigator.clipboard.writeText(MOCK_BRAND_ASSETS.narrative);
+        setCopiedNarrative(true);
+        setTimeout(() => setCopiedNarrative(false), 2000);
+    };
+
+    const toggleDoc = (id: number) => {
+        setAttachedDocs(prev => 
+            prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]
+        );
+    };
+
+    const insertNarrative = () => {
+        setPitchBody(prev => prev + '\n\n' + MOCK_BRAND_ASSETS.narrative);
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-5"
+        >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl">Compose Your Pitch</h2>
+                <button
+                    onClick={onCopy}
+                    className="flex items-center gap-2 text-[13px] text-black/50 hover:text-black px-3 py-2 rounded-lg hover:bg-black/[0.03] transition-colors"
+                >
+                    {copied ? <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} /> : <HugeiconsIcon icon={File02Icon} size={16} />}
+                    {copied ? 'Copied' : 'Copy Pitch'}
+                </button>
+            </div>
+
+            <div className="grid grid-cols-12 gap-5">
+                {/* Left: Main Editor */}
+                <div className="col-span-8 space-y-5">
+                    {/* Subject */}
+                    <div className="bg-white rounded-xl border border-black/10 p-5">
+                        <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-3">
+                            Subject Line
+                        </label>
+                        <input
+                            type="text"
+                            value={pitchSubject}
+                            onChange={(e) => setPitchSubject(e.target.value)}
+                            className="w-full px-4 py-3 text-[15px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10"
+                            placeholder="Enter subject line..."
+                        />
+                    </div>
+
+                    {/* Body */}
+                    <div className="bg-white rounded-xl border border-black/10 p-5">
+                        <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-3">
+                            Pitch Content
+                        </label>
+                        <textarea
+                            value={pitchBody}
+                            onChange={(e) => setPitchBody(e.target.value)}
+                            rows={16}
+                            className="w-full px-4 py-3 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 resize-none font-mono leading-relaxed"
+                            placeholder="Write your pitch..."
+                        />
+                        {/* Template Variables */}
+                        <div className="mt-3 pt-3 border-t border-black/[0.06] space-y-2">
+                            <p className="text-[11px] text-black/40">Click to insert variables:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                <TemplateVar label="Name" code="{{name}}" icon={UserIcon} onInsert={() => setPitchBody(prev => prev + '{{name}}')} />
+                                <TemplateVar label="Outlet" code="{{outlet}}" icon={NewOfficeIcon} onInsert={() => setPitchBody(prev => prev + '{{outlet}}')} />
+                                <TemplateVar label="First Name" code="{{firstName}}" icon={UserIcon} onInsert={() => setPitchBody(prev => prev + '{{firstName}}')} />
+                                <TemplateVar label="Quest Title" code="{{title}}" icon={TextFontIcon} onInsert={() => setPitchBody(prev => prev + '{{title}}')} />
+                                <TemplateVar label="Embargo Date" code="{{embargoDate}}" icon={Calendar01Icon} onInsert={() => setPitchBody(prev => prev + '{{embargoDate}}')} />
+                                <TemplateVar label="Founder" code="{{founder}}" icon={UserIcon} onInsert={() => setPitchBody(prev => prev + '{{founder}}')} />
+                                <TemplateVar label="Topic" code="{{topic}}" icon={Tag01Icon} onInsert={() => setPitchBody(prev => prev + '{{topic}}')} />
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-end mt-2 text-[12px] text-black/40">
+                            <span>{pitchBody.length} characters</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right: Reference Panel */}
+                <div className="col-span-4 space-y-4">
+                    {/* Brand Narrative Card */}
+                    <div className="bg-gradient-to-br from-teal-50/50 to-emerald-50/30 rounded-xl border border-teal-100/60 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
+                                    <HugeiconsIcon icon={Building03Icon} size={14} className="text-teal-600" />
+                                </div>
+                                <span className="text-[12px] font-semibold text-black/80">Brand Narrative</span>
+                            </div>
+                            <button
+                                onClick={() => setShowNarrative(!showNarrative)}
+                                className="text-[11px] text-teal-600 hover:text-teal-700 font-medium"
+                            >
+                                {showNarrative ? 'Hide' : 'Show'}
+                            </button>
+                        </div>
+                        
+                        {showNarrative && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="space-y-3"
+                            >
+                                <p className="text-[12px] text-black/70 leading-relaxed">
+                                    {MOCK_BRAND_ASSETS.narrative}
+                                </p>
+                                <div className="flex items-center gap-2 pt-2 border-t border-teal-100/50">
+                                    <button
+                                        onClick={handleCopyNarrative}
+                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-teal-700 bg-white/80 hover:bg-white rounded-lg transition-colors"
+                                    >
+                                        {copiedNarrative ? <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} /> : <HugeiconsIcon icon={File02Icon} size={12} />}
+                                        {copiedNarrative ? 'Copied' : 'Copy'}
+                                    </button>
+                                    <button
+                                        onClick={insertNarrative}
+                                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors"
+                                    >
+                                        Insert
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                        
+                        {!showNarrative && (
+                            <p className="text-[12px] text-black/50 line-clamp-2">
+                                {MOCK_BRAND_ASSETS.narrative}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Quest Documents */}
+                    <div className="bg-white rounded-xl border border-black/10 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <HugeiconsIcon icon={Attachment01Icon} size={14} className="text-gray-600" />
+                                </div>
+                                <span className="text-[12px] font-semibold text-black/80">Quest Documents</span>
+                            </div>
+                            {attachedDocs.length > 0 && (
+                                <span className="text-[10px] font-medium text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">
+                                    {attachedDocs.length} attached
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                            {questDocs.map(doc => {
+                                const isAttached = attachedDocs.includes(doc.id);
+                                return (
+                                    <button
+                                        key={doc.id}
+                                        onClick={() => toggleDoc(doc.id)}
+                                        className={`
+                                            w-full flex items-center gap-2.5 p-2.5 rounded-lg text-left transition-all
+                                            ${isAttached 
+                                                ? 'bg-teal-50/50 border border-teal-100' 
+                                                : 'bg-gray-50/50 border border-transparent hover:border-black/5 hover:bg-gray-50'
+                                            }
+                                        `}
+                                    >
+                                        <div className="w-4 flex items-center justify-center shrink-0">
+                                            {isAttached && <HugeiconsIcon icon={Tick02Icon} size={14} className="text-teal-600" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-[12px] font-medium truncate ${isAttached ? 'text-teal-700' : 'text-black/70'}`}>
+                                                {doc.name}
+                                            </p>
+                                            <p className="text-[10px] text-black/40">{doc.size}</p>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {attachedDocs.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-black/[0.04]">
+                                <p className="text-[11px] text-black/50">
+                                    These documents will be attached to your outreach emails
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Quick Tips */}
+                    <div className="bg-amber-50/50 rounded-xl border border-amber-100/60 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-[10px] font-bold">
+                                !
+                            </div>
+                            <span className="text-[11px] font-semibold text-amber-800">Pro Tip</span>
+                        </div>
+                        <p className="text-[11px] text-amber-700/80 leading-relaxed">
+                            Keep your pitch under 200 words. Journalists receive hundreds of emails daily — be concise and lead with the news.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
 };
 
 // Step 3 Component: Select Journalists
@@ -375,7 +643,8 @@ export const OutreachComposer: React.FC<OutreachComposerProps> = ({
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#FAF9F6]">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+
             {/* Header */}
             <div className="h-16 border-b border-black/5 bg-white px-6 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-4">
@@ -479,54 +748,15 @@ export const OutreachComposer: React.FC<OutreachComposerProps> = ({
 
                     {/* Step 2: Compose Pitch */}
                     {step === 2 && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="space-y-6"
-                        >
-                            <div className="flex items-center justify-between">
-                                <h2 className="font-serif text-2xl">Compose Your Pitch</h2>
-                                <button
-                                    onClick={copyPitch}
-                                    className="flex items-center gap-2 text-[13px] text-black/50 hover:text-black px-3 py-2 rounded-lg hover:bg-black/[0.03] transition-colors"
-                                >
-                                    {copied ? <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} /> : <HugeiconsIcon icon={File02Icon} size={16} />}
-                                    {copied ? 'Copied' : 'Copy Pitch'}
-                                </button>
-                            </div>
-
-                            {/* Subject */}
-                            <div className="bg-white rounded-xl border border-black/10 p-6">
-                                <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-3">
-                                    Subject Line
-                                </label>
-                                <input
-                                    type="text"
-                                    value={pitchSubject}
-                                    onChange={(e) => setPitchSubject(e.target.value)}
-                                    className="w-full px-4 py-3 text-[15px] border border-black/10 rounded-lg focus:outline-none focus:border-black/30"
-                                    placeholder="Enter subject line..."
-                                />
-                            </div>
-
-                            {/* Body */}
-                            <div className="bg-white rounded-xl border border-black/10 p-6">
-                                <label className="block text-[11px] font-medium text-black/50 uppercase tracking-wide mb-3">
-                                    Pitch Content
-                                </label>
-                                <textarea
-                                    value={pitchBody}
-                                    onChange={(e) => setPitchBody(e.target.value)}
-                                    rows={14}
-                                    className="w-full px-4 py-3 text-[14px] border border-black/10 rounded-lg focus:outline-none focus:border-black/30 resize-none font-mono leading-relaxed"
-                                    placeholder="Write your pitch..."
-                                />
-                                <div className="flex items-center justify-between mt-3 text-[12px] text-black/40">
-                                    <span>Use {'{{name}}'} to personalize with journalist names</span>
-                                    <span>{pitchBody.length} characters</span>
-                                </div>
-                            </div>
-                        </motion.div>
+                        <Step2ComposePitch 
+                            quest={quest}
+                            pitchSubject={pitchSubject}
+                            setPitchSubject={setPitchSubject}
+                            pitchBody={pitchBody}
+                            setPitchBody={setPitchBody}
+                            onCopy={copyPitch}
+                            copied={copied}
+                        />
                     )}
 
                     {/* Step 3: Select Journalists */}

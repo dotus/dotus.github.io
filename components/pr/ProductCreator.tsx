@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -261,7 +262,8 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
     }
 
     return (
-        <div className="h-full flex flex-col bg-[#FAF9F6]">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+
             {/* Header with Progress - Teal Active States */}
             <div className="px-5 py-3 border-b border-black/[0.06] bg-white">
                 <div className="flex items-center gap-4">

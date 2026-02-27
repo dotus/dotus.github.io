@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     Plus, FilePlus, ChevronRight
 } from 'lucide-react';
-import type { ProductOutput, OutputType } from './ProductCreator';
-export type { ProductOutput, OutputType };
+export type OutputType = 'x-post' | 'linkedin-post' | 'instagram-post' | 'press-release' | 'blog-post' | 'website-copy' | 'investor-doc';
+
+export interface ProductOutput {
+    id: number;
+    title: string;
+    type: OutputType;
+    status: 'draft' | 'editing' | 'ready' | 'published';
+    wordCount: number;
+    updatedAt: string;
+}
 
 interface WorkingDoc {
     id: number;
@@ -75,7 +83,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ questId, onOpenP
                     <span className="text-[11px] font-semibold text-black/40 uppercase tracking-wide">
                         Product
                     </span>
-                    <button 
+                    <button
                         onClick={onCreateNew}
                         className="flex items-center gap-1 text-[10px] text-black bg-black/5 hover:bg-black/10 px-2 py-1 rounded-md transition-colors border border-black/10"
                     >
@@ -85,9 +93,9 @@ export const ProductSection: React.FC<ProductSectionProps> = ({ questId, onOpenP
                 </div>
                 <span className="text-[11px] text-black/30">{products.length}</span>
             </div>
-            
+
             {products.length === 0 ? (
-                <button 
+                <button
                     onClick={onCreateNew}
                     className="w-full flex items-center justify-center gap-2 py-4 border border-dashed border-black/20 rounded-xl text-black/40 hover:text-black hover:border-black/40 hover:bg-black/[0.02] transition-all"
                 >

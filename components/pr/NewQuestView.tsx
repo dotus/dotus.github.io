@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import {
     ChevronLeft, Flame, ChevronDown, Plus, X, Check, Calendar,
     Clock, Users, Mail, Copy, Upload, FileText, FileSpreadsheet, FileImage,
     Link2, MoreHorizontal
 } from 'lucide-react';
+import { CLIENT_CONFIG, CLIENT_PERSONNEL, getQuestEmail } from './StatsOverview';
 
 const QUEST_TYPES = [
     { id: 'Press Release', label: 'Press Release', color: 'bg-gray-100 text-gray-700 border-gray-200' },
@@ -66,7 +67,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
     const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'distribution' | 'documents'>('overview');
     const [isSaving, setIsSaving] = useState(false);
     const [savedMessage, setSavedMessage] = useState<string | null>(null);
-    
+
     // Form state
     const [title, setTitle] = useState('');
     const [synopsis, setSynopsis] = useState('');
@@ -75,11 +76,11 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
     const [isHot, setIsHot] = useState(false);
     const [author, setAuthor] = useState('Mithil');
     const [authorRole, setAuthorRole] = useState('Editor');
-    
+
     // Dropdowns
     const [showTypeDropdown, setShowTypeDropdown] = useState(false);
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-    
+
     // Timeline
     const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
     const [showAddEvent, setShowAddEvent] = useState(false);
@@ -87,26 +88,25 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
     const [newEventTitle, setNewEventTitle] = useState('');
     const [newEventDate, setNewEventDate] = useState('');
     const [newEventTime, setNewEventTime] = useState('');
-    
+
     // Distribution
     const [emailDL, setEmailDL] = useState<string[]>([]);
     const [newEmail, setNewEmail] = useState('');
     const [uniqueEmail, setUniqueEmail] = useState('');
     const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
-    
+
     // Documents
     const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
-    
+
     const typeDropdownRef = useRef<HTMLDivElement>(null);
     const statusDropdownRef = useRef<HTMLDivElement>(null);
 
     // Generate unique email based on title
     useEffect(() => {
         if (title) {
-            const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 30);
-            setUniqueEmail(`${slug}@andalso.co`);
+            setUniqueEmail(getQuestEmail(title));
         } else {
-            setUniqueEmail('new-quest@andalso.co');
+            setUniqueEmail(`new-quest@${CLIENT_CONFIG.prDomain}`);
         }
     }, [title]);
 
@@ -121,8 +121,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                 setQuestType(data.type || 'Press Release');
                 setQuestStatus(data.status || 'draft');
                 setIsHot(data.isHot || false);
-                setAuthor(data.author || 'Mithil');
-                setAuthorRole(data.authorRole || 'Editor');
+                setAuthor(data.author || CLIENT_PERSONNEL[0].name);
+                setAuthorRole(data.authorRole || CLIENT_PERSONNEL[0].role);
                 setTimeline(data.timeline || []);
                 setEmailDL(data.emailDL || []);
                 setAttachedDocs(data.attachedDocs || []);
@@ -205,8 +205,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-        
-        Array.from(files).forEach(file => {
+
+        Array.from(files).forEach((file: File) => {
             const newDoc: AttachedDoc = {
                 id: Date.now() + Math.random(),
                 name: file.name,
@@ -226,9 +226,9 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
             setActiveTab('overview');
             return;
         }
-        
+
         setIsSaving(true);
-        
+
         const questData: NewQuestData = {
             title,
             synopsis,
@@ -241,17 +241,17 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
             emailDL,
             attachedDocs,
         };
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         if (onSave) {
             onSave(questData);
         }
-        
+
         // Clear draft
         sessionStorage.removeItem(NEW_QUEST_STORAGE_KEY);
-        
+
         setSavedMessage('Quest created');
         setTimeout(() => {
             setIsSaving(false);
@@ -287,9 +287,9 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                         <ChevronLeft size={18} className="text-black/40" />
                     </button>
                     <div className="h-4 w-px bg-black/10" />
-                    
+
                     <span className="text-sm font-medium text-black/60">New Quest</span>
-                    
+
                     {/* Status Selector */}
                     <div className="relative" ref={statusDropdownRef}>
                         <button
@@ -299,14 +299,14 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                 ${QUEST_STATUSES.find(s => s.id === questStatus)?.color || QUEST_STATUSES[0].color}
                             `}
                         >
-                            <span 
-                                className="w-1.5 h-1.5 rounded-full" 
+                            <span
+                                className="w-1.5 h-1.5 rounded-full"
                                 style={{ backgroundColor: QUEST_STATUSES.find(s => s.id === questStatus)?.dot || '#6B7280' }}
                             />
                             {QUEST_STATUSES.find(s => s.id === questStatus)?.label || 'Draft'}
                             <ChevronDown size={12} className="opacity-60" />
                         </button>
-                        
+
                         {showStatusDropdown && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50 min-w-[140px]">
                                 {QUEST_STATUSES.map(status => (
@@ -341,7 +341,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                             {questType}
                             <ChevronDown size={12} className="opacity-60" />
                         </button>
-                        
+
                         {showTypeDropdown && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50 min-w-[160px]">
                                 {QUEST_TYPES.map(type => (
@@ -363,14 +363,14 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                             </div>
                         )}
                     </div>
-                    
+
                     {/* Hot Toggle */}
                     <button
                         onClick={() => setIsHot(!isHot)}
                         className={`
                             flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-lg border transition-all
-                            ${isHot 
-                                ? 'bg-red-50 text-red-700 border-red-200' 
+                            ${isHot
+                                ? 'bg-red-50 text-red-700 border-red-200'
                                 : 'bg-gray-50 text-gray-400 border-gray-200 hover:text-gray-600 hover:border-gray-300'
                             }
                         `}
@@ -379,7 +379,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                         {isHot ? 'Hot' : 'Mark Hot'}
                     </button>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                     {/* Create Button */}
                     <button
@@ -432,9 +432,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
-                                    activeTab === tab.id ? 'bg-black text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
-                                }`}
+                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === tab.id ? 'bg-black text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
+                                    }`}
                             >
                                 {tab.label}
                                 {tab.count > 0 && <span className="ml-1.5 opacity-60">{tab.count}</span>}
@@ -468,7 +467,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
                                 <div className="flex items-start gap-3">
                                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
@@ -489,7 +488,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-[11px] font-semibold text-black/40 uppercase tracking-wide">Key Dates</span>
-                                <button 
+                                <button
                                     onClick={() => setShowAddEvent(true)}
                                     className="flex items-center gap-1 text-[11px] text-black/50 hover:text-black transition-colors"
                                 >
@@ -502,8 +501,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                 {[...timeline].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(event => {
                                     const style = TIMETYPE_STYLES[event.type];
                                     return (
-                                        <div 
-                                            key={event.id} 
+                                        <div
+                                            key={event.id}
                                             className="group flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                                         >
                                             <span className={`text-[10px] font-medium px-2 py-0.5 rounded border ${style.bg} ${style.text} ${style.border}`}>
@@ -531,7 +530,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                 <div className="p-3 bg-gray-50 rounded-xl border border-black/[0.06]">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
-                                            <select 
+                                            <select
                                                 value={newEventType}
                                                 onChange={(e) => setNewEventType(e.target.value as any)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
@@ -543,8 +542,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                                 <option value="launch">Launch</option>
                                                 <option value="custom">Custom</option>
                                             </select>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="Event title"
                                                 value={newEventTitle}
                                                 onChange={(e) => setNewEventTitle(e.target.value)}
@@ -552,14 +551,14 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                             />
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 value={newEventDate}
                                                 onChange={(e) => setNewEventDate(e.target.value)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1"
                                             />
-                                            <input 
-                                                type="time" 
+                                            <input
+                                                type="time"
                                                 value={newEventTime}
                                                 onChange={(e) => setNewEventTime(e.target.value)}
                                                 className="text-[12px] bg-white border border-black/10 rounded px-2 py-1 w-24"
@@ -603,7 +602,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                     <Users size={14} className="text-black/40" />
                                     <span className="text-[11px] font-medium text-black/60 uppercase tracking-wide">Distribution List</span>
                                 </div>
-                                
+
                                 <div className="flex gap-2 mb-3">
                                     <input
                                         type="email"
@@ -613,14 +612,14 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                         onKeyDown={(e) => e.key === 'Enter' && addEmail()}
                                         className="flex-1 px-3 py-2 text-[13px] bg-white border border-black/10 rounded-lg focus:outline-none focus:border-black/20"
                                     />
-                                    <button 
+                                    <button
                                         onClick={addEmail}
                                         className="px-3 py-2 bg-teal-600 text-white rounded-lg text-[12px] font-medium hover:bg-teal-700 transition-colors"
                                     >
                                         <Plus size={14} />
                                     </button>
                                 </div>
-                                
+
                                 <div className="flex flex-wrap gap-2">
                                     {emailDL.map(email => (
                                         <div
@@ -649,19 +648,19 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                 <label className="flex items-center gap-1.5 text-[11px] text-black/50 hover:text-black transition-colors cursor-pointer">
                                     <Upload size={12} />
                                     Upload
-                                    <input 
-                                        type="file" 
-                                        multiple 
+                                    <input
+                                        type="file"
+                                        multiple
                                         onChange={handleFileUpload}
                                         className="hidden"
                                     />
                                 </label>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 {attachedDocs.map(file => (
-                                    <div 
-                                        key={file.id} 
+                                    <div
+                                        key={file.id}
                                         className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl group"
                                     >
                                         <div className="w-9 h-9 bg-white border border-black/[0.06] rounded-lg flex items-center justify-center">
@@ -671,7 +670,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                             <p className="text-[14px] font-medium text-black truncate">{file.name}</p>
                                             <p className="text-[11px] text-black/40">{file.size}</p>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={() => removeDoc(file.id)}
                                             className="p-2 hover:bg-black/[0.05] rounded-lg text-black/30 hover:text-red-400 transition-colors"
                                         >
@@ -686,9 +685,9 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                                         <label className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 text-white rounded-lg text-[12px] font-medium cursor-pointer hover:bg-teal-700 transition-colors">
                                             <Plus size={14} />
                                             Select Files
-                                            <input 
-                                                type="file" 
-                                                multiple 
+                                            <input
+                                                type="file"
+                                                multiple
                                                 onChange={handleFileUpload}
                                                 className="hidden"
                                             />

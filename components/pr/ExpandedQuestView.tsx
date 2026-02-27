@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Clock, Calendar, ChevronLeft, Mail, Search, X, Flame } from 'lucide-react';
 import { Quest, getStatusLabel, TypeBadge } from './StatsOverview';
+import { GridBackground } from '../ui/GridBackground';
 
 interface ExpandedQuestViewProps {
     quests: Quest[];
@@ -56,7 +57,8 @@ export const ExpandedQuestView: React.FC<ExpandedQuestViewProps> = ({
     };
 
     return (
-        <div className="h-full flex flex-col bg-gray-50/30">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+            <GridBackground />
             {/* Header with integrated search */}
             <div className="px-6 py-4 border-b border-black/[0.06] bg-white">
                 <div className="flex items-center gap-4">

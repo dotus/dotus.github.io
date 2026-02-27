@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MoreHorizontal, Plus, Maximize2, Minimize2, Send, Eye, MessageCircle, Flame } from 'lucide-react';
-import { MOCK_QUESTS, Quest, TypeBadge, PriorityBadge, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
+import { MoreHorizontal, Plus, Maximize2, Minimize2, Send, Flame } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Quest, TypeBadge, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
 
 interface ColumnConfig {
     id: Quest['status'];
@@ -17,25 +18,32 @@ const COLUMNS: ColumnConfig[] = [
 ];
 
 interface KanbanBoardProps {
+    quests: Quest[];
     onQuestClick?: (quest: Quest) => void;
     onExpandColumn?: (status: Quest['status']) => void;
     animatingId?: number | null;
     onCampaignBadgeClick?: (quest: Quest) => void;
+    onUpdateQuestStatus?: (questId: number, newStatus: Quest['status']) => void;
+    onAddQuest?: (status: Quest['status']) => void;
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ 
-    onQuestClick, 
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+    quests,
+    onQuestClick,
     onExpandColumn,
     animatingId,
-    onCampaignBadgeClick
+    onCampaignBadgeClick,
+    onUpdateQuestStatus,
+    onAddQuest
 }) => {
     const [collapsedColumns, setCollapsedColumns] = useState<Set<string>>(new Set());
+    const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
     const [campaigns, setCampaigns] = useState<Record<number, OutreachCampaign>>({});
 
     // Load campaigns from sessionStorage on mount
     useEffect(() => {
         const loadedCampaigns: Record<number, OutreachCampaign> = {};
-        MOCK_QUESTS.forEach(quest => {
+        quests.forEach(quest => {
             const storageKey = getOutreachStorageKey(quest.id);
             const stored = sessionStorage.getItem(storageKey);
             if (stored) {
@@ -53,7 +61,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     useEffect(() => {
         const handleStorageChange = () => {
             const loadedCampaigns: Record<number, OutreachCampaign> = {};
-            MOCK_QUESTS.forEach(quest => {
+            quests.forEach(quest => {
                 const storageKey = getOutreachStorageKey(quest.id);
                 const stored = sessionStorage.getItem(storageKey);
                 if (stored) {
@@ -69,10 +77,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+    }, [quests]);
 
     const getColumnQuests = (status: Quest['status']) => {
-        return MOCK_QUESTS.filter(d => d.status === status);
+        return quests.filter(d => d.status === status);
     };
 
     const toggleCollapse = (columnId: string) => {
@@ -113,7 +121,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             <button
                 onClick={(e) => {
                     e.stopPropagation();
-                    const quest = MOCK_QUESTS.find(q => q.id === questId);
+                    const quest = quests.find(q => q.id === questId);
                     if (quest && onCampaignBadgeClick) {
                         onCampaignBadgeClick(quest);
                     }
@@ -141,8 +149,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     const quests = getColumnQuests(col.id);
 
                     return (
-                        <div 
-                            key={col.id} 
+                        <div
+                            key={col.id}
                             className={`
                                 ${isCollapsed ? 'w-12 shrink-0' : 'flex-1 min-w-0'}
                                 flex flex-col transition-all duration-300 ease-out
@@ -157,7 +165,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                 {!isCollapsed ? (
                                     <>
                                         {/* Title area - clickable to expand view */}
-                                        <button 
+                                        <button
                                             onClick={() => handleExpand(col.id)}
                                             className="flex items-center gap-2 min-w-0 hover:bg-black/[0.03] rounded-lg px-1 py-1 -ml-1 transition-colors"
                                         >
@@ -166,7 +174,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                             <span className="text-xs text-black/30 shrink-0">{quests.length}</span>
                                         </button>
                                         {/* Collapse button */}
-                                        <button 
+                                        <button
                                             onClick={() => toggleCollapse(col.id)}
                                             className="p-1.5 rounded text-black/20 hover:text-black/60 hover:bg-black/[0.03] transition-colors"
                                             title="Collapse column"
@@ -177,14 +185,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                 ) : (
                                     <>
                                         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.color }} />
-                                        <button 
+                                        <button
                                             onClick={() => toggleCollapse(col.id)}
                                             className="p-1 text-black/20 hover:text-black/60 shrink-0"
                                             title="Expand column"
                                         >
                                             <Maximize2 size={14} />
                                         </button>
-                                        <span 
+                                        <span
                                             className="text-xs font-medium text-black/40 truncate"
                                             style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
                                         >
@@ -197,54 +205,87 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
                             {/* Cards */}
                             {!isCollapsed && (
-                                <div 
-                                    className="flex-1 rounded-xl border overflow-hidden"
-                                    style={{ backgroundColor: col.bgColor, borderColor: `${col.color}20` }}
+                                <div
+                                    className={`flex-1 rounded-xl border overflow-hidden transition-all duration-200 ${dragOverColumn === col.id ? 'ring-2 ring-teal-500/50 bg-teal-50/10' : ''}`}
+                                    style={dragOverColumn === col.id ? { backgroundColor: col.bgColor, borderColor: 'transparent' } : { backgroundColor: col.bgColor, borderColor: `${col.color}20` }}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        setDragOverColumn(col.id);
+                                    }}
+                                    onDragLeave={(e) => {
+                                        e.preventDefault();
+                                        setDragOverColumn(null);
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setDragOverColumn(null);
+                                        const questIdStr = e.dataTransfer.getData('text/plain');
+                                        const questId = parseInt(questIdStr, 10);
+                                        if (!isNaN(questId) && onUpdateQuestStatus) {
+                                            const quest = quests.find(q => q.id === questId);
+                                            if (quest && quest.status !== col.id) {
+                                                onUpdateQuestStatus(questId, col.id);
+                                            }
+                                        }
+                                    }}
                                 >
                                     <div className="p-3 space-y-3 h-full overflow-y-auto">
-                                        {quests.map(quest => {
-                                            const isAnimating = animatingId === quest.id;
-                                            return (
-                                                <div 
-                                                    key={quest.id}
-                                                    onClick={() => handleQuestClick(quest)}
-                                                    className={`
-                                                        bg-white rounded-lg p-3 border border-black/5 
-                                                        shadow-sm hover:shadow-md hover:border-black/10 transition-all cursor-pointer group
-                                                        ${isAnimating ? 'scale-[1.02] shadow-xl' : ''}
-                                                    `}
-                                                >
-                                                    <div className="flex items-start justify-between mb-2 gap-2">
-                                                        <TypeBadge type={quest.type} />
-                                                        <div className="flex items-center gap-1.5">
-                                                            <CampaignBadge questId={quest.id} />
-                                                            {quest.priority === 'high' && (
-                                                                <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-red-50 text-red-700 border border-red-200 rounded-md">
-                                                                    <Flame size={10} className="fill-current" />
-                                                                    Hot
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    <h4 className="text-sm font-medium leading-snug mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                                                        {quest.title}
-                                                    </h4>
-                                                    <div className="flex items-center justify-between pt-2 border-t border-black/5">
-                                                        <div className="flex items-center gap-2 min-w-0">
-                                                            <div className="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[8px] shrink-0">
-                                                                {quest.author[0]}
+                                        <AnimatePresence mode="popLayout">
+                                            {quests.map((quest, i) => {
+                                                const isAnimating = animatingId === quest.id;
+                                                return (
+                                                    <motion.div
+                                                        layout
+                                                        draggable
+                                                        onDragStart={(e: React.DragEvent | any) => {
+                                                            e.dataTransfer.setData('text/plain', quest.id.toString());
+                                                            // Provide a slightly translucent ghost image styling automatically done by HTML5
+                                                        }}
+                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                        transition={{ duration: 0.2, delay: i * 0.03 }}
+                                                        key={quest.id}
+                                                        onClick={() => handleQuestClick(quest)}
+                                                        className={`
+                                                            bg-white rounded-xl p-3.5 border border-black/[0.04] outline-none
+                                                            shadow-sm hover:shadow-md hover:border-black/10 transition-all cursor-grab active:cursor-grabbing group hover:-translate-y-0.5
+                                                            relative overflow-hidden
+                                                            ${isAnimating ? 'scale-[1.02] shadow-xl z-10' : ''}
+                                                        `}
+                                                    >
+                                                        <div className="flex items-start justify-between mb-2.5 gap-2 relative z-10">
+                                                            <TypeBadge type={quest.type} />
+                                                            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                                                                <CampaignBadge questId={quest.id} />
+                                                                {quest.priority === 'high' && (
+                                                                    <span className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-red-50 text-red-600 border border-red-100/50 rounded-md">
+                                                                        <Flame size={10} className="fill-current" />
+                                                                        Hot
+                                                                    </span>
+                                                                )}
                                                             </div>
-                                                            <span className="text-[10px] text-black/40 truncate">{quest.updated}</span>
                                                         </div>
-                                                        <button onClick={(e) => { e.stopPropagation(); }} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 rounded text-black/30 transition-all shrink-0">
-                                                            <MoreHorizontal size={12} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                        <button className="w-full py-2 flex items-center justify-center gap-1 text-[11px] text-black/30 hover:text-black/60 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-black/5 border-dashed">
-                                            <Plus size={12} />Add Quest
+                                                        <h4 className="text-[13px] font-semibold text-gray-800 leading-snug mb-3 group-hover:text-teal-600 transition-colors line-clamp-2 relative z-10">
+                                                            {quest.title}
+                                                        </h4>
+                                                        <div className="flex items-center justify-between pt-2.5 border-t border-black/[0.03] relative z-10">
+                                                            <div className="flex items-center gap-2 min-w-0">
+                                                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center text-[9px] font-medium shrink-0 shadow-sm">
+                                                                    {quest.author[0]}
+                                                                </div>
+                                                                <span className="text-[10px] font-medium text-gray-400 truncate group-hover:text-gray-500 transition-colors">{quest.updated}</span>
+                                                            </div>
+                                                            <button onClick={(e) => { e.stopPropagation(); }} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-black/5 rounded-md text-gray-400 hover:text-gray-700 transition-all shrink-0">
+                                                                <MoreHorizontal size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })}
+                                        </AnimatePresence>
+                                        <button onClick={() => onAddQuest?.(col.id)} className="w-full py-2.5 flex items-center justify-center gap-1.5 text-[12px] font-medium text-black/30 hover:text-black/60 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-black/5 border-dashed">
+                                            <Plus size={14} />Add Quest
                                         </button>
                                     </div>
                                 </div>

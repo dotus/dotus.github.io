@@ -69,151 +69,268 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
     const fundingKeywords = ['funding', 'series', 'investment', 'vc'];
     const aiKeywords = ['ai', 'artificial intelligence', 'machine learning', 'neural'];
     const productKeywords = ['product', 'launch', 'release', 'feature'];
-    
+
     const questText = (quest.title + ' ' + quest.synopsis + ' ' + quest.tags.join(' ')).toLowerCase();
-    
+
     const isFunding = fundingKeywords.some(k => questText.includes(k));
     const isAI = aiKeywords.some(k => questText.includes(k));
     const isProduct = productKeywords.some(k => questText.includes(k));
-    
+
     const scored = MOCK_JOURNALISTS.map(j => {
         let score = 0;
         const focus = j.focus.toLowerCase();
-        
+
         if (isFunding && (focus.includes('vc') || focus.includes('funding') || focus.includes('startups'))) score += 3;
         if (isAI && focus.includes('ai')) score += 3;
         if (isProduct && focus.includes('product')) score += 2;
         if (j.outlet === 'TechCrunch') score += 1;
-        
+
         return { ...j, score };
     });
-    
+
     return scored
         .sort((a, b) => (b.score || 0) - (a.score || 0))
         .slice(0, 5);
 };
 
-// Mock Quests
-export const MOCK_QUESTS: Quest[] = [
+// =============================================================================
+// CLIENT CONFIG - Single Source of Truth for Demo Data
+// Modify this section to tailor the demo to your client
+// =============================================================================
+
+export const CLIENT_CONFIG = {
+    // Company Identity
+    companyName: 'Caybles',
+    domain: 'caybles.com',
+    prDomain: 'pr.caybles.com',  // For quest unique emails
+    
+    // Logo paths (place in /public/logos/)
+    logos: {
+        full: '/logos/client_logo.png',      // Full logo
+        square: '/logos/client_logo_square.png',  // Square logo for social avatars
+        icon: '/logos/client_logo_icon.png',      // Icon only
+    },
+    
+    // Social Media Handles
+    social: {
+        x: 'caybles',
+        twitter: 'caybles',
+        linkedin: 'company/caybles',
+        instagram: 'caybles',
+    },
+    
+    // Brand Colors (for UI accents)
+    colors: {
+        primary: '#0D9488',      // Teal
+        accent: '#EBA832',       // Amber/Marigold
+    },
+    
+    // Quick Links
+    links: {
+        website: 'caybles.com',
+        pressKit: 'caybles.com/press',
+        brandGuidelines: 'caybles.com/brand',
+        mediaInquiries: 'press@caybles.com',
+    },
+};
+
+// Helper to generate quest email
+export const getQuestEmail = (questTitle: string) => {
+    const sanitized = questTitle.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .substring(0, 30);
+    return `${sanitized}@${CLIENT_CONFIG.prDomain}`;
+};
+
+// Spokespersons / Key Personnel (used across the app)
+export const CLIENT_PERSONNEL = [
+    { id: 1, name: 'Mithil Aggarwal', role: 'Chief Executive Officer', bio: 'Former PM at Stripe. Leads product vision and overall company strategy.', initials: 'MA', email: 'mithil@caybles.com' },
+    { id: 2, name: 'Sarah Jenkins', role: 'Head of Communications', bio: '10+ years running tech policy campaigns. Masters in PubPol from Georgetown.', initials: 'SJ', email: 'sarah@caybles.com' },
+    { id: 3, name: 'Dr. Elena Rostova', role: 'Chief Technology Officer', bio: 'Ex-DeepMind researcher. Overseeing our core ML infrastructure.', initials: 'ER', email: 'elena@caybles.com' },
+];
+
+// Approved Quotes (company-wide)
+export const CLIENT_QUOTES = [
     { 
         id: 1, 
-        title: 'Series B Funding Announcement', 
+        text: "We're democratizing high-end PR for the next generation of founders who deserve to be heard.", 
+        speaker: CLIENT_PERSONNEL[0].name, 
+        role: CLIENT_PERSONNEL[0].role,
+        tags: ['Mission', 'Vision'],
+        usageCount: 12
+    },
+    { 
+        id: 2, 
+        text: "The best ideas should win, not just the best funded. That's why we built Caybles.", 
+        speaker: CLIENT_PERSONNEL[0].name, 
+        role: CLIENT_PERSONNEL[0].role, 
+        tags: ['Product', 'Vision'],
+        usageCount: 8
+    },
+    { 
+        id: 3, 
+        text: "Traditional PR gatekeepers have excluded too many brilliant founders. We're changing that.", 
+        speaker: CLIENT_PERSONNEL[1].name, 
+        role: CLIENT_PERSONNEL[1].role,
+        tags: ['Industry', 'Mission'],
+        usageCount: 5
+    },
+];
+
+// Messaging Variants
+export const CLIENT_MESSAGING = {
+    investor: 'Caybles is the AI-native PR platform that helps ambitious startups secure media coverage without traditional gatekeepers. We combine AI-driven media matching with journalist relationship management.',
+    media: 'Caybles is democratizing high-end PR for the next generation of tech and policy founders, bypassing traditional gatekeepers to deliver authentic stories straight to top-tier outlets.',
+    customer: 'Get your startup the media coverage it deserves. Caybles uses AI to match your story with the right journalists and manages your entire PR workflow from pitch to publication.',
+};
+
+// =============================================================================
+
+// Mock Quests - Using CLIENT_CONFIG
+const { domain, prDomain } = CLIENT_CONFIG;
+
+export const MOCK_QUESTS: Quest[] = [
+    {
+        id: 1,
+        title: 'Series B Funding Announcement',
         synopsis: '$45M Series B led by Andreessen Horowitz to accelerate AI infrastructure development and expand into European markets.',
-        type: 'Press Release', 
-        status: 'review', 
-        author: 'Mithil', 
-        authorRole: 'CEO',
-        updated: '2h ago', 
+        type: 'Press Release',
+        status: 'review',
+        author: CLIENT_PERSONNEL[0].name,
+        authorRole: CLIENT_PERSONNEL[0].role,
+        updated: '2h ago',
         deadline: 'Jan 15, 9:00 AM',
         deadlineType: 'embargo',
         tags: ['Funding', 'Exclusive', 'TechCrunch'],
         priority: 'high',
-        emailDL: ['investors@company.com', 'exec-team@company.com', 'pr@andalso.co'],
-        uniqueEmail: 'series-b@andalso.co'
+        emailDL: [`investors@${domain}`, `exec-team@${domain}`, `pr@${domain}`],
+        uniqueEmail: getQuestEmail('Series B Funding Announcement')
     },
-    { 
-        id: 2, 
-        title: 'AI Policy Framework 2026', 
+    {
+        id: 2,
+        title: 'AI Policy Framework 2026',
         synopsis: 'A comprehensive analysis of emerging AI regulations and how policy makers can balance innovation with safety concerns.',
-        type: 'Blog Post', 
-        status: 'draft', 
-        author: 'Mithil', 
-        authorRole: 'CEO',
-        updated: '3h ago', 
+        type: 'Blog Post',
+        status: 'draft',
+        author: CLIENT_PERSONNEL[0].name,
+        authorRole: CLIENT_PERSONNEL[0].role,
+        updated: '3h ago',
         tags: ['Thought Leadership', 'Policy'],
         priority: 'high',
-        emailDL: ['policy@company.com', 'content@andalso.co'],
-        uniqueEmail: 'ai-policy@andalso.co'
+        emailDL: [`policy@${domain}`, `content@${domain}`],
+        uniqueEmail: getQuestEmail('AI Policy Framework 2026')
     },
-    { 
-        id: 3, 
-        title: 'Q1 Strategy Memo', 
+    {
+        id: 3,
+        title: 'Q1 Strategy Memo',
         synopsis: 'Internal alignment document outlining key narratives, target outlets, and campaign timeline for first quarter media push.',
-        type: 'Strategy Memo', 
-        status: 'draft', 
-        author: 'Sarah', 
-        authorRole: 'Head of Comms',
-        updated: '1d ago', 
+        type: 'Strategy Memo',
+        status: 'draft',
+        author: CLIENT_PERSONNEL[1].name,
+        authorRole: CLIENT_PERSONNEL[1].role,
+        updated: '1d ago',
         deadline: 'Jan 20',
         deadlineType: 'internal',
         tags: ['Internal', 'Q1 Planning'],
         priority: 'medium',
-        emailDL: ['comms@company.com'],
-        uniqueEmail: 'q1-strategy@andalso.co'
+        emailDL: [`comms@${domain}`],
+        uniqueEmail: getQuestEmail('Q1 Strategy Memo')
     },
-    { 
-        id: 4, 
-        title: 'New CTO Appointment', 
-        synopsis: 'Dr. Sarah Chen joins from Google DeepMind to lead our technical AI research division and expand engineering team.',
-        type: 'Press Release', 
-        status: 'ready', 
-        author: 'John', 
-        authorRole: 'VP People',
-        updated: 'Yesterday', 
+    {
+        id: 4,
+        title: 'New CTO Appointment',
+        synopsis: `${CLIENT_PERSONNEL[2].name} joins from Google DeepMind to lead our technical AI research division and expand engineering team.`,
+        type: 'Press Release',
+        status: 'ready',
+        author: CLIENT_PERSONNEL[1].name,
+        authorRole: CLIENT_PERSONNEL[1].role,
+        updated: 'Yesterday',
         deadline: 'Jan 18, 8:00 AM',
         deadlineType: 'embargo',
         tags: ['Hiring', 'Leadership'],
         priority: 'medium',
-        emailDL: ['team@company.com', 'press@andalso.co'],
-        uniqueEmail: 'cto-announcement@andalso.co'
+        emailDL: [`team@${domain}`, `press@${domain}`],
+        uniqueEmail: getQuestEmail('New CTO Appointment')
     },
-    { 
-        id: 5, 
-        title: 'Product Launch V3', 
+    {
+        id: 5,
+        title: 'Product Launch V3',
         synopsis: 'Next-generation neural search capabilities with real-time visualization and enterprise-grade security features.',
-        type: 'Blog Post', 
-        status: 'ready', 
-        author: 'Sarah', 
-        authorRole: 'Head of Comms',
-        updated: '2d ago', 
+        type: 'Blog Post',
+        status: 'ready',
+        author: CLIENT_PERSONNEL[1].name,
+        authorRole: CLIENT_PERSONNEL[1].role,
+        updated: '2d ago',
         deadline: 'Jan 22, 10:00 AM',
         deadlineType: 'launch',
         tags: ['Product', 'Launch'],
         priority: 'high',
-        emailDL: ['product@company.com', 'customers@company.com', 'launch@andalso.co'],
-        uniqueEmail: 'v3-launch@andalso.co'
+        emailDL: [`product@${domain}`, `customers@${domain}`, `launch@${domain}`],
+        uniqueEmail: getQuestEmail('Product Launch V3')
     },
-    { 
-        id: 6, 
-        title: 'Year in Review 2025', 
+    {
+        id: 6,
+        title: 'Year in Review 2025',
         synopsis: 'Reflecting on our biggest milestones: 3x team growth, Series A close, and 10M+ users reached.',
-        type: 'Blog Post', 
-        status: 'live', 
-        author: 'Mithil', 
-        authorRole: 'CEO',
+        type: 'Blog Post',
+        status: 'live',
+        author: CLIENT_PERSONNEL[0].name,
+        authorRole: CLIENT_PERSONNEL[0].role,
         updated: '1w ago',
         tags: ['Annual', 'Recap'],
-        emailDL: ['all@company.com'],
-        uniqueEmail: 'year-review@andalso.co'
+        emailDL: [`all@${domain}`],
+        uniqueEmail: getQuestEmail('Year in Review 2025')
     },
-    { 
-        id: 7, 
-        title: 'Seed Round Announcement', 
+    {
+        id: 7,
+        title: 'Seed Round Announcement',
         synopsis: 'Initial $8M seed funding to build the foundation for democratizing AI-powered communications.',
-        type: 'Press Release', 
-        status: 'live', 
-        author: 'Mithil', 
-        authorRole: 'CEO',
+        type: 'Press Release',
+        status: 'live',
+        author: CLIENT_PERSONNEL[0].name,
+        authorRole: CLIENT_PERSONNEL[0].role,
         updated: '2w ago',
         tags: ['Archived', 'Funding'],
-        emailDL: ['investors@company.com'],
-        uniqueEmail: 'seed-round@andalso.co'
+        emailDL: [`investors@${domain}`],
+        uniqueEmail: getQuestEmail('Seed Round Announcement')
     },
-    { 
-        id: 8, 
-        title: 'Partnership Press Release', 
+    {
+        id: 8,
+        title: 'Partnership Press Release',
         synopsis: 'Strategic partnership with Microsoft Azure to provide enterprise deployment options for our platform.',
-        type: 'Press Release', 
-        status: 'ready', 
-        author: 'Sarah', 
-        authorRole: 'Head of Comms',
-        updated: '3d ago', 
+        type: 'Press Release',
+        status: 'ready',
+        author: CLIENT_PERSONNEL[1].name,
+        authorRole: CLIENT_PERSONNEL[1].role,
+        updated: '3d ago',
         tags: ['Partnership', 'Enterprise'],
         priority: 'low',
-        emailDL: ['partnerships@company.com', 'enterprise@andalso.co'],
-        uniqueEmail: 'azure-partnership@andalso.co'
+        emailDL: [`partnerships@${domain}`, `enterprise@${domain}`],
+        uniqueEmail: getQuestEmail('Partnership Press Release')
     },
 ];
+export const MOCK_BRAND_ASSETS = {
+    narrative: CLIENT_QUOTES[0].text,
+    businessDetails: {
+        mission: "To level the playing field for ambitious startups by making premium communications accessible.",
+        vision: "A world where the best ideas win, not just the best funded.",
+        founded: "2024",
+        headquarters: "San Francisco, CA",
+        stage: "Series A",
+    },
+    keyDocuments: [
+        { id: 1, name: 'Brand Guide 2026', type: 'pdf', size: '2.4 MB', updated: '2 months ago' },
+        { id: 2, name: 'Company Boilerplate', type: 'doc', size: '15 KB', updated: '1 week ago' },
+        { id: 3, name: 'Approved Logo Pack', type: 'zip', size: '14.2 MB', updated: '3 months ago' },
+        { id: 4, name: 'Q1 Metrics & Fact Sheet', type: 'sheet', size: '1.2 MB', updated: '3 days ago' },
+    ],
+    personnel: CLIENT_PERSONNEL,
+    clients: [
+        { id: 1, name: 'Acme Robotics', description: 'Series B warehouse automation.', since: 'Jan 2025' },
+        { id: 2, name: 'Nexus Health', description: 'AI-driven diagnostics platform.', since: 'Mar 2025' },
+        { id: 3, name: 'QuantumFin', description: 'DeFi protocol for institutional investors.', since: 'Jul 2025' },
+    ]
+};
 
 // Social Reach Stats Component
 interface ReachStat {
@@ -289,11 +406,10 @@ export const SocialReachStats: React.FC<SocialReachStatsProps> = ({ hidden = fal
                         </div>
                         <div className="flex items-center justify-between mt-1">
                             <span className="text-[11px] text-black/50">{stat.label}</span>
-                            <span className={`text-[10px] font-medium ${
-                                stat.changeType === 'up' ? 'text-emerald-600' : 
-                                stat.changeType === 'down' ? 'text-red-500' : 
-                                'text-black/40'
-                            }`}>
+                            <span className={`text-[10px] font-medium ${stat.changeType === 'up' ? 'text-emerald-600' :
+                                    stat.changeType === 'down' ? 'text-red-500' :
+                                        'text-black/40'
+                                }`}>
                                 {stat.change}
                             </span>
                         </div>
@@ -334,13 +450,13 @@ export const TypeBadge: React.FC<{ type: Quest['type'] }> = ({ type }) => {
 
 export const PriorityBadge: React.FC<{ priority?: Quest['priority'] }> = ({ priority }) => {
     if (!priority) return null;
-    
+
     const styles = {
         high: 'bg-red-50 text-red-700 border-red-100',
         medium: 'bg-amber-50 text-amber-700 border-amber-100',
         low: 'bg-gray-100 text-gray-600 border-gray-200',
     };
-    
+
     return (
         <span className={`text-[10px] font-medium px-2 py-1 rounded-md border ${styles[priority]}`}>
             {priority.charAt(0).toUpperCase() + priority.slice(1)} Priority
@@ -351,7 +467,7 @@ export const PriorityBadge: React.FC<{ priority?: Quest['priority'] }> = ({ prio
 export const EmailDLDisplay: React.FC<{ emails: string[]; max?: number }> = ({ emails, max = 2 }) => {
     const display = emails.slice(0, max);
     const remaining = emails.length - max;
-    
+
     return (
         <div className="flex items-center gap-2">
             <Mail size={12} className="text-black/30" />

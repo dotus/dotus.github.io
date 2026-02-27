@@ -49,6 +49,8 @@ import {
     Bold, Italic, Underline, List, ListOrdered, Link, AlignLeft, AlignCenter, AlignRight, Type, Undo, Redo, Copy, Clock, Download, Send
 } from 'lucide-react';
 import type { ProductOutput, OutputType } from './ProductCreator';
+import { CLIENT_CONFIG, CLIENT_PERSONNEL } from './StatsOverview';
+
 
 const FILE_ICONS: Record<string, typeof File01Icon> = {
     doc: File01Icon,
@@ -536,7 +538,8 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
     );
 
     return (
-        <div className="h-full flex flex-col bg-[#FAF9F6]">
+        <div className="h-full flex flex-col bg-[#FAF9F6] relative">
+
             {/* Header with Toolbar */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-black/[0.06] bg-white flex-shrink-0">
                 <div className="flex items-center gap-3">
@@ -720,11 +723,18 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 <div className="flex items-center gap-3 px-4 py-3 border-b border-black/[0.06]">
                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-[2px]">
                                         <div className="w-full h-full rounded-full bg-white p-[2px]">
-                                            <div className="w-full h-full rounded-full bg-gray-200" />
+                                            <img 
+                                                src={CLIENT_CONFIG.logos.square} 
+                                                alt={CLIENT_CONFIG.companyName}
+                                                className="w-full h-full rounded-full object-cover bg-gray-200"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-[13px] font-semibold">yourbrand</p>
+                                        <p className="text-[13px] font-semibold">{CLIENT_CONFIG.social.instagram}</p>
                                         <p className="text-[11px] text-black/50">Original audio</p>
                                     </div>
                                     <MoreHorizontal size={20} className="text-black/60" />
@@ -809,7 +819,15 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                             <div className="bg-white border border-black/[0.08] rounded-xl shadow-sm">
                                 {/* X Compose Header */}
                                 <div className="flex items-center justify-between px-4 py-3 border-b border-black/[0.06]">
-                                    <div className="w-8 h-8 rounded-full bg-gray-200" />
+                                    <img 
+                                        src={CLIENT_CONFIG.logos.square} 
+                                        alt={CLIENT_CONFIG.companyName}
+                                        className="w-8 h-8 rounded-full object-cover bg-gray-100"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                            (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-8 h-8 rounded-full bg-gray-200"></div>';
+                                        }}
+                                    />
                                     <button className="px-4 py-1.5 bg-teal-600 text-white text-[13px] font-medium rounded-full opacity-50">
                                         Post
                                     </button>
@@ -818,7 +836,15 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                                 {/* X Compose Area */}
                                 <div className="p-4">
                                     <div className="flex gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex-shrink-0" />
+                                        <img 
+                                            src={CLIENT_CONFIG.logos.square} 
+                                            alt={CLIENT_CONFIG.companyName}
+                                            className="w-10 h-10 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex-shrink-0"></div>';
+                                            }}
+                                        />
                                         <div className="flex-1">
                                             <div
                                                 ref={editorRef}
@@ -949,10 +975,19 @@ export const ProductEditor: React.FC<ProductEditorProps> = ({
                             <div className="bg-white border border-black/[0.08] rounded-xl shadow-sm">
                                 {/* LinkedIn Header */}
                                 <div className="flex items-center gap-3 px-4 py-4">
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800" />
+                                    <img 
+                                        src={CLIENT_CONFIG.logos.square} 
+                                        alt={CLIENT_CONFIG.companyName}
+                                        className="w-12 h-12 rounded-full object-cover bg-gray-100"
+                                        onError={(e) => {
+                                            // Fallback to gradient if image fails
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                            (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800"></div>';
+                                        }}
+                                    />
                                     <div className="flex-1">
-                                        <p className="text-[14px] font-semibold text-black">Your Name</p>
-                                        <p className="text-[12px] text-black/60">Product Marketing at Company</p>
+                                        <p className="text-[14px] font-semibold text-black">{CLIENT_CONFIG.companyName}</p>
+                                        <p className="text-[12px] text-black/60">{CLIENT_PERSONNEL[0].role}</p>
                                         <div className="flex items-center gap-1 text-[12px] text-black/50">
                                             <span>Just now</span>
                                             <span>•</span>

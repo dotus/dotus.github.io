@@ -22,6 +22,7 @@ import {
     TypeBadge,
     PriorityBadge 
 } from './StatsOverview';
+import { GridBackground } from '../ui/GridBackground';
 
 interface DistributionWithQuest extends OutreachCampaign {
     questId: number;
@@ -578,9 +579,10 @@ export const DistributionsPage: React.FC<DistributionsPageProps> = ({ onNavigate
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="h-full overflow-y-auto"
+            className="h-full overflow-y-auto relative bg-[#FAF9F6]"
         >
-            <div className="max-w-[1400px] mx-auto p-8">
+            <GridBackground />
+            <div className="max-w-[1400px] mx-auto p-8 relative z-10">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="font-serif text-3xl mb-2">Distributions</h1>
