@@ -14,17 +14,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CayblesLogo } from '../ui/CayblesLogo';
-import { Quest, getOutreachStorageKey, OutreachCampaign } from './StatsOverview';
-
-interface TimelineEvent {
-    id: number;
-    questId: number;
-    questTitle: string;
-    title: string;
-    date: string;
-    time?: string;
-    type: 'embargo' | 'deadline' | 'launch';
-}
+import { Quest, getOutreachStorageKey, OutreachCampaign, MOCK_CALENDAR_EVENTS, CalendarEvent } from './StatsOverview';
 
 interface PRSidebarProps {
     quests: Quest[];
@@ -34,12 +24,6 @@ interface PRSidebarProps {
     onNavigateToDistributions: () => void;
     selectedQuestId?: number | null;
 }
-
-const TIMELINE_EVENTS: TimelineEvent[] = [
-    { id: 1, questId: 1, questTitle: 'Series B Funding', title: 'Embargo Lift', date: '2026-01-15', time: '09:00', type: 'embargo' },
-    { id: 2, questId: 4, questTitle: 'New CTO Appointment', title: 'Press Release', date: '2026-01-18', time: '08:00', type: 'embargo' },
-    { id: 3, questId: 5, questTitle: 'Product Launch V3', title: 'V3 Launch', date: '2026-01-22', time: '10:00', type: 'launch' },
-];
 
 interface ActiveDistribution {
     id: number;
@@ -121,8 +105,8 @@ export const PRSidebar: React.FC<PRSidebarProps> = ({
         setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
-    const today = new Date('2026-01-12');
-    const upcomingEvents = TIMELINE_EVENTS.filter(e => new Date(e.date) >= today).slice(0, 3);
+    const today = new Date('2026-03-12'); // March to match quest deadlines
+    const upcomingEvents = MOCK_CALENDAR_EVENTS.filter(e => new Date(e.date) >= today).slice(0, 3);
 
     return (
         <motion.div
@@ -134,7 +118,7 @@ export const PRSidebar: React.FC<PRSidebarProps> = ({
             {/* Toggle Button */}
             <button
                 onClick={onToggle}
-                className="absolute -right-3 top-6 w-6 h-6 bg-white border border-black/[0.08] rounded-full shadow-sm flex items-center justify-center text-black/40 hover:text-teal-600 hover:border-teal-200 transition-all z-30"
+                className="absolute -right-3 top-6 w-6 h-6 bg-white border border-black/[0.08] rounded-full shadow-sm flex items-center justify-center text-black/40 hover:text-teal-600 hover:border-teal-200 transition-all z-50"
             >
                 {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
             </button>
@@ -472,7 +456,7 @@ const CompactQuestItem: React.FC<CompactQuestItemProps> = ({ quest, isSelected, 
 
 // Compact Timeline Item - Countdown colored, date neutral
 interface CompactTimelineItemProps {
-    event: TimelineEvent;
+    event: CalendarEvent;
     eventDate: Date;
     daysDiff: number;
 }

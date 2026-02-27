@@ -1,4 +1,5 @@
 import React from 'react';
+import { CLIENT_PERSONNEL } from './StatsOverview';
 
 interface Activity {
     id: number;
@@ -8,11 +9,12 @@ interface Activity {
     time: string;
 }
 
+// Activities derived from client personnel
 const ACTIVITIES: Activity[] = [
-    { id: 1, user: 'Sarah Jenkins', action: 'commented on', target: 'Series B Announcement', time: '2h ago' },
+    { id: 1, user: CLIENT_PERSONNEL[1].name, action: 'commented on', target: 'Expansion Announcement', time: '2h ago' },
     { id: 2, user: 'You', action: 'edited', target: 'AI Policy Framework', time: '3h ago' },
     { id: 3, user: 'You', action: 'published', target: 'Year in Review 2025', time: '1d ago' },
-    { id: 4, user: 'John Smith', action: 'sent pitch to', target: 'TechCrunch', time: '1d ago' },
+    { id: 4, user: CLIENT_PERSONNEL[2].name, action: 'sent pitch to', target: 'TechCrunch', time: '1d ago' },
 ];
 
 export const RecentActivity: React.FC = () => {

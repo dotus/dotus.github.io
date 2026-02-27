@@ -31,6 +31,9 @@ export interface ProductOutput {
         views: number;
         shares: number;
     };
+    // Creator fields
+    selectedDocs?: number[];
+    instructions?: string;
 }
 
 interface WorkingDoc {

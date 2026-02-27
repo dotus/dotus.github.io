@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bold, Italic, List, Undo, Redo, Share2, Printer, Settings } from 'lucide-react';
+import { CLIENT_PERSONNEL } from './StatsOverview';
 
 export const CollaborativeEditor: React.FC = () => {
     return (
@@ -25,7 +26,7 @@ export const CollaborativeEditor: React.FC = () => {
                 <div className="flex items-center gap-4">
                     <div className="flex -space-x-2">
                         <div className="w-8 h-8 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm z-10" title="You">ME</div>
-                        <div className="w-8 h-8 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm z-0" title="Sarah (Partner)">SJ</div>
+                        <div className="w-8 h-8 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center text-xs text-white font-medium shadow-sm z-0" title={`${CLIENT_PERSONNEL[1].name} (${CLIENT_PERSONNEL[1].role})`}>{CLIENT_PERSONNEL[1].initials}</div>
                     </div>
                     <button className="px-4 py-2 bg-[#C2E7FF] text-[#001D35] text-xs font-semibold rounded-full hover:bg-[#B3DEFF] flex items-center gap-2 transition-colors">
                         <Share2 size={12} /> Share
@@ -48,11 +49,11 @@ export const CollaborativeEditor: React.FC = () => {
                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-4 opacity-0 group-hover:opacity-100 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.12)] whitespace-nowrap pointer-events-none transform translate-y-2 group-hover:translate-y-0 z-50">
                                     <div className="bg-white border border-black/5 rounded-xl overflow-hidden flex flex-col min-w-[280px]">
                                         <div className="p-3 border-b border-black/5 flex items-center gap-3 bg-gray-50/50">
-                                            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-[10px] text-white font-bold">SJ</div>
+                                            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-[10px] text-white font-bold">{CLIENT_PERSONNEL[1].initials}</div>
                                             <div className="flex flex-col">
                                                 <span className="text-[11px] font-bold text-black flex items-center gap-1.5">
-                                                    Sarah Jenkins
-                                                    <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter">Account Lead</span>
+                                                    {CLIENT_PERSONNEL[1].name}
+                                                    <span className="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full uppercase tracking-tighter">{CLIENT_PERSONNEL[1].role}</span>
                                                 </span>
                                                 <span className="text-[9px] text-black/40">2h ago</span>
                                             </div>
@@ -64,7 +65,7 @@ export const CollaborativeEditor: React.FC = () => {
                                         </div>
                                         <div className="px-3 pb-3">
                                             <div className="flex items-center gap-2 bg-black/[0.03] rounded-lg px-2 py-1.5 border border-black/5">
-                                                <input type="text" placeholder="Reply to Sarah..." className="bg-transparent text-[11px] outline-none flex-1 placeholder:text-black/30" />
+                                                <input type="text" placeholder={`Reply to ${CLIENT_PERSONNEL[1].name.split(' ')[0]}...`} className="bg-transparent text-[11px] outline-none flex-1 placeholder:text-black/30" />
                                                 <button className="text-[10px] font-bold text-blue-600 hover:text-blue-700">Send</button>
                                             </div>
                                         </div>
@@ -88,7 +89,7 @@ export const CollaborativeEditor: React.FC = () => {
 
                         {/* Fake Cursor */}
                         <div className="absolute top-[320px] left-[180px] w-0.5 h-6 bg-purple-500 animate-pulse z-10">
-                            <div className="absolute -top-5 -left-2 bg-purple-500 text-white text-[9px] px-2 py-0.5 rounded font-bold shadow-sm">Sarah</div>
+                            <div className="absolute -top-5 -left-2 bg-purple-500 text-white text-[9px] px-2 py-0.5 rounded font-bold shadow-sm">{CLIENT_PERSONNEL[1].name.split(' ')[0]}</div>
                         </div>
                     </div>
                 </div>

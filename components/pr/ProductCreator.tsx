@@ -171,9 +171,7 @@ export const ProductCreator: React.FC<ProductCreatorProps> = ({ questId, working
             content: useAI ? AI_GENERATED_CONTENT[selectedOutputType] : '',
             wordCount: useAI ? AI_GENERATED_CONTENT[selectedOutputType].split(/\s+/).length : 0,
             status: 'draft',
-            createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            selectedDocs: selectedDocs,
             instructions: additionalInstructions,
         };
         

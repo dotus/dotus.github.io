@@ -48,7 +48,7 @@ export const CayblesLogo: React.FC<CayblesLogoProps> = ({
 
     const iconFill = theme === 'light' || theme === 'white' ? '#FFFFFF' : theme === 'dark' ? '#0a0a0a' : null;
 
-    if (theme === 'colored' || (theme === 'light' && size === 'full')) {
+    if (theme === 'colored') {
       return (
         <svg
           width={width}

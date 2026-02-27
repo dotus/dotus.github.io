@@ -5,7 +5,7 @@ import {
     History, Paperclip, ExternalLink, CheckCircle2,
     ChevronLeft, Edit3
 } from 'lucide-react';
-import { DocItem } from './StatsOverview';
+import { DocItem, CLIENT_PERSONNEL } from './StatsOverview';
 
 interface AttachedDoc {
     id: number;
@@ -35,23 +35,26 @@ interface Version {
     changes: string;
 }
 
+// Attached documents with uploaders from client personnel
 const MOCK_ATTACHED: AttachedDoc[] = [
-    { id: 1, name: 'Series B Press Release v2.docx', type: 'platform', fileType: 'doc', size: '245 KB', uploadedAt: '2h ago', uploadedBy: 'Mithil' },
-    { id: 2, name: 'Investor Fact Sheet.pdf', type: 'ingested', fileType: 'pdf', source: 'Dropbox', size: '1.2 MB', uploadedAt: '1d ago', uploadedBy: 'Sarah' },
-    { id: 3, name: 'Founder Headshots', type: 'ingested', fileType: 'image', source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'John' },
-    { id: 4, name: 'Funding Round Financials', type: 'platform', fileType: 'sheet', size: '89 KB', uploadedAt: '3d ago', uploadedBy: 'Mithil' },
-    { id: 5, name: 'A16Z Guidelines', type: 'ingested', fileType: 'link', source: 'Notion', uploadedAt: '4d ago', uploadedBy: 'Sarah' },
+    { id: 1, name: 'Expansion Announcement Press Release v2.docx', type: 'platform', fileType: 'doc', size: '245 KB', uploadedAt: '2h ago', uploadedBy: CLIENT_PERSONNEL[0].name.split(' ')[0] },
+    { id: 2, name: 'Investor Fact Sheet.pdf', type: 'ingested', fileType: 'pdf', source: 'Dropbox', size: '1.2 MB', uploadedAt: '1d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
+    { id: 3, name: 'Founder Headshots', type: 'ingested', fileType: 'image', source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'External' },
+    { id: 4, name: 'Expansion Financials', type: 'platform', fileType: 'sheet', size: '89 KB', uploadedAt: '3d ago', uploadedBy: CLIENT_PERSONNEL[0].name.split(' ')[0] },
+    { id: 5, name: 'Partner Guidelines', type: 'ingested', fileType: 'link', source: 'Notion', uploadedAt: '4d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
 ];
 
+// Comments derived from client personnel
 const MOCK_COMMENTS: Comment[] = [
-    { id: 1, user: 'Sarah Jenkins', userInitial: 'S', role: 'Account Lead', text: 'The quote from the CTO is strong. Should we include something about engineering culture?', time: '2h ago' },
-    { id: 2, user: 'Mike Chen', userInitial: 'M', role: 'Editor', text: 'Embargo confirmed with TechCrunch. 24hr exclusive.', time: '4h ago' },
+    { id: 1, user: CLIENT_PERSONNEL[1].name, userInitial: CLIENT_PERSONNEL[1].initials[0], role: CLIENT_PERSONNEL[1].role, text: 'The messaging around our logistics capabilities is strong. Should we include more about the AI integration?', time: '2h ago' },
+    { id: 2, user: CLIENT_PERSONNEL[2].name, userInitial: CLIENT_PERSONNEL[2].initials[0], role: CLIENT_PERSONNEL[2].role, text: 'Embargo confirmed with TechCrunch. 24hr exclusive.', time: '4h ago' },
 ];
 
+// Version history derived from client personnel
 const MOCK_VERSIONS: Version[] = [
-    { id: 1, version: 'v2.1', author: 'Mithil', date: '2h ago', changes: 'Added CTO quote' },
-    { id: 2, version: 'v2.0', author: 'Sarah', date: 'Yesterday', changes: 'Major rewrite' },
-    { id: 3, version: 'v1.2', author: 'Mithil', date: '3d ago', changes: 'Initial draft' },
+    { id: 1, version: 'v2.1', author: CLIENT_PERSONNEL[0].name, date: '2h ago', changes: 'Added executive quote' },
+    { id: 2, version: 'v2.0', author: CLIENT_PERSONNEL[1].name, date: 'Yesterday', changes: 'Major rewrite' },
+    { id: 3, version: 'v1.2', author: CLIENT_PERSONNEL[0].name, date: '3d ago', changes: 'Initial draft' },
 ];
 
 const FILE_ICONS: Record<AttachedDoc['fileType'], React.ReactNode> = {

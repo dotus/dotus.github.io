@@ -1,24 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MOCK_CALENDAR_EVENTS, CalendarEvent } from './StatsOverview';
 
-interface CalendarEvent {
-    id: number;
-    questId: number;
-    questTitle: string;
-    title: string;
-    date: string;
-    time?: string;
-    type: 'embargo' | 'deadline' | 'launch';
-}
 
-const DEADLINES: CalendarEvent[] = [
-    { id: 1, questId: 1, questTitle: 'Series B Funding Announcement', title: 'Embargo Lift', date: '2026-01-15', time: '09:00', type: 'embargo' },
-    { id: 2, questId: 1, questTitle: 'Series B Funding Announcement', title: 'Partner Review Due', date: '2026-01-15', time: '17:00', type: 'deadline' },
-    { id: 3, questId: 5, questTitle: 'Product Launch V3', title: 'Product V3 Launch', date: '2026-01-22', time: '10:00', type: 'launch' },
-    { id: 4, questId: 3, questTitle: 'Q1 Strategy Memo', title: 'Q1 Strategy Review', date: '2026-01-20', type: 'deadline' },
-    { id: 5, questId: 8, questTitle: 'Partnership Press Release', title: 'Partnership PR', date: '2026-02-05', time: '08:00', type: 'embargo' },
-];
 
 const TYPE_GRADIENTS: Record<string, string> = {
     embargo: 'from-violet-500 to-purple-600',
@@ -40,15 +25,19 @@ interface CalendarWidgetProps {
 }
 
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) => {
-    const [currentMonth, setCurrentMonth] = useState(0);
-    const [selectedDate, setSelectedDate] = useState<string | null>('2026-01-15');
+    // Start with March (month index 2) to align with quest deadlines
+    const [currentMonth, setCurrentMonth] = useState(2);
+    const [selectedDate, setSelectedDate] = useState<string | null>('2026-03-15');
+    
+    // Today's date for highlighting
+    const TODAY = '2026-03-12';
 
     const year = 2026;
     const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
     const firstDay = new Date(year, currentMonth, 1).getDay();
 
     const deadlinesForMonth = useMemo(() => {
-        return DEADLINES.filter(d => new Date(d.date).getMonth() === currentMonth);
+        return MOCK_CALENDAR_EVENTS.filter(d => new Date(d.date).getMonth() === currentMonth);
     }, [currentMonth]);
 
     const getDeadlinesForDay = (day: number) => {
@@ -58,7 +47,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
 
     const selectedDeadlines = useMemo(() => {
         if (!selectedDate) return [];
-        return DEADLINES.filter(d => d.date === selectedDate).sort((a, b) => {
+        return MOCK_CALENDAR_EVENTS.filter(d => d.date === selectedDate).sort((a, b) => {
             if (!a.time) return 1;
             if (!b.time) return -1;
             return a.time.localeCompare(b.time);
@@ -102,6 +91,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
                 </div>
             </div>
 
+            {/* Today Indicator */}
+            <div className="flex items-center justify-between">
+      
+            </div>
+
             {/* Mini Calendar Grid */}
             <div className="relative">
                 <AnimatePresence mode="popLayout" initial={false}>
@@ -127,7 +121,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ onEventClick }) 
                             const deadlines = getDeadlinesForDay(day);
                             const hasDeadline = deadlines.length > 0;
                             const isSelected = selectedDate === dateStr;
-                            const isToday = dateStr === '2026-01-12';
+                            const isToday = dateStr === TODAY;
 
                             return (
                                 <button

@@ -11,7 +11,7 @@ import {
     ArrowRight,
     Calendar
 } from 'lucide-react';
-import { MOCK_BLOG_POSTS, MOCK_QUESTS, type BlogPost, type Quest } from './StatsOverview';
+import { MOCK_BLOG_POSTS, MOCK_QUESTS, type BlogPost, type Quest, CLIENT_PERSONNEL, CLIENT_QUOTES } from './StatsOverview';
 
 interface KnowledgePageProps {
     onNavigateToQuest?: (quest: Quest) => void;
@@ -166,19 +166,29 @@ export const KnowledgePage: React.FC<KnowledgePageProps> = ({ onNavigateToQuest 
                         {/* Image Side */}
                         <div className="col-span-7">
                             <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 shadow-xl shadow-black/5 group-hover:shadow-2xl group-hover:shadow-black/10 transition-all duration-500">
-                                {/* Abstract pattern */}
-                                <div className="absolute inset-0 opacity-30">
-                                    <div className="absolute inset-0" style={{
-                                        backgroundImage: `radial-gradient(circle at 30% 40%, rgba(13, 148, 136, 0.1) 0%, transparent 50%),
-                                                          radial-gradient(circle at 70% 60%, rgba(235, 168, 50, 0.08) 0%, transparent 50%)`
-                                    }} />
-                                </div>
-                                {/* Letter mark */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="font-serif text-[180px] font-light text-black/5 group-hover:text-black/10 transition-colors duration-500 select-none">
-                                        {featuredPost.title.charAt(0)}
-                                    </span>
-                                </div>
+                                {featuredPost.coverImage ? (
+                                    <img 
+                                        src={featuredPost.coverImage} 
+                                        alt={featuredPost.title}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <>
+                                        {/* Abstract pattern */}
+                                        <div className="absolute inset-0 opacity-30">
+                                            <div className="absolute inset-0" style={{
+                                                backgroundImage: `radial-gradient(circle at 30% 40%, rgba(13, 148, 136, 0.1) 0%, transparent 50%),
+                                                                  radial-gradient(circle at 70% 60%, rgba(235, 168, 50, 0.08) 0%, transparent 50%)`
+                                            }} />
+                                        </div>
+                                        {/* Letter mark */}
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="font-serif text-[180px] font-light text-black/5 group-hover:text-black/10 transition-colors duration-500 select-none">
+                                                {featuredPost.title.charAt(0)}
+                                            </span>
+                                        </div>
+                                    </>
+                                )}
                                 {/* Hover overlay */}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
                                 {/* Read indicator */}
@@ -288,11 +298,19 @@ export const KnowledgePage: React.FC<KnowledgePageProps> = ({ onNavigateToQuest 
                             >
                                 {/* Card Image */}
                                 <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 mb-5 shadow-md shadow-black/5 group-hover:shadow-lg group-hover:shadow-black/10 transition-all duration-300">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="font-serif text-8xl font-light text-black/5 group-hover:text-black/10 transition-colors duration-300 select-none">
-                                            {post.title.charAt(0)}
-                                        </span>
-                                    </div>
+                                    {post.coverImage ? (
+                                        <img 
+                                            src={post.coverImage} 
+                                            alt={post.title}
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="font-serif text-8xl font-light text-black/5 group-hover:text-black/10 transition-colors duration-300 select-none">
+                                                {post.title.charAt(0)}
+                                            </span>
+                                        </div>
+                                    )}
                                     {/* Category badge */}
                                     <div className="absolute top-4 left-4">
                                         <span className="text-[10px] font-medium px-3 py-1.5 bg-white/90 backdrop-blur-sm text-black/70 rounded-full shadow-sm">
@@ -358,10 +376,10 @@ export const KnowledgePage: React.FC<KnowledgePageProps> = ({ onNavigateToQuest 
                     <div className="max-w-2xl mx-auto text-center">
                         <div className="w-px h-16 bg-gradient-to-b from-transparent via-black/20 to-transparent mx-auto mb-8" />
                         <blockquote className="font-serif text-2xl text-black/60 italic leading-relaxed mb-4">
-                            "The best ideas should win, not just the best funded."
+                            "{CLIENT_QUOTES[0].text}"
                         </blockquote>
                         <cite className="text-xs text-black/40 not-italic uppercase tracking-wider">
-                            — Mithil Aggarwal, Chief Executive Officer
+                            — {CLIENT_PERSONNEL[0].name}, {CLIENT_PERSONNEL[0].role}
                         </cite>
                     </div>
                 </motion.footer>
@@ -490,17 +508,27 @@ const ArticleReader: React.FC<ArticleReaderProps> = ({
 
                 {/* Hero Image */}
                 <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 mb-12 shadow-xl shadow-black/5">
-                    <div className="absolute inset-0 opacity-20">
-                        <div className="absolute inset-0" style={{
-                            backgroundImage: `radial-gradient(circle at 30% 40%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
-                                              radial-gradient(circle at 70% 60%, rgba(235, 168, 50, 0.1) 0%, transparent 50%)`
-                        }} />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="font-serif text-[200px] font-light text-black/5 select-none">
-                            {post.title.charAt(0)}
-                        </span>
-                    </div>
+                    {post.coverImage ? (
+                        <img 
+                            src={post.coverImage} 
+                            alt={post.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
+                    ) : (
+                        <>
+                            <div className="absolute inset-0 opacity-20">
+                                <div className="absolute inset-0" style={{
+                                    backgroundImage: `radial-gradient(circle at 30% 40%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
+                                                      radial-gradient(circle at 70% 60%, rgba(235, 168, 50, 0.1) 0%, transparent 50%)`
+                                }} />
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="font-serif text-[200px] font-light text-black/5 select-none">
+                                    {post.title.charAt(0)}
+                                </span>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Body */}

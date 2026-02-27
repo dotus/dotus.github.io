@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, Clock, CheckCircle2, Eye } from 'lucide-react';
+import { MOCK_QUESTS, getOutreachStorageKey, OutreachCampaign } from './StatsOverview';
 
 interface Distribution {
     id: number;
@@ -10,35 +11,6 @@ interface Distribution {
     respondedCount: number;
     sentAt?: string;
 }
-
-const MOCK_DISTRIBUTIONS: Distribution[] = [
-    {
-        id: 1,
-        questTitle: 'Series B Funding Announcement',
-        status: 'sent',
-        journalistCount: 5,
-        openedCount: 3,
-        respondedCount: 1,
-        sentAt: '2h ago',
-    },
-    {
-        id: 2,
-        questTitle: 'Product Launch V3',
-        status: 'scheduled',
-        journalistCount: 8,
-        openedCount: 0,
-        respondedCount: 0,
-        sentAt: 'Tomorrow 9:00 AM',
-    },
-    {
-        id: 3,
-        questTitle: 'New CTO Appointment',
-        status: 'draft',
-        journalistCount: 4,
-        openedCount: 0,
-        respondedCount: 0,
-    },
-];
 
 const getStatusIcon = (status: Distribution['status']) => {
     switch (status) {
@@ -80,7 +52,66 @@ const getStatusColor = (status: Distribution['status']) => {
 };
 
 export const ActiveDistributions: React.FC = () => {
-    const activeCount = MOCK_DISTRIBUTIONS.filter(d => d.status === 'sent' || d.status === 'scheduled').length;
+    const [distributions, setDistributions] = useState<Distribution[]>([]);
+
+    useEffect(() => {
+        // Load distributions from sessionStorage (set by OutreachComposer)
+        const loadedDistributions: Distribution[] = [];
+        
+        MOCK_QUESTS.forEach(quest => {
+            const storageKey = getOutreachStorageKey(quest.id);
+            const stored = sessionStorage.getItem(storageKey);
+            if (stored) {
+                try {
+                    const campaign: OutreachCampaign = JSON.parse(stored);
+                    const openedCount = campaign.journalists.filter(j => j.status === 'opened' || j.status === 'responded').length;
+                    const respondedCount = campaign.journalists.filter(j => j.status === 'responded').length;
+                    
+                    loadedDistributions.push({
+                        id: quest.id,
+                        questTitle: quest.title,
+                        status: campaign.status,
+                        journalistCount: campaign.journalists.length,
+                        openedCount,
+                        respondedCount,
+                        sentAt: campaign.sentAt 
+                            ? new Date(campaign.sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                            : undefined,
+                    });
+                } catch {
+                    // Ignore parse errors
+                }
+            }
+        });
+
+        // Add some default mock distributions if none exist
+        if (loadedDistributions.length === 0) {
+            loadedDistributions.push(
+                {
+                    id: 1,
+                    questTitle: MOCK_QUESTS[0]?.title || 'Expansion Announcement',
+                    status: 'sent',
+                    journalistCount: 5,
+                    openedCount: 3,
+                    respondedCount: 1,
+                    sentAt: '2h ago',
+                },
+                {
+                    id: 5,
+                    questTitle: MOCK_QUESTS[4]?.title || 'Product Launch V3',
+                    status: 'scheduled',
+                    journalistCount: 8,
+                    openedCount: 0,
+                    respondedCount: 0,
+                    sentAt: 'Tomorrow',
+                }
+            );
+        }
+
+        setDistributions(loadedDistributions);
+    }, []);
+
+    const activeCount = distributions.filter(d => d.status === 'sent' || d.status === 'scheduled').length;
 
     return (
         <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
@@ -93,14 +124,14 @@ export const ActiveDistributions: React.FC = () => {
                 )}
             </div>
             <div className="p-2">
-                {MOCK_DISTRIBUTIONS.length === 0 ? (
+                {distributions.length === 0 ? (
                     <div className="p-4 text-center text-black/40">
                         <p className="text-[13px]">No active distributions</p>
                         <p className="text-[11px] mt-1">Create an outreach campaign from a quest</p>
                     </div>
                 ) : (
                     <div className="space-y-1">
-                        {MOCK_DISTRIBUTIONS.map((dist) => (
+                        {distributions.map((dist) => (
                             <button
                                 key={dist.id}
                                 className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group text-left"

@@ -7,7 +7,7 @@ import { KanbanBoard } from './KanbanBoard';
 import { MediaDatabase } from './MediaDatabase';
 import { DocumentList } from './DocumentList';
 import { CalendarWidget } from './CalendarWidget';
-import { MOCK_QUESTS, Quest, filterQuests, type FilterType, CLIENT_CONFIG, getQuestEmail } from './StatsOverview';
+import { MOCK_QUESTS, Quest, filterQuests, type FilterType, CLIENT_CONFIG, getQuestEmail, CLIENT_PERSONNEL } from './StatsOverview';
 import { SocialReachStats } from './SocialReachStats';
 import { ActiveDistributions } from './ActiveDistributions';
 import { DistributionsPage } from './DistributionsPage';
@@ -32,11 +32,12 @@ const MOCK_WORKING_DOCS = [
     { id: 3, title: 'Media Contact List', type: 'sheet' as const, lastEdited: '3d ago', status: 'final' as const },
 ];
 
+// Attached documents with uploaders from client personnel
 const MOCK_ATTACHED = [
-    { id: 4, name: 'Investor Fact Sheet.pdf', fileType: 'pdf' as const, size: '1.2 MB', source: 'Dropbox', uploadedAt: '1d ago', uploadedBy: 'Sarah' },
-    { id: 5, name: 'Founder Headshots', fileType: 'image' as const, source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'John' },
-    { id: 6, name: 'A16Z Guidelines', fileType: 'link' as const, source: 'Notion', uploadedAt: '4d ago', uploadedBy: 'Sarah' },
-    { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
+    { id: 4, name: 'Investor Fact Sheet.pdf', fileType: 'pdf' as const, size: '1.2 MB', source: 'Dropbox', uploadedAt: '1d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
+    { id: 5, name: 'Founder Headshots', fileType: 'image' as const, source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'External' },
+    { id: 6, name: 'Partner Guidelines', fileType: 'link' as const, source: 'Notion', uploadedAt: '4d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
+    { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf' as const, size: '450 KB', uploadedAt: '1w ago', uploadedBy: CLIENT_PERSONNEL[2].name.split(' ')[0] },
 ];
 
 type Tab = 'dashboard' | 'brand-assets' | 'distributions' | 'network' | 'knowledge';
@@ -60,9 +61,8 @@ export const PRDashboard: React.FC = () => {
     const [deletedQuestIds, setDeletedQuestIds] = useState<number[]>([]);
     const [statusOverrides, setStatusOverrides] = useState<Record<number, Quest['status']>>({});
 
-    // Determine if sidebar should be visible (hidden on home/dashboard list view)
-    const isHomeView = activeTab === 'dashboard' && viewMode === 'list';
-    const showSidebar = !isHomeView;
+    // Determine if sidebar should be visible
+    const showSidebar = true;
 
     useEffect(() => {
         const storedCustom = sessionStorage.getItem('pr_quests_custom');
@@ -259,7 +259,7 @@ export const PRDashboard: React.FC = () => {
                     opacity: showSidebar ? 1 : 1,
                 }}
                 transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                className="h-full shrink-0 overflow-hidden"
+                className="h-full shrink-0 relative z-30"
                 style={{ willChange: 'width' }}
             >
                 <div style={{ width: isSidebarCollapsed ? 64 : 280 }} className="h-full">
@@ -276,8 +276,8 @@ export const PRDashboard: React.FC = () => {
 
             <div className="flex-1 overflow-hidden relative z-10 flex flex-col">
                 {/* Header with centered prominent search */}
-                <header className="h-16 border-b border-black/5 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-6 w-64">
+                <header className="h-16 border-b border-black/5 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0 gap-4">
+                    <div className="flex items-center gap-6 shrink-0 overflow-x-auto no-scrollbar max-w-[50%]">
                         {/* Logo - cross-fades with sidebar */}
                         <motion.div
                             initial={false}
@@ -300,7 +300,7 @@ export const PRDashboard: React.FC = () => {
                     </div>
 
                     {/* Centered prominent search */}
-                    <div className="flex-1 flex justify-center max-w-2xl">
+                    <div className="flex-1 flex justify-center min-w-[200px] max-w-2xl px-4 hidden sm:flex">
                         <div className="relative w-full max-w-md">
                             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30" />
                             <input
@@ -311,7 +311,7 @@ export const PRDashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 w-64 justify-end">
+                    <div className="flex items-center gap-3 shrink-0 justify-end">
                         <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 text-black/40 hover:text-black transition-colors">
                             <Bell size={18} />
                         </button>

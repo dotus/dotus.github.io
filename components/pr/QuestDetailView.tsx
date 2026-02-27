@@ -7,7 +7,7 @@ import {
     X, Users, Send, Trash2, MoreHorizontal
 } from 'lucide-react';
 import { EditableField } from '../ui/EditableField';
-import { Quest, OutreachCampaign, getOutreachStorageKey } from './StatsOverview';
+import { Quest, OutreachCampaign, getOutreachStorageKey, CLIENT_PERSONNEL, CLIENT_QUOTES, MOCK_CALENDAR_EVENTS } from './StatsOverview';
 import { ProductSection } from './ProductSection';
 import { OutreachSection } from './OutreachSection';
 
@@ -54,31 +54,49 @@ interface Version {
     changes: string;
 }
 
+// Working documents relevant to the client
 const MOCK_WORKING_DOCS: WorkingDoc[] = [
-    { id: 1, title: 'Series B Press Release', type: 'doc', lastEdited: '2h ago' },
+    { id: 1, title: 'Expansion Announcement Press Release', type: 'doc', lastEdited: '2h ago' },
     { id: 2, title: 'Q1 Messaging Framework', type: 'slide', lastEdited: '1d ago' },
     { id: 3, title: 'Media Contact List', type: 'sheet', lastEdited: '3d ago' },
 ];
 
+// Attached documents with uploaders from client personnel
 const MOCK_ATTACHED: AttachedDoc[] = [
-    { id: 4, name: 'Investor Fact Sheet.pdf', fileType: 'pdf', size: '1.2 MB', source: 'Dropbox', uploadedAt: '1d ago', uploadedBy: 'Sarah' },
-    { id: 5, name: 'Founder Headshots', fileType: 'image', source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'John' },
-    { id: 6, name: 'A16Z Guidelines', fileType: 'link', source: 'Notion', uploadedAt: '4d ago', uploadedBy: 'Sarah' },
-    { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf', size: '450 KB', uploadedAt: '1w ago', uploadedBy: 'Mike' },
+    { id: 4, name: 'Investor Fact Sheet.pdf', fileType: 'pdf', size: '1.2 MB', source: 'Dropbox', uploadedAt: '1d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
+    { id: 5, name: 'Founder Headshots', fileType: 'image', source: 'Google Drive', uploadedAt: '2d ago', uploadedBy: 'External' },
+    { id: 6, name: 'Partner Guidelines', fileType: 'link', source: 'Notion', uploadedAt: '4d ago', uploadedBy: CLIENT_PERSONNEL[1].name.split(' ')[0] },
+    { id: 7, name: 'Term Sheet v3.pdf', fileType: 'pdf', size: '450 KB', uploadedAt: '1w ago', uploadedBy: CLIENT_PERSONNEL[2].name.split(' ')[0] },
 ];
 
+// Comments derived from client personnel
 const MOCK_COMMENTS: Comment[] = [
-    { id: 1, user: 'Sarah Jenkins', userInitial: 'S', role: 'Partner', text: 'The quote from the CTO is strong. Should we include something about engineering culture?', time: '2h ago' },
-    { id: 2, user: 'Mike Chen', userInitial: 'M', role: 'Editor', text: 'Embargo confirmed with TechCrunch. 24hr exclusive.', time: '4h ago' },
+    { 
+        id: 1, 
+        user: CLIENT_PERSONNEL[1].name, 
+        userInitial: CLIENT_PERSONNEL[1].initials[0], 
+        role: CLIENT_PERSONNEL[1].role, 
+        text: 'The messaging around our AI capabilities is strong. Should we include more about the logistics integration?', 
+        time: '2h ago' 
+    },
+    { 
+        id: 2, 
+        user: CLIENT_PERSONNEL[2].name, 
+        userInitial: CLIENT_PERSONNEL[2].initials[0], 
+        role: CLIENT_PERSONNEL[2].role, 
+        text: 'Embargo confirmed with TechCrunch. 24hr exclusive.', 
+        time: '4h ago' 
+    },
 ];
 
+// Version history derived from client personnel
 const MOCK_VERSIONS: Version[] = [
-    { id: 1, version: 'v2.1', author: 'Mithil', date: '2h ago', changes: 'Added CTO quote' },
-    { id: 2, version: 'v2.0', author: 'Sarah', date: 'Yesterday', changes: 'Major rewrite' },
-    { id: 3, version: 'v1.2', author: 'Mithil', date: '3d ago', changes: 'Initial draft' },
+    { id: 1, version: 'v2.1', author: CLIENT_PERSONNEL[0].name, date: '2h ago', changes: 'Added executive quote' },
+    { id: 2, version: 'v2.0', author: CLIENT_PERSONNEL[1].name, date: 'Yesterday', changes: 'Major rewrite' },
+    { id: 3, version: 'v1.2', author: CLIENT_PERSONNEL[0].name, date: '3d ago', changes: 'Initial draft' },
 ];
 
-// Approved quotes for use across the quest
+// Approved quotes for use across the quest - derived from CLIENT_QUOTES
 interface QuestQuote {
     id: number;
     text: string;
@@ -88,32 +106,14 @@ interface QuestQuote {
     usageCount: number;
 }
 
-const MOCK_QUEST_QUOTES: QuestQuote[] = [
-    { 
-        id: 1, 
-        text: "This funding round represents a pivotal moment for our company's growth trajectory.", 
-        speaker: "Mithil Aggarwal", 
-        role: "CEO",
-        tags: ['Funding', 'CEO'],
-        usageCount: 3
-    },
-    { 
-        id: 2, 
-        text: "We're not just building a product; we're reshaping how the industry operates.", 
-        speaker: "Sarah Jenkins", 
-        role: "Head of Product",
-        tags: ['Vision', 'Product'],
-        usageCount: 1
-    },
-    { 
-        id: 3, 
-        text: "Our customers have been asking for this, and we're thrilled to deliver.", 
-        speaker: "Mike Chen", 
-        role: "CTO",
-        tags: ['Customer', 'Tech'],
-        usageCount: 0
-    },
-];
+const MOCK_QUEST_QUOTES: QuestQuote[] = CLIENT_QUOTES.map(quote => ({
+    id: quote.id,
+    text: quote.text,
+    speaker: quote.speaker,
+    role: quote.role,
+    tags: quote.tags,
+    usageCount: quote.usageCount
+}));
 
 const FILE_ICONS: Record<string, React.ReactNode> = {
     doc: <FileText size={18} className="text-blue-600" />,
@@ -157,13 +157,9 @@ const QUEST_TYPES = [
     { id: 'Strategy Memo', label: 'Strategy Memo', color: 'bg-gray-100 text-gray-700 border-gray-200' },
 ];
 
-// Calendar event ID to quest timeline mapping (since IDs don't match)
-const CALENDAR_EVENT_MAP: Record<number, { date: string; type: string }> = {
-    1: { date: '2026-01-15', type: 'embargo' },    // Series B Embargo Lift
-    2: { date: '2026-01-15', type: 'deadline' },   // Series B Partner Review
-    3: { date: '2026-01-22', type: 'launch' },     // Product V3 Launch
-    4: { date: '2026-01-20', type: 'deadline' },   // Q1 Strategy Review
-    5: { date: '2026-02-05', type: 'embargo' },    // Partnership PR
+// Calendar event lookup - uses MOCK_CALENDAR_EVENTS from StatsOverview
+const getCalendarEventForQuest = (eventId: number) => {
+    return MOCK_CALENDAR_EVENTS.find(e => e.id === eventId);
 };
 
 const QUEST_STATUSES = [
@@ -332,12 +328,46 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     }, [quest.id]);
 
     const setDefaultTimeline = () => {
-        const defaults: TimelineEvent[] = [
-            { id: Date.now(), type: 'embargo', title: 'TechCrunch exclusive', date: quest.deadline?.split(',')[0] || '2026-01-15', time: '09:00' },
-            { id: Date.now() + 1, type: 'publish', title: 'Public announcement', date: '2026-01-15', time: '10:00' },
-        ];
-        setTimeline(defaults);
-        saveTimelineToStorage(defaults);
+        // Find matching calendar event for this quest
+        const questCalendarEvent = MOCK_CALENDAR_EVENTS.find(e => e.questId === quest.id);
+        
+        if (questCalendarEvent) {
+            // Use the actual calendar event data from MOCK_CALENDAR_EVENTS
+            const defaults: TimelineEvent[] = [
+                { 
+                    id: Date.now(), 
+                    type: questCalendarEvent.type, 
+                    title: questCalendarEvent.title, 
+                    date: questCalendarEvent.date, 
+                    time: questCalendarEvent.time || '09:00' 
+                },
+                { 
+                    id: Date.now() + 1, 
+                    type: 'publish', 
+                    title: 'Public announcement', 
+                    date: questCalendarEvent.date, 
+                    time: '10:00' 
+                },
+            ];
+            setTimeline(defaults);
+            saveTimelineToStorage(defaults);
+        } else {
+            // Fallback for quests without calendar events
+            const defaultDate = quest.deadline?.split(',')[0] || '2026-03-15';
+            const monthMap: Record<string, string> = {
+                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+                'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+            };
+            const [monthName, day] = defaultDate.split(' ');
+            const isoDate = `2026-${monthMap[monthName] || '03'}-${day?.padStart(2, '0') || '15'}`;
+            
+            const defaults: TimelineEvent[] = [
+                { id: Date.now(), type: 'embargo', title: 'Media exclusive', date: isoDate, time: '09:00' },
+                { id: Date.now() + 1, type: 'publish', title: 'Public announcement', date: isoDate, time: '10:00' },
+            ];
+            setTimeline(defaults);
+            saveTimelineToStorage(defaults);
+        }
     };
 
     // Save to sessionStorage whenever timeline changes
@@ -350,7 +380,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
     useEffect(() => {
         if (highlightedEventId && timeline.length > 0) {
             // Find matching event by date + type since IDs don't match
-            const calendarEvent = CALENDAR_EVENT_MAP[highlightedEventId];
+            const calendarEvent = getCalendarEventForQuest(highlightedEventId);
             if (calendarEvent) {
                 const matchingEvent = timeline.find(e =>
                     e.date === calendarEvent.date && e.type === calendarEvent.type
@@ -703,7 +733,7 @@ export const QuestDetailView: React.FC<QuestDetailViewProps> = ({
                             <div className="space-y-2">
                                 {[...timeline].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(event => {
                                     // Check if this event matches the highlighted calendar event
-                                    const calendarEvent = highlightedEventId ? CALENDAR_EVENT_MAP[highlightedEventId] : null;
+                                    const calendarEvent = highlightedEventId ? getCalendarEventForQuest(highlightedEventId) : null;
                                     const isHighlighted = calendarEvent ?
                                         (event.date === calendarEvent.date && event.type === calendarEvent.type) : false;
                                     const style = getEventStyle(event.type);

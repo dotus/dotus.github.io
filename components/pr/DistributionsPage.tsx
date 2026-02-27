@@ -18,9 +18,11 @@ import {
     Quest, 
     JournalistContact,
     MOCK_QUESTS,
+    MOCK_JOURNALISTS,
     getOutreachStorageKey,
     TypeBadge,
-    PriorityBadge 
+    PriorityBadge,
+    CLIENT_PERSONNEL 
 } from './StatsOverview';
 import { GridBackground } from '../ui/GridBackground';
 
@@ -211,12 +213,13 @@ export const DistributionsPage: React.FC<DistributionsPageProps> = ({ onNavigate
                     questStatus: quest1?.status,
                     status: 'sent',
                     sentAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                    sentBy: 'Mithil',
-                    journalists: [
-                        { id: 1, name: 'Mike Butcher', outlet: 'TechCrunch', email: 'mike@techcrunch.com', focus: 'Startups, Europe', status: 'opened', openedAt: '2h ago' },
-                        { id: 2, name: 'Alex Konrad', outlet: 'Forbes', email: 'alex.konrad@forbes.com', focus: 'VC, Cloud', status: 'responded', respondedAt: '1h ago' },
-                        { id: 3, name: 'Casey Newton', outlet: 'Platformer', email: 'casey@platformer.news', focus: 'Social Media', status: 'pending' },
-                    ],
+                    sentBy: CLIENT_PERSONNEL[0].name,
+                    journalists: MOCK_JOURNALISTS.slice(0, 3).map((j, i) => ({
+                        ...j,
+                        status: i === 0 ? 'opened' : i === 1 ? 'responded' : 'pending',
+                        openedAt: i === 0 ? '2h ago' : undefined,
+                        respondedAt: i === 1 ? '1h ago' : undefined,
+                    })),
                     pitchContent: '',
                     subject: 'Exclusive: Series B Funding Announcement',
                     openRate: 67,
@@ -237,13 +240,8 @@ export const DistributionsPage: React.FC<DistributionsPageProps> = ({ onNavigate
                     questStatus: quest5?.status,
                     status: 'scheduled',
                     sentAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                    sentBy: 'Sarah',
-                    journalists: [
-                        { id: 4, name: 'Kara Swisher', outlet: 'Pivot / NYMag', email: 'kara@nymag.com', focus: 'Tech, Business', status: 'pending' },
-                        { id: 5, name: 'Ryan Lawler', outlet: 'TechCrunch', email: 'ryan@techcrunch.com', focus: 'AI, Enterprise', status: 'pending' },
-                        { id: 6, name: 'Ingrid Lunden', outlet: 'TechCrunch', email: 'ingrid@techcrunch.com', focus: 'Funding, Europe', status: 'pending' },
-                        { id: 7, name: 'Natasha Mascarenhas', outlet: 'TechCrunch', email: 'natasha@techcrunch.com', focus: 'Startups, VC', status: 'pending' },
-                    ],
+                    sentBy: CLIENT_PERSONNEL[1].name,
+                    journalists: MOCK_JOURNALISTS.slice(3, 7).map(j => ({ ...j, status: 'pending' as const })),
                     pitchContent: '',
                     subject: 'Embargo: Product Launch V3',
                 }

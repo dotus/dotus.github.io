@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     ChevronLeft, Flame, ChevronDown, Plus, X, Check, Calendar,
     Clock, Users, Mail, Copy, Upload, FileText, FileSpreadsheet, FileImage,
-    Link2, MoreHorizontal
+    Link2, MoreHorizontal, ArrowRight
 } from 'lucide-react';
-import { CLIENT_CONFIG, CLIENT_PERSONNEL, getQuestEmail } from './StatsOverview';
+import { CLIENT_CONFIG, CLIENT_PERSONNEL, getQuestEmail, MOCK_QUESTS, MOCK_BRAND_ASSETS, AI_SUGGESTED_QUESTS, type AIQuestSuggestion } from './StatsOverview';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const QUEST_TYPES = [
     { id: 'Press Release', label: 'Press Release', color: 'bg-gray-100 text-gray-700 border-gray-200' },
@@ -27,6 +28,8 @@ const TIMETYPE_STYLES: Record<string, { bg: string; text: string; border: string
     deadline: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Deadline' },
     launch: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Launch' },
 };
+
+
 
 interface TimelineEvent {
     id: number;
@@ -74,8 +77,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
     const [questType, setQuestType] = useState('Press Release');
     const [questStatus, setQuestStatus] = useState('draft');
     const [isHot, setIsHot] = useState(false);
-    const [author, setAuthor] = useState('Mithil');
-    const [authorRole, setAuthorRole] = useState('Editor');
+    const [author, setAuthor] = useState(CLIENT_PERSONNEL[0].name);
+    const [authorRole, setAuthorRole] = useState(CLIENT_PERSONNEL[0].role);
 
     // Dropdowns
     const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -97,6 +100,10 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
 
     // Documents
     const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
+
+    // AI Suggestions
+    const [showSuggestions, setShowSuggestions] = useState(true);
+    const [applyingSuggestion, setApplyingSuggestion] = useState<string | null>(null);
 
     const typeDropdownRef = useRef<HTMLDivElement>(null);
     const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -221,6 +228,19 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
         setAttachedDocs(attachedDocs.filter(d => d.id !== id));
     };
 
+    const applySuggestion = (suggestion: AIQuestSuggestion) => {
+        setApplyingSuggestion(suggestion.id);
+        
+        // Simulate AI applying the suggestion with a delay
+        setTimeout(() => {
+            setTitle(suggestion.title);
+            setSynopsis(suggestion.synopsis);
+            setQuestType(suggestion.type);
+            setApplyingSuggestion(null);
+            setActiveTab('overview');
+        }, 600);
+    };
+
     const handleSave = async () => {
         if (!title.trim()) {
             setActiveTab('overview');
@@ -276,6 +296,7 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
         { id: 'timeline', label: 'Timeline', count: timeline.length },
         { id: 'distribution', label: 'Distribution', count: emailDL.length + 1 },
         { id: 'documents', label: 'Documents', count: attachedDocs.length },
+
     ] as const;
 
     return (
@@ -426,14 +447,17 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                         </div>
                     </div>
 
-                    {/* Tabs */}
-                    <div className="flex items-center gap-1 mb-6">
+                    {/* Tabs - Updated to match QuestDetailView styling */}
+                    <div className="flex items-center gap-1 mb-6 overflow-x-auto">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${activeTab === tab.id ? 'bg-black text-white' : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
-                                    }`}
+                                className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors whitespace-nowrap ${
+                                    activeTab === tab.id 
+                                        ? 'bg-teal-600 text-white' 
+                                        : 'text-black/50 hover:text-black hover:bg-black/[0.03]'
+                                }`}
                             >
                                 {tab.label}
                                 {tab.count > 0 && <span className="ml-1.5 opacity-60">{tab.count}</span>}
@@ -443,47 +467,126 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
 
                     {/* Tab Content */}
                     {activeTab === 'overview' && (
-                        <div className="space-y-6">
-                            <div className="p-4 bg-gray-50/50 rounded-xl border border-black/[0.06]">
-                                <h4 className="text-[13px] font-medium mb-3">Quest Settings</h4>
+                        <div className="space-y-8 mb-8">
+                            {/* AI Ideas Section */}
+                            <div>
+                                <h3 className="text-[11px] font-semibold text-black/40 uppercase tracking-wide mb-4">Recommended by Caybles AI</h3>
                                 <div className="space-y-3">
-                                    <div>
-                                        <label className="text-[11px] text-black/50 uppercase tracking-wide">Author</label>
-                                        <input
-                                            type="text"
-                                            value={author}
-                                            onChange={(e) => setAuthor(e.target.value)}
-                                            className="w-full mt-1 px-3 py-2 text-[13px] bg-white border border-black/10 rounded-lg focus:outline-none focus:border-black/20"
-                                        />
+                                    <AnimatePresence>
+                                        {AI_SUGGESTED_QUESTS.map((suggestion, index) => (
+                                            <motion.button
+                                                key={suggestion.id}
+                                                onClick={() => applySuggestion(suggestion)}
+                                                disabled={applyingSuggestion !== null}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, scale: 0.98 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className={`w-full text-left group relative p-5 rounded-xl border transition-all duration-300 ${
+                                                    applyingSuggestion === suggestion.id
+                                                        ? 'bg-amber-100/50 border-amber-300'
+                                                        : 'bg-amber-50/30 border-amber-100/50 hover:bg-amber-50/80 hover:border-amber-200'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="text-[10px] font-medium px-2 py-0.5 bg-white/60 text-amber-900 border border-amber-200/50 rounded">
+                                                        {suggestion.type}
+                                                    </span>
+                                                    <span className="text-[10px] text-amber-800/60 mr-1.5">Based on:</span>
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        {suggestion.basedOn.map((item, i) => (
+                                                            <span key={i} className="text-[10px] px-2 py-0.5 bg-white/40 text-amber-800 rounded border border-amber-200/30">
+                                                                {item}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <h5 className="text-[16px] font-serif font-medium text-amber-950 mb-1.5 group-hover:text-amber-700 transition-colors">
+                                                    {suggestion.title}
+                                                </h5>
+                                                
+                                                <p className="text-[13px] text-amber-900/70 leading-relaxed pr-8">
+                                                    {suggestion.synopsis}
+                                                </p>
+
+                                                {/* Applying overlay or hover arrow */}
+                                                {applyingSuggestion === suggestion.id && (
+                                                    <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-xl flex items-center justify-center">
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-amber-100 rounded-lg shadow-sm">
+                                                            <div className="w-3 h-3 border-2 border-amber-500/30 border-t-amber-600 rounded-full animate-spin" />
+                                                            <span className="text-[11px] font-medium text-amber-700">Applying...</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {applyingSuggestion !== suggestion.id && (
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
+                                                        <ArrowRight size={16} className="text-amber-400 group-hover:text-amber-600" />
+                                                    </div>
+                                                )}
+                                            </motion.button>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* How it works */}
+                                <div className="mt-4 flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-black/[0.06]">
+                                    <div className="w-5 h-5 rounded-full bg-white border border-black/10 flex items-center justify-center text-[10px] shrink-0">
+                                        💡
                                     </div>
                                     <div>
-                                        <label className="text-[11px] text-black/50 uppercase tracking-wide">Role</label>
-                                        <input
-                                            type="text"
-                                            value={authorRole}
-                                            onChange={(e) => setAuthorRole(e.target.value)}
-                                            className="w-full mt-1 px-3 py-2 text-[13px] bg-white border border-black/10 rounded-lg focus:outline-none focus:border-black/20"
-                                        />
+                                        <p className="text-[12px] font-medium text-black">How it works</p>
+                                        <p className="text-[11px] text-black/50 mt-1 leading-relaxed">
+                                            Caybles AI analyzes your existing quests, published content, and brand narrative to suggest new campaign ideas that align with your communications strategy and fill gaps in your content calendar.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                                        <Check size={16} className="text-blue-600" />
+                            <div className="h-px bg-black/[0.06]" />
+
+                            <div className="space-y-6">
+                                <div className="p-4 bg-gray-50/50 rounded-xl border border-black/[0.06]">
+                                    <h4 className="text-[13px] font-medium mb-3">Quest Settings</h4>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="text-[11px] text-black/50 uppercase tracking-wide">Author</label>
+                                            <input
+                                                type="text"
+                                                value={author}
+                                                onChange={(e) => setAuthor(e.target.value)}
+                                                className="w-full mt-1 px-3 py-2 text-[13px] bg-white border border-black/10 rounded-lg focus:outline-none focus:border-black/20"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] text-black/50 uppercase tracking-wide">Role</label>
+                                            <input
+                                                type="text"
+                                                value={authorRole}
+                                                onChange={(e) => setAuthorRole(e.target.value)}
+                                                className="w-full mt-1 px-3 py-2 text-[13px] bg-white border border-black/10 rounded-lg focus:outline-none focus:border-black/20"
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-[13px] font-medium text-blue-900">Auto-save enabled</h4>
-                                        <p className="text-[12px] text-blue-700/70 mt-1">
-                                            Your progress is automatically saved as a draft. You can close and come back anytime.
-                                        </p>
+                                </div>
+
+                                <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                                            <Check size={16} className="text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[13px] font-medium text-blue-900">Auto-save enabled</h4>
+                                            <p className="text-[12px] text-blue-700/70 mt-1">
+                                                Your progress is automatically saved as a draft. You can close and come back anytime.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
-
+                    
                     {activeTab === 'timeline' && (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -697,7 +800,8 @@ export const NewQuestView: React.FC<NewQuestViewProps> = ({ onClose, onSave }) =
                             </div>
                         </div>
                     )}
-                </div>
+
+                                    </div>
             </div>
         </div>
     );

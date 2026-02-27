@@ -14,6 +14,7 @@ import {
     ChevronRight,
     X
 } from 'lucide-react';
+import { CLIENT_PERSONNEL, CLIENT_CONFIG } from './StatsOverview';
 
 // --- Mock Data ---
 
@@ -38,15 +39,16 @@ interface ContentItem {
     author?: Author;
 }
 
+// Authors derived from client personnel
 const AUTHOR_CEO: Author = {
-    name: "Elena Varas",
-    role: "Founder & CEO",
+    name: CLIENT_PERSONNEL[0].name,
+    role: CLIENT_PERSONNEL[0].role,
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200"
 };
 
 const AUTHOR_CTO: Author = {
-    name: "David Chen",
-    role: "Chief Technology Officer",
+    name: CLIENT_PERSONNEL[2].name,
+    role: CLIENT_PERSONNEL[2].role,
     avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200"
 };
 
@@ -139,10 +141,11 @@ const CONTENT: ContentItem[] = [
     }
 ];
 
+// Press contact derived from client personnel
 const PRESS_CONTACT = {
-    name: "Sarah Jenkins",
-    role: "Head of Global Communications",
-    email: "sarah.j@caybles.com",
+    name: CLIENT_PERSONNEL[1].name,
+    role: CLIENT_PERSONNEL[1].role,
+    email: CLIENT_PERSONNEL[1].email,
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
 };
 
@@ -409,7 +412,7 @@ export const Newsroom: React.FC = () => {
                                     </div>
                                 </div>
                                 <a href={`mailto:${PRESS_CONTACT.email}`} className="flex items-center justify-center gap-2 w-full bg-teal-600 text-white py-3 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors">
-                                    <Mail size={16} /> Email Sarah
+                                    <Mail size={16} /> Email {PRESS_CONTACT.name.split(' ')[0]}
                                 </a>
                                 <p className="mt-4 text-xs text-black/40 text-center leading-relaxed">
                                     For urgent inquiries, please reference "Press Priority" in your subject line.

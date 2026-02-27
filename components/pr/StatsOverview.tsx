@@ -2,6 +2,8 @@ import React from 'react';
 import { Eye, Heart, Share2, Users, Mail } from 'lucide-react';
 import type { BlogPost } from '../../types';
 
+export type { BlogPost };
+
 // Types
 export type FilterType = 'all' | 'draft' | 'ready' | 'live' | 'review';
 
@@ -72,24 +74,30 @@ export const MOCK_JOURNALISTS: JournalistContact[] = [
 ];
 
 export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => {
-    const fundingKeywords = ['funding', 'series', 'investment', 'vc'];
-    const aiKeywords = ['ai', 'artificial intelligence', 'machine learning', 'neural'];
-    const productKeywords = ['product', 'launch', 'release', 'feature'];
+    const fundingKeywords = ['funding', 'series', 'investment', 'vc', 'capital'];
+    const logisticsKeywords = ['logistics', 'shipping', 'cross-border', 'supply chain', 'fulfillment'];
+    const ecommerceKeywords = ['e-commerce', 'ecommerce', 'retail', 'shopping', 'marketplace', 'consumer'];
 
     const questText = (quest.title + ' ' + quest.synopsis + ' ' + quest.tags.join(' ')).toLowerCase();
 
     const isFunding = fundingKeywords.some(k => questText.includes(k));
-    const isAI = aiKeywords.some(k => questText.includes(k));
-    const isProduct = productKeywords.some(k => questText.includes(k));
+    const isLogistics = logisticsKeywords.some(k => questText.includes(k));
+    const isEcommerce = ecommerceKeywords.some(k => questText.includes(k));
 
     const scored = MOCK_JOURNALISTS.map(j => {
         let score = 0;
         const focus = j.focus.toLowerCase();
 
-        if (isFunding && (focus.includes('vc') || focus.includes('funding') || focus.includes('startups'))) score += 3;
-        if (isAI && focus.includes('ai')) score += 3;
-        if (isProduct && focus.includes('product')) score += 2;
-        if (j.outlet === 'TechCrunch') score += 1;
+        if (isFunding && (focus.includes('vc') || focus.includes('funding') || focus.includes('startups') || focus.includes('business'))) score += 3;
+        if (isLogistics && (focus.includes('enterprise') || focus.includes('tech') || focus.includes('business'))) score += 3;
+        if (isEcommerce && (focus.includes('consumer') || focus.includes('startups') || focus.includes('business'))) score += 2;
+        if (j.outlet === 'TechCrunch' || j.outlet === 'Forbes') score += 1;
+        
+        // Give influencers a boost for ecommerce/tech quests
+        if (j.category === 'influencer') {
+            if (isEcommerce || isLogistics) score += 2;
+            if (j.name === 'Cleo Abram' || j.name === 'Justine Ezarik') score += 1; // Top tier default
+        }
 
         return { ...j, score };
     });
@@ -105,9 +113,9 @@ export const getRecommendedJournalists = (quest: Quest): JournalistContact[] => 
 
 export const CLIENT_CONFIG = {
     // Company Identity
-    companyName: 'Caybles',
-    domain: 'caybles.com',
-    prDomain: 'pr.caybles.com',  // For quest unique emails
+    companyName: 'Buy&Ship',
+    domain: 'buyandship.today',
+    prDomain: 'pr.buyandship.today',  // For quest unique emails
     
     // Logo paths (place in /public/logos/)
     logos: {
@@ -118,24 +126,24 @@ export const CLIENT_CONFIG = {
     
     // Social Media Handles
     social: {
-        x: 'caybles',
-        twitter: 'caybles',
-        linkedin: 'company/caybles',
-        instagram: 'caybles',
+        x: 'buyandship_hk',
+        twitter: 'buyandship_hk',
+        linkedin: 'company/buyandship',
+        instagram: 'buyandship.goodies',
     },
     
     // Brand Colors (for UI accents)
     colors: {
-        primary: '#0D9488',      // Teal
-        accent: '#EBA832',       // Amber/Marigold
+        primary: '#F27927',      // Orange
+        accent: '#0054A6',       // Blue
     },
     
     // Quick Links
     links: {
-        website: 'caybles.com',
-        pressKit: 'caybles.com/press',
-        brandGuidelines: 'caybles.com/brand',
-        mediaInquiries: 'press@caybles.com',
+        website: 'buyandship.today',
+        pressKit: 'buyandship.today/press',
+        brandGuidelines: 'buyandship.today/brand',
+        mediaInquiries: 'press@buyandship.today',
     },
 };
 
@@ -149,16 +157,16 @@ export const getQuestEmail = (questTitle: string) => {
 
 // Spokespersons / Key Personnel (used across the app)
 export const CLIENT_PERSONNEL = [
-    { id: 1, name: 'Mithil Aggarwal', role: 'Chief Executive Officer', bio: 'Former PM at Stripe. Leads product vision and overall company strategy.', initials: 'MA', email: 'mithil@caybles.com' },
-    { id: 2, name: 'Sarah Jenkins', role: 'Head of Communications', bio: '10+ years running tech policy campaigns. Masters in PubPol from Georgetown.', initials: 'SJ', email: 'sarah@caybles.com' },
-    { id: 3, name: 'Dr. Elena Rostova', role: 'Chief Technology Officer', bio: 'Ex-DeepMind researcher. Overseeing our core ML infrastructure.', initials: 'ER', email: 'elena@caybles.com' },
+    { id: 1, name: 'Sheldon Li', role: 'Co-founder', bio: 'Driving the vision of global cross-border e-commerce and logistics.', initials: 'SL', email: 'sheldon.li@buyandship.today' },
+    { id: 2, name: 'Hang Poon', role: 'Executive', bio: 'Leading operations and strategic growth across the Asia-Pacific region.', initials: 'HP', email: 'hang.poon@buyandship.today' },
+    { id: 3, name: 'Tsz Ming Wong', role: 'Executive', bio: 'Overseeing technology innovation, including our AI Discovery Engine.', initials: 'TW', email: 'tszming.wong@buyandship.today' },
 ];
 
 // Approved Quotes (company-wide)
 export const CLIENT_QUOTES = [
     { 
         id: 1, 
-        text: "We're democratizing high-end PR for the next generation of founders who deserve to be heard.", 
+        text: "We are transforming cross-border shopping through technology and logistics leadership.", 
         speaker: CLIENT_PERSONNEL[0].name, 
         role: CLIENT_PERSONNEL[0].role,
         tags: ['Mission', 'Vision'],
@@ -166,27 +174,27 @@ export const CLIENT_QUOTES = [
     },
     { 
         id: 2, 
-        text: "The best ideas should win, not just the best funded. That's why we built Caybles.", 
-        speaker: CLIENT_PERSONNEL[0].name, 
-        role: CLIENT_PERSONNEL[0].role, 
+        text: "Our goal is to create a seamless, border-free shopping experience for consumers across Asia.", 
+        speaker: CLIENT_PERSONNEL[1].name, 
+        role: CLIENT_PERSONNEL[1].role, 
         tags: ['Product', 'Vision'],
         usageCount: 8
     },
     { 
         id: 3, 
-        text: "Traditional PR gatekeepers have excluded too many brilliant founders. We're changing that.", 
-        speaker: CLIENT_PERSONNEL[1].name, 
-        role: CLIENT_PERSONNEL[1].role,
-        tags: ['Industry', 'Mission'],
+        text: "By leveraging AI-driven discovery and intelligent logistics, we're building the future of e-commerce.", 
+        speaker: CLIENT_PERSONNEL[2].name, 
+        role: CLIENT_PERSONNEL[2].role,
+        tags: ['Technology', 'Innovation'],
         usageCount: 5
     },
 ];
 
 // Messaging Variants
 export const CLIENT_MESSAGING = {
-    investor: 'Caybles is the AI-native PR platform that helps ambitious startups secure media coverage without traditional gatekeepers. We combine AI-driven media matching with journalist relationship management.',
-    media: 'Caybles is democratizing high-end PR for the next generation of tech and policy founders, bypassing traditional gatekeepers to deliver authentic stories straight to top-tier outlets.',
-    customer: 'Get your startup the media coverage it deserves. Caybles uses AI to match your story with the right journalists and manages your entire PR workflow from pitch to publication.',
+    investor: "Buy&Ship is Asia-Pacific's leading e-commerce cross-border logistics company, serving 1.8M+ active members with over 12M shipments handled, fueled by AI and automation.",
+    media: "Buy&Ship is democratizing global goods, offering a seamless border-free shopping experience that connects consumers in Asia to the best products worldwide.",
+    customer: "Shop the world, anytime, anywhere. Buy&Ship offers affordable international shipping and proxy shopping services from over 10 countries directly to your door.",
 };
 
 // =============================================================================
@@ -197,143 +205,117 @@ const { domain, prDomain } = CLIENT_CONFIG;
 export const MOCK_QUESTS: Quest[] = [
     {
         id: 1,
-        title: 'Series B Funding Announcement',
-        synopsis: '$45M Series B led by Andreessen Horowitz to accelerate AI infrastructure development and expand into European markets.',
+        title: 'US$12M Series C Funding Announcement',
+        synopsis: 'Successful first close of Series C funding to accelerate global expansion and AI innovation in cross-border logistics.',
         type: 'Press Release',
-        status: 'review',
+        status: 'live',
         author: CLIENT_PERSONNEL[0].name,
         authorRole: CLIENT_PERSONNEL[0].role,
-        updated: '2h ago',
-        deadline: 'Jan 15, 9:00 AM',
+        updated: '1mo ago',
+        deadline: 'Mar 15, 9:00 AM',
         deadlineType: 'embargo',
-        tags: ['Funding', 'Exclusive', 'TechCrunch'],
+        tags: ['Funding', 'Series C', 'Expansion'],
         priority: 'high',
         emailDL: [`investors@${domain}`, `exec-team@${domain}`, `pr@${domain}`],
-        uniqueEmail: getQuestEmail('Series B Funding Announcement')
+        uniqueEmail: getQuestEmail('US$12M Series C Funding')
     },
     {
         id: 2,
-        title: 'AI Policy Framework 2026',
-        synopsis: 'A comprehensive analysis of emerging AI regulations and how policy makers can balance innovation with safety concerns.',
+        title: 'Q4 2025 Financial Results & Collect2Day App Launch',
+        synopsis: 'Reporting strong quarterly growth and introducing our new Collectibles mobile app, "Collect2Day".',
         type: 'Blog Post',
-        status: 'draft',
-        author: CLIENT_PERSONNEL[0].name,
-        authorRole: CLIENT_PERSONNEL[0].role,
-        updated: '3h ago',
-        tags: ['Thought Leadership', 'Policy'],
+        status: 'ready',
+        author: CLIENT_PERSONNEL[1].name,
+        authorRole: CLIENT_PERSONNEL[1].role,
+        updated: '4w ago',
+        deadline: 'Mar 25, 10:00 AM',
+        deadlineType: 'launch',
+        tags: ['Financials', 'App Launch', 'Collectibles'],
         priority: 'high',
-        emailDL: [`policy@${domain}`, `content@${domain}`],
-        uniqueEmail: getQuestEmail('AI Policy Framework 2026')
+        emailDL: [`media@${domain}`, `marketing@${domain}`],
+        uniqueEmail: getQuestEmail('Q4 2025 Results')
     },
     {
         id: 3,
-        title: 'Q1 Strategy Memo',
-        synopsis: 'Internal alignment document outlining key narratives, target outlets, and campaign timeline for first quarter media push.',
-        type: 'Strategy Memo',
-        status: 'draft',
+        title: 'Japan-to-Taiwan Direct Fulfillment',
+        synopsis: 'Slashing delivery times by 3 days with our new direct shipping route from Japan to Taiwan.',
+        type: 'Press Release',
+        status: 'review',
         author: CLIENT_PERSONNEL[1].name,
         authorRole: CLIENT_PERSONNEL[1].role,
         updated: '1d ago',
-        deadline: 'Jan 20',
-        deadlineType: 'internal',
-        tags: ['Internal', 'Q1 Planning'],
+        deadline: 'Mar 20, 8:00 AM',
+        deadlineType: 'launch',
+        tags: ['Logistics', 'Taiwan', 'Japan'],
         priority: 'medium',
-        emailDL: [`comms@${domain}`],
-        uniqueEmail: getQuestEmail('Q1 Strategy Memo')
+        emailDL: [`operations@${domain}`],
+        uniqueEmail: getQuestEmail('Japan Taiwan Fulfillment')
     },
     {
         id: 4,
-        title: 'New CTO Appointment',
-        synopsis: `${CLIENT_PERSONNEL[2].name} joins from Google DeepMind to lead our technical AI research division and expand engineering team.`,
+        title: 'Partnership with Mercari, Inc.',
+        synopsis: 'Strategic partnership unlocking next-level convenience for shoppers accessing Japanese goods.',
         type: 'Press Release',
-        status: 'ready',
-        author: CLIENT_PERSONNEL[1].name,
-        authorRole: CLIENT_PERSONNEL[1].role,
-        updated: 'Yesterday',
-        deadline: 'Jan 18, 8:00 AM',
-        deadlineType: 'embargo',
-        tags: ['Hiring', 'Leadership'],
-        priority: 'medium',
-        emailDL: [`team@${domain}`, `press@${domain}`],
-        uniqueEmail: getQuestEmail('New CTO Appointment')
+        status: 'live',
+        author: CLIENT_PERSONNEL[0].name,
+        authorRole: CLIENT_PERSONNEL[0].role,
+        updated: '6mo ago',
+        tags: ['Partnership', 'Mercari', 'Japan'],
+        priority: 'high',
+        emailDL: [`partnerships@${domain}`, `press@${domain}`],
+        uniqueEmail: getQuestEmail('Mercari Partnership')
     },
     {
         id: 5,
-        title: 'Product Launch V3',
-        synopsis: 'Next-generation neural search capabilities with real-time visualization and enterprise-grade security features.',
+        title: 'AI Discovery Engine & Trending Merchants Launch',
+        synopsis: 'Introducing our new AI-powered discovery features connecting consumers with global trends.',
         type: 'Blog Post',
-        status: 'ready',
-        author: CLIENT_PERSONNEL[1].name,
-        authorRole: CLIENT_PERSONNEL[1].role,
-        updated: '2d ago',
-        deadline: 'Jan 22, 10:00 AM',
-        deadlineType: 'launch',
-        tags: ['Product', 'Launch'],
-        priority: 'high',
-        emailDL: [`product@${domain}`, `customers@${domain}`, `launch@${domain}`],
-        uniqueEmail: getQuestEmail('Product Launch V3')
+        status: 'draft',
+        author: CLIENT_PERSONNEL[2].name,
+        authorRole: CLIENT_PERSONNEL[2].role,
+        updated: '3h ago',
+        tags: ['AI', 'Product', 'Innovation'],
+        priority: 'medium',
+        emailDL: [`product@${domain}`, `tech@${domain}`],
+        uniqueEmail: getQuestEmail('AI Discovery Engine')
     },
     {
         id: 6,
-        title: 'Year in Review 2025',
-        synopsis: 'Reflecting on our biggest milestones: 3x team growth, Series A close, and 10M+ users reached.',
-        type: 'Blog Post',
-        status: 'live',
-        author: CLIENT_PERSONNEL[0].name,
-        authorRole: CLIENT_PERSONNEL[0].role,
-        updated: '1w ago',
-        tags: ['Annual', 'Recap'],
-        emailDL: [`all@${domain}`],
-        uniqueEmail: getQuestEmail('Year in Review 2025')
-    },
-    {
-        id: 7,
-        title: 'Seed Round Announcement',
-        synopsis: 'Initial $8M seed funding to build the foundation for democratizing AI-powered communications.',
-        type: 'Press Release',
-        status: 'live',
-        author: CLIENT_PERSONNEL[0].name,
-        authorRole: CLIENT_PERSONNEL[0].role,
-        updated: '2w ago',
-        tags: ['Archived', 'Funding'],
-        emailDL: [`investors@${domain}`],
-        uniqueEmail: getQuestEmail('Seed Round Announcement')
-    },
-    {
-        id: 8,
-        title: 'Partnership Press Release',
-        synopsis: 'Strategic partnership with Microsoft Azure to provide enterprise deployment options for our platform.',
-        type: 'Press Release',
-        status: 'ready',
-        author: CLIENT_PERSONNEL[1].name,
-        authorRole: CLIENT_PERSONNEL[1].role,
-        updated: '3d ago',
-        tags: ['Partnership', 'Enterprise'],
-        priority: 'low',
-        emailDL: [`partnerships@${domain}`, `enterprise@${domain}`],
-        uniqueEmail: getQuestEmail('Partnership Press Release')
-    },
+        title: 'HKSTP Global Internship Program Showcase',
+        synopsis: 'Highlighting the innovative work of our summer interns from Stanford and Imperial College in data analytics and UX.',
+        type: 'Strategy Memo',
+        status: 'draft',
+        author: CLIENT_PERSONNEL[2].name,
+        authorRole: CLIENT_PERSONNEL[2].role,
+        updated: '2d ago',
+        deadline: 'Mar 25',
+        deadlineType: 'internal',
+        tags: ['Internal', 'Talent', 'HKSTP'],
+        emailDL: [`hr@${domain}`, `team@${domain}`],
+        uniqueEmail: getQuestEmail('HKSTP Internship')
+    }
 ];
+
 export const MOCK_BRAND_ASSETS = {
     narrative: CLIENT_QUOTES[0].text,
     businessDetails: {
-        mission: "To level the playing field for ambitious startups by making premium communications accessible.",
-        vision: "A world where the best ideas win, not just the best funded.",
-        founded: "2024",
-        headquarters: "San Francisco, CA",
-        stage: "Series A",
+        mission: "To become consumers' first destination for shopping in Asia, connecting you to the ultimate deals for all your desires.",
+        vision: "Asia-Pacific's leading e-commerce cross-border logistics company.",
+        founded: "2014",
+        headquarters: "Kowloon, Hong Kong",
+        stage: "Series C",
     },
     keyDocuments: [
         { id: 1, name: 'Brand Guide 2026', type: 'pdf', size: '2.4 MB', updated: '2 months ago' },
-        { id: 2, name: 'Company Boilerplate', type: 'doc', size: '15 KB', updated: '1 week ago' },
+        { id: 2, name: 'Cross-Border Logistics Fact Sheet', type: 'sheet', size: '1.2 MB', updated: '1 week ago' },
         { id: 3, name: 'Approved Logo Pack', type: 'zip', size: '14.2 MB', updated: '3 months ago' },
-        { id: 4, name: 'Q1 Metrics & Fact Sheet', type: 'sheet', size: '1.2 MB', updated: '3 days ago' },
+        { id: 4, name: 'Q4 Financial Highlights', type: 'pdf', size: '3.1 MB', updated: '3 days ago' },
     ],
     personnel: CLIENT_PERSONNEL,
     clients: [
-        { id: 1, name: 'Acme Robotics', description: 'Series B warehouse automation.', since: 'Jan 2025' },
-        { id: 2, name: 'Nexus Health', description: 'AI-driven diagnostics platform.', since: 'Mar 2025' },
-        { id: 3, name: 'QuantumFin', description: 'DeFi protocol for institutional investors.', since: 'Jul 2025' },
+        { id: 1, name: 'Taiwan Region', description: 'Fastest growing market (+73% YoY).', since: 'Active' },
+        { id: 2, name: 'Singapore Region', description: 'Strong sustained demand (+78% YoY).', since: 'Active' },
+        { id: 3, name: 'Malaysia Region', description: 'Expanding footprint (+41% YoY).', since: 'Active' },
     ]
 };
 
@@ -498,97 +480,92 @@ export const EmailDLDisplay: React.FC<{ emails: string[]; max?: number }> = ({ e
 export const MOCK_BLOG_POSTS: BlogPost[] = [
     {
         id: '1',
-        title: 'The Future of AI in Enterprise Communications',
-        subtitle: 'Why traditional PR is dying and what comes next',
-        excerpt: 'As AI reshapes how information flows through organizations, the old playbook of press releases and media lists is becoming obsolete. Here\'s what forward-thinking companies are doing instead.',
-        content: `The communications landscape is undergoing its most significant transformation since the advent of the internet. AI isn't just changing how we write—it's fundamentally altering how ideas spread through organizations and across markets.
+        title: 'The Future of AI in Cross-Border E-Commerce',
+        subtitle: 'How artificial intelligence is reshaping global shopping discovery',
+        excerpt: 'As consumers demand more personalized shopping experiences, AI is fundamentally altering how they discover and access global goods. Here\'s what Buy&Ship is doing to lead this charge.',
+        content: `The cross-border e-commerce landscape is undergoing a massive transformation. It's no longer just about logistics; it's about intelligent discovery. 
 
-For decades, the PR playbook remained remarkably consistent: craft a press release, build a media list, pitch journalists, hope for coverage. But this model was already showing cracks before AI entered the picture. The democratization of publishing through social media, the fragmentation of attention across platforms, and the declining trust in traditional media all pointed to an inevitable disruption.
+For years, finding the right overseas product meant manually browsing foreign sites, dealing with language barriers, and hoping for the best. 
 
-AI has accelerated this disruption exponentially. Today's communications leaders aren't just writers—they're data analysts, platform strategists, and community builders. They're using AI to identify emerging narratives before they hit the mainstream, to personalize messaging at scale, and to measure impact in real-time.
+AI has changed the game. At Buy&Ship, we're leveraging large language models and machine learning to build an intuitive "Trending Merchants" Discovery Engine. This allows our users to find the best deals globally, tailored to their unique preferences—whether they're hunting for exclusive anime collectibles from Japan or trendy fashion from the US.
 
-The companies that will dominate the next decade of public relations are those that embrace this shift. They're building direct relationships with their audiences rather than relying on media gatekeepers. They're creating owned media properties that rival traditional outlets in quality and reach. And they're using AI to do it all with teams a fraction of the size of their predecessors.
+Our AI doesn't just translate; it understands context. It helps categorize vast amounts of product data, ensuring that when a user searches for something niche, they find exactly what they're looking for, seamlessly. 
 
-This isn't the death of PR—it's the birth of something far more powerful.`,
+The future of global shopping isn't just borderless; it's effortlessly intelligent.`,
         author: {
-            name: 'Mithil Aggarwal',
-            role: 'Chief Executive Officer',
-            initials: 'MA'
+            name: 'Tsz Ming Wong',
+            role: 'Executive',
+            initials: 'TW'
         },
         publishedAt: '2026-02-20',
-        readTime: '8 min read',
-        category: 'Thought Leadership',
-        tags: ['AI', 'Future of Work', 'Communications', 'Strategy'],
+        readTime: '6 min read',
+        category: 'Technology',
+        tags: ['AI', 'E-commerce', 'Innovation', 'Discovery'],
         featured: true,
-        relatedQuestId: 2,
-        relatedQuestTitle: 'AI Policy Framework 2026',
-        stats: { views: 12400, shares: 342 }
+        relatedQuestId: 5,
+        relatedQuestTitle: 'AI Discovery Engine & Trending Merchants Launch',
+        stats: { views: 12400, shares: 342 },
+        coverImage: 'https://images.unsplash.com/photo-1613690399151-65ea69478674?fm=jpg&q=60&w=3000&auto=format&fit=crop'
     },
     {
         id: '2',
-        title: 'Series B Lessons: What $45M Taught Us About Storytelling',
-        subtitle: 'The narrative frameworks that resonated with Andreessen Horowitz',
-        excerpt: 'Our recent funding round was about more than capital—it was a masterclass in how to craft a company narrative that cuts through the noise of a crowded market.',
-        content: `When we announced our Series B last month, the response exceeded our expectations. Not just in terms of media coverage—though we were thrilled with the TechCrunch exclusive and subsequent pickups—but in the quality of conversations that followed. Founders started reaching out asking not about our product, but about how we told our story.
+        title: 'Series C Lessons: Building a Borderless Shopping Experience',
+        subtitle: 'The vision that resonated with top-tier global investors',
+        excerpt: 'Our recent US$12M funding round was a testament to our mission of transforming cross-border shopping through technology and logistics leadership.',
+        content: `When we announced our Series C, the response validated what we've believed since 2014: the demand for seamless global shopping is universal and growing rapidly.
 
-The truth is, we spent nearly as much time refining our narrative as we did our pitch deck. We knew that in today's market, investors have seen every variation of "AI-powered platform." What they hadn't seen was our specific lens on the problem: that the best ideas are losing not because they're inferior, but because they're not being heard.
+Securing backing from strategic investors like Mitsubishi Logistics and Cool Japan Fund wasn't just about the numbers. It was about our shared vision for the Asia-Pacific region.
 
-Our narrative framework had three pillars:
+Our pitch highlighted three core strengths:
 
-First, the problem had to feel urgent and relatable. Every founder has felt the frustration of knowing they have something valuable to offer the world, but being unable to break through the noise. We made this feeling visceral.
+First, our undeniable traction. With 1.8M+ active members and over 12M shipments handled, we've proven our model works at scale.
+Second, our commitment to automation. We aren't just moving boxes; we're building a tech-first logistics infrastructure that drives down costs and speeds up delivery.
+Third, our community. Buy&Ship isn't just a service; it's a vibrant community of shoppers who share deals, tips, and inspiration. 
 
-Second, our solution had to feel inevitable. Not just possible, but clearly the direction the industry was heading. We positioned AI not as a buzzword, but as the natural evolution of communications technology.
-
-Third, our traction had to validate the thesis. We didn't just show growth metrics—we showed that our approach was already working for the kinds of companies we wanted to serve.
-
-The result was a narrative that felt less like a pitch and more like a movement. And that's exactly what the best communications should feel like.`,
+This funding will accelerate our expansion into new markets and deepen our investments in AI, ensuring we remain the top choice for global shoppers.`,
         author: {
-            name: 'Sarah Jenkins',
-            role: 'Head of Communications',
-            initials: 'SJ'
+            name: 'Sheldon Li',
+            role: 'Co-founder',
+            initials: 'SL'
         },
         publishedAt: '2026-02-15',
-        readTime: '6 min read',
+        readTime: '5 min read',
         category: 'Company News',
-        tags: ['Funding', 'Startup Life', 'Storytelling', 'Lessons Learned'],
+        tags: ['Funding', 'Growth', 'Vision', 'Series C'],
         featured: false,
         relatedQuestId: 1,
-        relatedQuestTitle: 'Series B Funding Announcement',
-        stats: { views: 8900, shares: 218 }
+        relatedQuestTitle: 'US$12M Series C Funding Announcement',
+        stats: { views: 8900, shares: 218 },
+        coverImage: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=1740&auto=format&fit=crop'
     },
     {
         id: '3',
-        title: 'Building Neural Search: A Technical Deep Dive',
-        subtitle: 'How we achieved sub-100ms semantic search across billions of documents',
-        excerpt: 'Our engineering team shares the architecture decisions, trade-offs, and breakthroughs that powered the neural search capabilities in our V3 launch.',
-        content: `When we set out to build neural search for V3, we knew we were entering uncharted territory. The challenge wasn't just semantic understanding—though that's hard enough—but doing it at scale, with latency low enough to feel instantaneous, while keeping costs manageable for a startup.
+        title: 'Building a Seamless Logistics Network: A Technical Deep Dive',
+        subtitle: 'How we slashed delivery times with direct fulfillment routing',
+        excerpt: 'Our operations team shares the challenges and breakthroughs behind our new Japan-to-Taiwan direct fulfillment route.',
+        content: `Logistics is the backbone of cross-border e-commerce. When we looked at the massive demand from our Taiwanese users for Japanese goods—from Mercari finds to exclusive anime merch—we knew we had to optimize the route.
 
-Our breakthrough came from a counterintuitive decision: we didn't build one model. We built a cascade.
+Previously, parcels often took indirect paths. We engineered a direct fulfillment solution from Japan to Taiwan that cuts transit time by 3 full days.
 
-At the top level, a lightweight embedding model handles the initial retrieval. It's fast—milliseconds fast—but relatively coarse. Think of it as casting a wide net. This gives us a candidate set of a few hundred documents from our billions.
+This required integrating our systems tightly with local carrier networks, optimizing customs clearance data flows, and implementing dynamic load balancing in our warehouses. 
 
-Then a more sophisticated cross-encoder re-ranks those candidates. This model is slower, but since it's only processing hundreds rather than billions of documents, the latency remains acceptable. The cross-encoder captures nuanced relationships that the embedding model misses.
+We also expanded our payment infrastructure to support BNPL and Apple Pay, creating a frictionless end-to-end experience. 
 
-Finally, for the top results, we apply a third layer: a fine-tuned language model that generates contextual snippets highlighting exactly why each result is relevant to the specific query. This is what creates that "magic" feeling when users see exactly what they were looking for, even when their query was vague.
-
-The architecture required significant infrastructure investment. We run embedding models on GPUs with aggressive caching. Our vector database is sharded across multiple regions to minimize network latency. And we've built sophisticated monitoring to detect when any part of the cascade is underperforming.
-
-But the results speak for themselves. Average query latency is under 100ms. User satisfaction scores for search are up 340% from V2. And we're handling ten times the query volume without breaking a sweat.
-
-For the technical readers: we'll be open-sourcing our evaluation framework next quarter. Stay tuned.`,
+The result is a logistics network that feels less like international shipping and more like local delivery.`,
         author: {
-            name: 'Dr. Elena Rostova',
-            role: 'Chief Technology Officer',
-            initials: 'ER'
+            name: 'Hang Poon',
+            role: 'Executive',
+            initials: 'HP'
         },
         publishedAt: '2026-02-10',
-        readTime: '12 min read',
-        category: 'Engineering',
-        tags: ['Technical', 'AI/ML', 'Search', 'Architecture', 'Product'],
+        readTime: '8 min read',
+        category: 'Operations',
+        tags: ['Logistics', 'Fulfillment', 'Taiwan', 'Japan', 'Operations'],
         featured: false,
-        relatedQuestId: 5,
-        relatedQuestTitle: 'Product Launch V3',
-        stats: { views: 15200, shares: 567 }
+        relatedQuestId: 3,
+        relatedQuestTitle: 'Japan-to-Taiwan Direct Fulfillment',
+        stats: { views: 15200, shares: 567 },
+        coverImage: 'https://images.unsplash.com/photo-1606964212858-c215029db704?q=80&w=1740&auto=format&fit=crop'
     }
 ];
 
@@ -603,76 +580,76 @@ export const getBlogPostsByQuestId = (questId: number): BlogPost[] => {
 // =============================================================================
 
 const MOCK_PRODUCTS: Record<number, any[]> = {
-    // AI Policy Framework quest - linked to "The Future of AI in Enterprise Communications" blog post
-    2: [
+    // AI Discovery Engine quest - linked to AI blog post
+    5: [
         {
             id: 1001,
-            title: 'The Future of AI in Enterprise Communications',
+            title: 'The Future of AI in Cross-Border E-Commerce',
             type: 'blog-post',
             status: 'published',
             wordCount: 1450,
             updatedAt: '2026-02-20',
-            subtitle: 'Why traditional PR is dying and what comes next',
-            excerpt: 'As AI reshapes how information flows through organizations, the old playbook of press releases and media lists is becoming obsolete.',
+            subtitle: 'How artificial intelligence is reshaping global shopping discovery',
+            excerpt: 'As consumers demand more personalized shopping experiences, AI is fundamentally altering how they discover and access global goods.',
             author: {
-                name: 'Mithil Aggarwal',
-                role: 'Chief Executive Officer',
-                initials: 'MA'
+                name: 'Tsz Ming Wong',
+                role: 'Executive',
+                initials: 'TW'
             },
             publishedAt: '2026-02-20',
-            readTime: '8 min read',
-            category: 'Thought Leadership',
-            tags: ['AI', 'Future of Work', 'Communications', 'Strategy'],
+            readTime: '6 min read',
+            category: 'Technology',
+            tags: ['AI', 'E-commerce', 'Innovation', 'Discovery'],
             featured: true,
             content: MOCK_BLOG_POSTS[0].content,
             stats: { views: 12400, shares: 342 }
         }
     ],
-    // Series B Funding quest - linked to "Series B Lessons" blog post
+    // Series C Funding quest - linked to Series C Lessons blog post
     1: [
         {
             id: 1002,
-            title: 'Series B Lessons: What $45M Taught Us About Storytelling',
+            title: 'Series C Lessons: Building a Borderless Shopping Experience',
             type: 'blog-post',
             status: 'published',
             wordCount: 980,
             updatedAt: '2026-02-15',
-            subtitle: 'The narrative frameworks that resonated with Andreessen Horowitz',
-            excerpt: 'Our recent funding round was about more than capital—it was a masterclass in how to craft a company narrative that cuts through the noise.',
+            subtitle: 'The vision that resonated with top-tier global investors',
+            excerpt: 'Our recent US$12M funding round was a testament to our mission of transforming cross-border shopping through technology and logistics leadership.',
             author: {
-                name: 'Sarah Jenkins',
-                role: 'Head of Communications',
-                initials: 'SJ'
+                name: 'Sheldon Li',
+                role: 'Co-founder',
+                initials: 'SL'
             },
             publishedAt: '2026-02-15',
-            readTime: '6 min read',
+            readTime: '5 min read',
             category: 'Company News',
-            tags: ['Funding', 'Startup Life', 'Storytelling', 'Lessons Learned'],
+            tags: ['Funding', 'Growth', 'Vision', 'Series C'],
             featured: false,
             content: MOCK_BLOG_POSTS[1].content,
             stats: { views: 8900, shares: 218 }
         }
     ],
-    // Product Launch V3 quest - linked to technical deep dive
-    5: [
+    // Japan-to-Taiwan Direct Fulfillment quest - linked to technical deep dive
+    3: [
         {
             id: 1003,
-            title: 'Building Neural Search: A Technical Deep Dive',
+            title: 'Building a Seamless Logistics Network: A Technical Deep Dive',
             type: 'blog-post',
             status: 'published',
             wordCount: 2100,
             updatedAt: '2026-02-10',
-            subtitle: 'How we achieved sub-100ms semantic search across billions of documents',
-            excerpt: 'Our engineering team shares the architecture decisions, trade-offs, and breakthroughs that powered the neural search capabilities in our V3 launch.',
+            subtitle: 'How we slashed delivery times with direct fulfillment routing',
+            excerpt: 'Our operations team shares the challenges and breakthroughs behind our new Japan-to-Taiwan direct fulfillment route.',
             author: {
-                name: 'Dr. Elena Rostova',
-                role: 'Chief Technology Officer',
-                initials: 'ER'
+                name: 'Hang Poon',
+                role: 'Executive',
+                initials: 'HP'
             },
             publishedAt: '2026-02-10',
-            readTime: '12 min read',
-            category: 'Engineering',
-            tags: ['Technical', 'AI/ML', 'Search', 'Architecture', 'Product'],
+            readTime: '8 min read',
+            category: 'Operations',
+            tags: ['Logistics', 'Fulfillment', 'Taiwan', 'Japan', 'Operations'],
             featured: false,
             content: MOCK_BLOG_POSTS[2].content,
             stats: { views: 15200, shares: 567 }
@@ -755,8 +732,120 @@ Best,
 // =============================================================================
 
 export const MOCK_QUEST_DOCS = [
-    { id: 1, name: 'Series B Press Release', type: 'doc', size: '24 KB' },
-    { id: 2, name: 'Founder Bio - Mithil Aggarwal', type: 'doc', size: '12 KB' },
-    { id: 3, name: 'Caybles Fact Sheet', type: 'sheet', size: '18 KB' },
-    { id: 4, name: 'Product Screenshots', type: 'image', size: '2.4 MB' },
+    { id: 1, name: 'Series C Press Release', type: 'doc', size: '24 KB' },
+    { id: 2, name: 'Founder Bio - Sheldon Li', type: 'doc', size: '12 KB' },
+    { id: 3, name: 'Buy&Ship Fact Sheet', type: 'sheet', size: '18 KB' },
+    { id: 4, name: 'App Screenshots', type: 'image', size: '2.4 MB' },
+];
+
+// =============================================================================
+// CALENDAR EVENTS
+// Derived from quest deadlines for consistent date management
+// =============================================================================
+
+export interface CalendarEvent {
+    id: number;
+    questId: number;
+    questTitle: string;
+    title: string;
+    date: string; // ISO format YYYY-MM-DD
+    time?: string;
+    type: 'embargo' | 'deadline' | 'launch';
+}
+
+// Helper to parse deadline string (e.g., "Mar 15, 9:00 AM") into CalendarEvent
+const parseQuestDeadline = (quest: Quest, index: number): CalendarEvent | null => {
+    if (!quest.deadline) return null;
+    
+    // Parse "Mar 15, 9:00 AM" or "Mar 15" format
+    const parts = quest.deadline.split(',');
+    const datePart = parts[0].trim(); // "Mar 15"
+    const timePart = parts[1]?.trim(); // "9:00 AM"
+    
+    // Convert month name to number
+    const monthMap: Record<string, string> = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+    };
+    
+    const [monthName, day] = datePart.split(' ');
+    const month = monthMap[monthName];
+    if (!month) return null;
+    
+    // Determine event type and title based on deadlineType
+    let eventType: CalendarEvent['type'] = 'deadline';
+    let eventTitle = quest.title;
+    
+    switch (quest.deadlineType) {
+        case 'embargo':
+            eventType = 'embargo';
+            eventTitle = `${quest.title} - Embargo`;
+            break;
+        case 'launch':
+            eventType = 'launch';
+            eventTitle = `${quest.title} - Launch`;
+            break;
+        default:
+            eventTitle = `${quest.title} - Review`;
+    }
+    
+    return {
+        id: index + 1,
+        questId: quest.id,
+        questTitle: quest.title,
+        title: eventTitle,
+        date: `2026-${month}-${day.padStart(2, '0')}`,
+        time: timePart,
+        type: eventType,
+    };
+};
+
+// Generate calendar events from quest deadlines
+export const MOCK_CALENDAR_EVENTS: CalendarEvent[] = MOCK_QUESTS
+    .map((quest, index) => parseQuestDeadline(quest, index))
+    .filter((event): event is CalendarEvent => event !== null);
+
+// =============================================================================
+// AI SUGGESTED QUEST IDEAS
+// Generated based on existing quests and brand documents
+// =============================================================================
+
+export interface AIQuestSuggestion {
+    id: string;
+    title: string;
+    synopsis: string;
+    type: 'Press Release' | 'Blog Post' | 'Strategy Memo';
+    reasoning: string;
+    confidence: number;
+    basedOn: string[];
+}
+
+export const AI_SUGGESTED_QUESTS: AIQuestSuggestion[] = [
+    {
+        id: 'suggestion-1',
+        title: 'Q2 Product Roadmap Announcement',
+        synopsis: 'Share upcoming features and product direction for Q2, building on the V3 launch momentum.',
+        type: 'Blog Post',
+        reasoning: 'Based on your recent Product Launch V3 and upcoming deadlines',
+        confidence: 92,
+        basedOn: ['Product Launch V3', 'Q1 Strategy Memo']
+    },
+    {
+        id: 'suggestion-2',
+        title: 'Customer Success Story: Enterprise Onboarding',
+        synopsis: 'Case study highlighting how enterprise customers are deploying the platform at scale.',
+        type: 'Press Release',
+        reasoning: 'Complements your Partnership PR and Series B narrative',
+        confidence: 87,
+        basedOn: ['Partnership Press Release', 'Series B Funding']
+    },
+    {
+        id: 'suggestion-3',
+        title: 'Engineering Culture Deep Dive',
+        synopsis: 'Behind-the-scenes look at how the engineering team ships products, featuring insights from your new CTO.',
+        type: 'Blog Post',
+        reasoning: 'Leverages recent New CTO Appointment announcement',
+        confidence: 84,
+        basedOn: ['New CTO Appointment', 'Building Neural Search blog post']
+    }
 ];
