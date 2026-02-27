@@ -598,9 +598,7 @@ export const getBlogPostsByQuestId = (questId: number): BlogPost[] => {
 // These are pre-populated into sessionStorage for demo purposes
 // =============================================================================
 
-import type { ProductOutput } from './ProductSection';
-
-const MOCK_PRODUCTS: Record<number, ProductOutput[]> = {
+const MOCK_PRODUCTS: Record<number, any[]> = {
     // AI Policy Framework quest - linked to "The Future of AI in Enterprise Communications" blog post
     2: [
         {
@@ -680,11 +678,14 @@ const MOCK_PRODUCTS: Record<number, ProductOutput[]> = {
 
 // Initialize mock products in sessionStorage (for demo purposes)
 export const initializeMockProducts = () => {
+    // Clear existing product data first to ensure fresh mock data
+    Object.keys(MOCK_PRODUCTS).forEach((questId) => {
+        const storageKey = `quest_products_${questId}`;
+        sessionStorage.removeItem(storageKey);
+    });
+    // Set mock products
     Object.entries(MOCK_PRODUCTS).forEach(([questId, products]) => {
         const storageKey = `quest_products_${questId}`;
-        const existing = sessionStorage.getItem(storageKey);
-        if (!existing) {
-            sessionStorage.setItem(storageKey, JSON.stringify(products));
-        }
+        sessionStorage.setItem(storageKey, JSON.stringify(products));
     });
 };
